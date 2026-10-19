@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/QuizCard.Services/QuizCard.Services.csproj" />
+    <Project Path="src/QuizCard.UI/QuizCard.UI.csproj" />
+  </Folder>
+</Solution>
