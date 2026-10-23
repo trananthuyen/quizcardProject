@@ -1,0 +1,120 @@
+/* ============================================================
+   HelpModal.css
+   Styles cho component HelpModal (hướng dẫn và phím tắt)
+   ============================================================ */
+
+.hm-modal-content {
+  max-width: 540px;
+}
+
+.hm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.hm-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hm-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #0d99ff;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hm-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.hm-subtitle {
+  font-size: 12px;
+  color: #71717a;
+}
+
+.hm-close-btn {
+  color: #71717a;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.hm-close-btn:hover {
+  background-color: #f1f5f9;
+  color: #18181b;
+}
+
+.hm-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 13px;
+  color: #334155;
+}
+
+.hm-card {
+  background: #f8fafc;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.hm-card-title {
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.hm-list {
+  padding-left: 18px;
+  margin: 0;
+  line-height: 1.6;
+  color: #475569;
+}
+
+.hm-desc {
+  margin: 0;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.hm-footer {
+  margin-top: 20px;
+  text-align: right;
+}
+
+.hm-confirm-btn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  background-color: #0d99ff;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s;
+}
+
+.hm-confirm-btn:hover {
+  opacity: 0.9;
+}
+

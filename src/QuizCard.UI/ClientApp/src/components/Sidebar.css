@@ -1,0 +1,271 @@
+/* ============================================================
+   Sidebar.css
+   Styles cho component Sidebar và Plan/Upgrade Modal
+   ============================================================ */
+
+.sb-nav-sublist {
+  padding-left: 4px;
+}
+
+.sb-plan-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #18181b;
+}
+
+.sb-plan-desc {
+  font-size: 11px;
+  color: #71717a;
+}
+
+.sb-starred-section {
+  margin-top: 8px;
+}
+
+.sb-upgrade-icon-circle {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Modal Kế hoạch & Nâng cấp */
+.sb-plan-modal-content {
+  max-width: 480px;
+}
+
+.sb-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sb-modal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sb-modal-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #0d99ff;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sb-modal-title {
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.sb-modal-subtitle {
+  font-size: 12px;
+  color: #71717a;
+}
+
+.sb-modal-close-btn {
+  color: #71717a;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.sb-modal-close-btn:hover {
+  background-color: #f1f5f9;
+  color: #18181b;
+}
+
+.sb-feature-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.sb-feature-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #1e293b;
+}
+
+.sb-feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.sb-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sb-modal-footer {
+  display: flex;
+  gap: 10px;
+}
+
+.sb-btn-create-deck {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #0d99ff;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.sb-btn-create-deck:hover {
+  opacity: 0.9;
+}
+
+.sb-btn-modal-close {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  color: #475569;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.sb-btn-modal-close:hover {
+  background-color: #f8fafc;
+}
+
+
+/* ============================================================
+   Sidebar Edge Toggle (Nút đóng mở ở mép giữa sidebar)
+   ============================================================ */
+
+.qc-sidebar-wrapper {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 30;
+  flex-shrink: 0;
+  display: flex;
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.qc-sidebar-wrapper.collapsed {
+  display: none;
+}
+
+.qc-sidebar-inner {
+  width: 226px;
+  min-width: 226px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  flex-shrink: 0;
+}
+
+/* Nút bấm ở mép giữa sidebar */
+.qc-sidebar-edge-toggle {
+  position: absolute;
+  float: left;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #71717a;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0;
+  outline: none;
+}
+
+/* Khi sidebar đang mở: nút tròn nằm cân đối trên đường viền mép sidebar */
+.qc-sidebar-edge-toggle:not(.collapsed) {
+  right: -12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.qc-sidebar-edge-toggle:not(.collapsed):hover {
+  background-color: #ffffff;
+  color: #0d99ff;
+  border-color: #0d99ff;
+  box-shadow: 0 2px 10px rgba(13, 153, 255, 0.28);
+  transform: translateY(-50%) scale(1.15);
+}
+
+/* Khi sidebar đang đóng: nút dạng thẻ tab bo tròn áp sát mép trái màn hình */
+.qc-sidebar-edge-toggle.collapsed {
+  left: 0;
+  right: auto;
+  width: 22px;
+  height: 44px;
+  border-radius: 0 10px 10px 0;
+  border-left: none;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.08);
+  background-color: #ffffff;
+  color: #0d99ff;
+}
+
+.qc-sidebar-edge-toggle.collapsed:hover {
+  width: 26px;
+  background-color: #f0f7fe;
+  color: #0d99ff;
+  border-color: #0d99ff;
+  box-shadow: 2px 4px 12px rgba(13, 153, 255, 0.25);
+}
+
+.qc-sidebar-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.qc-sidebar-close-btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: #71717a;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.qc-sidebar-close-btn:hover {
+  background-color: #f4f4f5;
+  color: #18181b;
+}

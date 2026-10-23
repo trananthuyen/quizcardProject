@@ -1,0 +1,66 @@
+/* ============================================================
+   TrashView.css
+   Styles cho khu vực Thùng rác (Trash)
+   ============================================================ */
+
+.tv-container {
+  padding: 40px 28px 60px 28px;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.tv-empty-box {
+  background: #ffffff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 16px;
+  padding: 60px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.tv-icon-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background-color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+}
+
+.tv-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.tv-desc {
+  font-size: 14px;
+  color: #64748b;
+  max-width: 440px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.tv-btn-home {
+  margin-top: 8px;
+  padding: 8px 20px;
+  border-radius: 20px;
+  background-color: #0d99ff;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.tv-btn-home:hover {
+  opacity: 0.9;
+}
+

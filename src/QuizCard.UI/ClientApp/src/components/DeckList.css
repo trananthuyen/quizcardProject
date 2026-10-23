@@ -1,0 +1,449 @@
+/* ============================================================
+   DeckList.css
+   Styles cho component DeckList và các Modal liên quan
+   ============================================================ */
+
+/* Feed Header */
+.dl-feed-count {
+  font-size: 12px;
+  font-weight: 500;
+  color: #71717a;
+  margin-left: 6px;
+}
+
+.dl-btn-create-deck-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background-color: #0d99ff;
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.dl-btn-create-deck-header:hover {
+  opacity: 0.9;
+}
+
+/* Loading State */
+.dl-loading {
+  text-align: center;
+  padding: 60px 0;
+  color: #71717a;
+}
+
+.dl-loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #0d99ff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 12px auto;
+}
+
+.dl-loading-text {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Empty State */
+.dl-empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  background: #f8fafc;
+  border-radius: 16px;
+  border: 1px dashed #cbd5e1;
+  margin-top: 20px;
+}
+
+.dl-empty-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.dl-empty-desc {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 16px;
+}
+
+.dl-btn-empty-create {
+  padding: 8px 20px;
+  border-radius: 20px;
+  background-color: #0d99ff;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.dl-btn-empty-create:hover {
+  opacity: 0.9;
+}
+
+/* Modal 1: Tạo / Sửa Bộ Thẻ */
+.dl-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #18181b;
+}
+
+.dl-modal-subtitle {
+  font-size: 12.5px;
+  color: #71717a;
+  margin-bottom: 18px;
+}
+
+.dl-error-box {
+  background-color: #fee2e2;
+  color: #991b1b;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  margin-bottom: 14px;
+}
+
+.dl-form-field {
+  margin-bottom: 14px;
+}
+
+.dl-form-label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.dl-required {
+  color: #ef4444;
+}
+
+.dl-form-field-cat {
+  margin-bottom: 16px;
+}
+
+.dl-cat-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.dl-btn-quick-new-cat {
+  font-size: 12px;
+  color: #0d99ff;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.dl-cat-input {
+  margin-bottom: 8px;
+}
+
+.dl-cat-suggest-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.dl-cat-suggest-label {
+  font-size: 11.5px;
+  color: #71717a;
+}
+
+.dl-cat-suggest-btn {
+  font-size: 11.5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background-color: #f4f4f5;
+  color: #3f3f46;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.15s;
+}
+
+.dl-cat-suggest-btn.active {
+  background-color: #0d99ff;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.dl-form-field-desc {
+  margin-bottom: 20px;
+}
+
+.dl-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.dl-btn-cancel {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #71717a;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.dl-btn-submit {
+  background-color: #0d99ff;
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.dl-btn-submit:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.dl-btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Modal 2: Quản lý phân loại */
+.dl-cat-modal-content {
+  max-width: 560px;
+}
+
+.dl-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.dl-cat-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #18181b;
+}
+
+.dl-cat-modal-subtitle {
+  font-size: 12.5px;
+  color: #71717a;
+  margin-top: 2px;
+}
+
+.dl-btn-icon-close {
+  padding: 4px;
+  color: #71717a;
+  border-radius: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dl-btn-icon-close:hover {
+  background-color: #f1f5f9;
+  color: #18181b;
+}
+
+.dl-cat-form-box {
+  background-color: #f8fafc;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 20px;
+}
+
+.dl-cat-form-row {
+  margin-bottom: 10px;
+}
+
+.dl-cat-form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.dl-cat-name-input {
+  background-color: #ffffff;
+}
+
+.dl-icon-preview {
+  font-size: 15px;
+  margin-left: 4px;
+}
+
+.dl-icon-grid {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.dl-icon-btn {
+  font-size: 15px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.dl-icon-btn.selected {
+  background-color: #e0f2fe;
+  border: 2px solid #0d99ff;
+}
+
+.dl-color-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.dl-color-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.15s;
+}
+
+.dl-color-btn:hover {
+  transform: scale(1.15);
+}
+
+.dl-color-btn.selected {
+  border: 3px solid #0f172a;
+}
+
+.dl-cat-form-submit-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.dl-btn-cat-submit {
+  background-color: #0d99ff;
+  color: #fff;
+  padding: 7px 16px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.dl-btn-cat-submit:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.dl-btn-cat-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dl-cat-list-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #18181b;
+}
+
+.dl-cat-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.dl-cat-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.dl-cat-item-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dl-cat-item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #18181b;
+}
+
+.dl-cat-item-count {
+  font-size: 11px;
+  color: #71717a;
+}
+
+.dl-btn-cat-delete {
+  color: #ef4444;
+  padding: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+}
+
+.dl-btn-cat-delete:hover {
+  background-color: #fee2e2;
+}
+
+.dl-cat-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.dl-btn-cat-close {
+  padding: 7px 16px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  background-color: #f1f5f9;
+  color: #18181b;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.dl-btn-cat-close:hover {
+  background-color: #e2e8f0;
+}
+

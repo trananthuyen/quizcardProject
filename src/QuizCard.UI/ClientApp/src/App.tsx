@@ -1,41 +1,46 @@
 /**
  * File App.tsx: Component gốc (Root Component) của ứng dụng Frontend.
  * Đóng vai trò điều phối chính:
- * 1. Quản lý trạng thái màn hình hiện tại (view: 'DECKS' | 'CARDS' | 'STUDY' | 'QUIZ').
- * 2. Lưu trữ danh sách bộ thẻ (decks), bộ thẻ đang chọn (selectedDeck), danh sách thẻ con (cards).
- * 3. Chứa các hàm xử lý gọi API (Handlers) và truyền props xuống cho các Component con.
+ * 1. Điều phối màn hình theo Sidebar (Community, My Resources, Videos, Recents, Drafts, Folders, Trash)
+ * 2. Điều phối các chế độ học: Quản lý thẻ (CARDS), Học lật thẻ 3D (STUDY), Luyện thi trắc nghiệm (QUIZ)
+ * 3. Quản lý trạng thái dữ liệu tập trung (Decks, Cards, Categories) và đồng bộ URL Hash.
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import type { Deck, Card, Category } from './types';
 import { api } from './api';
-import { Navbar } from './components/Navbar';
+import { Sidebar, type SidebarTab } from './components/Sidebar';
 import { DeckList } from './components/DeckList';
+import { MyResources } from './components/MyResources';
+import { VideoTutorials } from './components/VideoTutorials';
+import { FolderList } from './components/FolderList';
+import { TrashView } from './components/TrashView';
 import { CardManager } from './components/CardManager';
 import { StudyArena } from './components/StudyArena';
 import { QuizArena } from './components/QuizArena';
+import { DeckModal } from './components/DeckModal';
+import { CategoryModal } from './components/CategoryModal';
+
+import { Search } from 'lucide-react';
+import './App.css';
 
 export type ViewType = 'DECKS' | 'CARDS' | 'STUDY' | 'QUIZ';
 
 interface ParsedRoute {
   view: ViewType;
   deckId?: string;
+  tab?: SidebarTab;
 }
 
 /**
- * Phân tích URL Hash để lấy trạng thái màn hình và ID bộ thẻ.
- * Định dạng hỗ trợ:
- * - '#/decks' hoặc rỗng: Danh sách bộ thẻ (Trang chủ)
- * - '#/cards/{deckId}': Quản lý danh sách thẻ flashcard
- * - '#/study/{deckId}': Phòng học lật thẻ 3D (Study Mode)
- * - '#/quiz/{deckId}': Luyện thi trắc nghiệm (Quiz Mode)
+ * Phân tích URL Hash để lấy trạng thái màn hình, tab sidebar và ID bộ thẻ.
  */
 const parseRoute = (hash: string): ParsedRoute => {
   const clean = hash.replace(/^#\/?/, '');
   const parts = clean.split('/').filter(Boolean);
 
   if (parts.length === 0) {
-    return { view: 'DECKS' };
+    return { view: 'DECKS', tab: 'community' };
   }
 
   const segment = parts[0].toLowerCase();
@@ -51,7 +56,12 @@ const parseRoute = (hash: string): ParsedRoute => {
     return { view: 'QUIZ', deckId };
   }
 
-  return { view: 'DECKS' };
+  const validTabs: SidebarTab[] = ['community', 'resources', 'video', 'recents', 'drafts', 'folders', 'trash'];
+  if (validTabs.includes(segment as SidebarTab)) {
+    return { view: 'DECKS', tab: segment as SidebarTab };
+  }
+
+  return { view: 'DECKS', tab: 'community' };
 };
 
 /**
@@ -67,7 +77,7 @@ const getInitialHash = (): string => {
       return saved;
     }
   } catch {}
-  return '#/decks';
+  return '#/community';
 };
 
 export const App: React.FC = () => {
@@ -76,6 +86,9 @@ export const App: React.FC = () => {
 
   // Trạng thái điều hướng màn hình: 'DECKS' | 'CARDS' | 'STUDY' | 'QUIZ'
   const [view, setView] = useState<ViewType>(initialRoute.view);
+
+  // Tab Sidebar hiện đang hoạt động
+  const [activeTab, setActiveTab] = useState<SidebarTab>(initialRoute.tab || 'community');
 
   // Danh sách toàn bộ các bộ thẻ lấy từ Backend
   const [decks, setDecks] = useState<Deck[]>([]);
@@ -98,6 +111,51 @@ export const App: React.FC = () => {
 
   // Trạng thái hiển thị loading khi tải danh sách thẻ con
   const [loadingCards, setLoadingCards] = useState(false);
+
+  // Điều khiển mở Modal Tạo / Sửa bộ thẻ tập trung
+  const [isDeckModalOpen, setIsDeckModalOpen] = useState(false);
+  const [editingDeck, setEditingDeck] = useState<Deck | null>(null);
+
+  // Điều khiển mở Modal Quản lý phân loại tập trung
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+
+  // Từ khóa tìm kiếm toàn cục (đồng bộ giữa Sidebar và Topbar)
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Bộ lọc danh mục đang chọn (ALL, STUDIED, NOT_STARTED, hoặc tên Category)
+  const [selectedFilter, setSelectedFilter] = useState('ALL');
+
+  // Trạng thái đóng / mở sidebar (lưu lựa chọn vào localStorage)
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('quizcard_sidebar_open');
+      return saved !== null ? saved === 'true' : true;
+    } catch {
+      return true;
+    }
+  });
+
+  const toggleSidebar = useCallback(() => {
+    setIsSidebarOpen((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('quizcard_sidebar_open', String(next));
+      } catch {}
+      return next;
+    });
+  }, []);
+
+  // Hỗ trợ phím tắt bàn phím Ctrl+B để đóng/mở sidebar
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+        e.preventDefault();
+        toggleSidebar();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [toggleSidebar]);
 
   // ==========================================================================
   // HÀM TẢI DỮ LIỆU TỪ SERVER (DATA FETCHING)
@@ -130,7 +188,7 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  // Gọi tải danh sách bộ thẻ và phân loại ngay khi ứng dụng vừa mount
+  // Gọi tải danh sách bộ thẻ và phân loại ngay khi ứng dụng mount
   useEffect(() => {
     loadDecks();
     loadCategories();
@@ -152,20 +210,14 @@ export const App: React.FC = () => {
   }, []);
 
   // ==========================================================================
-  // CÁC HÀM XỬ LÝ BỘ THẺ (DECK HANDLERS)
+  // CÁC HÀM XỬ LÝ BỘ THẺ (DECK CRUD HANDLERS)
   // ==========================================================================
 
-  /**
-   * Tạo bộ thẻ mới và làm mới lại danh sách
-   */
   const handleCreateDeck = async (data: { title: string; description?: string; category?: string }) => {
     await api.createDeck(data);
     await loadDecks();
   };
 
-  /**
-   * Cập nhật thông tin bộ thẻ (tên, mô tả, phân loại)
-   */
   const handleUpdateDeck = async (id: string, data: { title: string; description?: string; category?: string }) => {
     await api.updateDeck(id, data);
     await loadDecks();
@@ -174,73 +226,53 @@ export const App: React.FC = () => {
     }
   };
 
-  /**
-   * Xóa một bộ thẻ và quay về danh sách nếu đang ở bộ thẻ đó
-   */
   const handleDeleteDeck = async (id: string) => {
     await api.deleteDeck(id);
     await loadDecks();
     if (selectedDeck && selectedDeck.id === id) {
       setSelectedDeck(null);
+      selectedDeckRef.current = null;
       setView('DECKS');
     }
   };
 
   // ==========================================================================
-  // CÁC HÀM XỬ LÝ PHÂN LOẠI (CATEGORY HANDLERS)
+  // CÁC HÀM XỬ LÝ PHÂN LOẠI (CATEGORY CRUD HANDLERS)
   // ==========================================================================
 
-  /**
-   * Tạo một phân loại bộ thẻ mới
-   */
   const handleCreateCategory = async (data: { name: string; description?: string; icon?: string; color?: string }) => {
     const created = await api.createCategory(data);
     await loadCategories();
     return created;
   };
 
-  /**
-   * Cập nhật phân loại bộ thẻ
-   */
   const handleUpdateCategory = async (id: string, data: { name: string; description?: string; icon?: string; color?: string }) => {
     const updated = await api.updateCategory(id, data);
     await Promise.all([loadCategories(), loadDecks()]);
     return updated;
   };
 
-  /**
-   * Xóa một phân loại bộ thẻ
-   */
   const handleDeleteCategory = async (id: string) => {
     await api.deleteCategory(id);
     await Promise.all([loadCategories(), loadDecks()]);
   };
 
   // ==========================================================================
-  // CÁC HÀM XỬ LÝ THẺ FLASHCARD (CARD HANDLERS)
+  // CÁC HÀM XỬ LÝ THẺ FLASHCARD (CARD CRUD HANDLERS)
   // ==========================================================================
 
-  /**
-   * Thêm một thẻ lẻ vào bộ thẻ
-   */
   const handleCreateCard = async (deckId: string, data: { term: string; definition: string; example?: string }) => {
     await api.createCard(deckId, data);
     await loadCards(deckId);
     await loadDecks();
   };
 
-  /**
-   * Thêm hàng loạt nhiều thẻ từ chuỗi văn bản (Bulk Import)
-   */
   const handleBatchCreateCards = async (deckId: string, batchCards: Array<{ term: string; definition: string; example?: string }>) => {
     await api.createCardsBatch(deckId, batchCards);
     await loadCards(deckId);
     await loadDecks();
   };
 
-  /**
-   * Cập nhật nội dung thẻ
-   */
   const handleUpdateCard = async (id: string, data: { term: string; definition: string; example?: string }) => {
     await api.updateCard(id, data);
     if (selectedDeck) {
@@ -249,9 +281,6 @@ export const App: React.FC = () => {
     await loadDecks();
   };
 
-  /**
-   * Xóa một thẻ
-   */
   const handleDeleteCard = async (id: string) => {
     await api.deleteCard(id);
     if (selectedDeck) {
@@ -261,21 +290,57 @@ export const App: React.FC = () => {
   };
 
   // ==========================================================================
-  // CÁC HÀM ĐIỀU HƯỚNG MÀN HÌNH (NAVIGATION & ROUTE SYNCHRONIZATION)
+  // ĐIỀU PHỐI GIAO DIỆN KHI TƯƠNG TÁC VỚI SIDEBAR VÀ ROUTING
   // ==========================================================================
 
   /**
+   * Chuyển tab Sidebar và điều phối giao diện tương ứng
+   */
+  const handleSelectTab = useCallback((tab: SidebarTab) => {
+    setActiveTab(tab);
+    if (view !== 'DECKS') {
+      setView('DECKS');
+      setSelectedDeck(null);
+      selectedDeckRef.current = null;
+    }
+
+    if (tab === 'community') {
+      setSelectedFilter('ALL');
+      window.location.hash = '#/community';
+    } else if (tab === 'resources') {
+      setSelectedFilter('ALL');
+      window.location.hash = '#/resources';
+    } else if (tab === 'video') {
+      window.location.hash = '#/video';
+    } else if (tab === 'recents') {
+      setSelectedFilter('STUDIED');
+      window.location.hash = '#/recents';
+    } else if (tab === 'drafts') {
+      setSelectedFilter('NOT_STARTED');
+      window.location.hash = '#/drafts';
+    } else if (tab === 'folders') {
+      window.location.hash = '#/folders';
+    } else if (tab === 'trash') {
+      window.location.hash = '#/trash';
+    }
+
+    try {
+      sessionStorage.setItem('quizcard_last_hash', window.location.hash);
+    } catch {}
+  }, [view]);
+
+  /**
    * Điều hướng chuyển màn hình, đồng bộ URL Hash và lưu vào sessionStorage
-   * Giúp trình duyệt khi Refresh (F5) hoặc bấm Back/Forward vẫn giữ nguyên trang cũ
    */
   const navigateTo = useCallback((newView: ViewType, deck?: Deck | null) => {
     if (newView === 'DECKS' || !deck) {
       setSelectedDeck(null);
       selectedDeckRef.current = null;
       setView('DECKS');
-      window.location.hash = '#/decks';
+      const hash = `#/${activeTab}`;
+      window.location.hash = hash;
       try {
-        sessionStorage.setItem('quizcard_last_hash', '#/decks');
+        sessionStorage.setItem('quizcard_last_hash', hash);
       } catch {}
     } else {
       setSelectedDeck(deck);
@@ -288,11 +353,10 @@ export const App: React.FC = () => {
         sessionStorage.setItem('quizcard_last_hash', newHash);
       } catch {}
     }
-  }, []);
+  }, [activeTab]);
 
   /**
    * Theo dõi sự kiện hashchange của trình duyệt hoặc khi khởi chạy ứng dụng (F5 / Refresh)
-   * Tự động khôi phục dữ liệu bộ thẻ và trạng thái trang tương ứng
    */
   useEffect(() => {
     const syncRouteWithHash = async () => {
@@ -300,12 +364,12 @@ export const App: React.FC = () => {
       if (!currentHash || currentHash === '#' || currentHash === '#/') {
         try {
           const savedHash = sessionStorage.getItem('quizcard_last_hash');
-          if (savedHash && savedHash !== '#/decks' && savedHash !== '#' && savedHash !== '#/') {
+          if (savedHash && savedHash !== '#' && savedHash !== '#/') {
             window.location.hash = savedHash;
             return;
           }
         } catch {}
-        currentHash = '#/decks';
+        currentHash = '#/community';
       }
 
       try {
@@ -314,9 +378,11 @@ export const App: React.FC = () => {
 
       const route = parseRoute(currentHash);
       setView(route.view);
+      if (route.tab) {
+        setActiveTab(route.tab);
+      }
 
       if (route.deckId) {
-        // Nếu bộ thẻ chưa được nạp hoặc khác với bộ thẻ hiện tại
         if (!selectedDeckRef.current || selectedDeckRef.current.id !== route.deckId) {
           try {
             setRestoringDeck(true);
@@ -328,7 +394,6 @@ export const App: React.FC = () => {
             }
           } catch (err) {
             console.error('Không tìm thấy bộ thẻ khi khôi phục trang:', err);
-            // Nếu không tìm thấy bộ thẻ (ví dụ đã bị xóa), quay về danh sách bộ thẻ
             navigateTo('DECKS');
           } finally {
             setRestoringDeck(false);
@@ -354,7 +419,7 @@ export const App: React.FC = () => {
   }, [loadCards, navigateTo]);
 
   /**
-   * Quay về trang chủ danh sách bộ thẻ
+   * Quay về trang chủ bộ thẻ
    */
   const handleGoHome = () => {
     navigateTo('DECKS');
@@ -383,109 +448,315 @@ export const App: React.FC = () => {
     navigateTo('QUIZ', deck);
   };
 
+  /**
+   * Mở modal tạo mới bộ thẻ
+   */
+  const handleOpenCreateDeck = () => {
+    setEditingDeck(null);
+    setIsDeckModalOpen(true);
+  };
+
+  /**
+   * Mở modal chỉnh sửa bộ thẻ
+   */
+  const handleOpenEditDeck = (deck: Deck) => {
+    setEditingDeck(deck);
+    setIsDeckModalOpen(true);
+  };
+
+  /**
+   * Tiêu đề hiển thị động trên Topbar theo SidebarTab
+   */
+  const getPageTitle = () => {
+    switch (activeTab) {
+      case 'resources':
+        return 'My Resources';
+      case 'video':
+        return 'Videos & Tutorials';
+      case 'recents':
+        return 'Recents';
+      case 'drafts':
+        return 'Drafts';
+      case 'folders':
+        return 'All Folders';
+      case 'trash':
+        return 'Trash';
+      case 'community':
+      default:
+        return 'Community';
+    }
+  };
+
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Thanh điều hướng cố định trên cùng */}
-      <Navbar onGoHome={handleGoHome} />
+    <div className="qc-app-container">
+      {/* 1. Thanh Sidebar điều phối chính bên trái */}
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onToggle={toggleSidebar}
+        currentView={view}
+        activeTab={activeTab}
+        onSelectTab={handleSelectTab}
+        onNavigateHome={handleGoHome}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onOpenCreateDeck={handleOpenCreateDeck}
+        onOpenCategories={() => setIsCategoryModalOpen(true)}
+        selectedFilter={selectedFilter}
+        onSelectFilter={setSelectedFilter}
+        categories={categories}
+      />
 
-      {/* Nội dung chính thay đổi linh hoạt theo trạng thái 'view' */}
-      <main style={{ flex: 1 }}>
-        {/* Hiển thị màn hình chờ khi đang khôi phục dữ liệu bộ thẻ sau khi Refresh F5 */}
-        {restoringDeck && (
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '60vh',
-            gap: '16px',
-          }}>
-            <div style={{
-              width: '42px',
-              height: '42px',
-              border: '3px solid #e2e8f0',
-              borderTopColor: 'var(--primary)',
-              borderRadius: '50%',
-              animation: 'spin 0.8s linear infinite',
-            }} />
-            <style>{`
-              @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-              }
-            `}</style>
-            <div style={{ fontSize: '15px', color: 'var(--text-muted)', fontWeight: 600 }}>
-              Đang tải bộ thẻ và khôi phục màn hình học...
-            </div>
+      {/* 2. Vùng nội dung chính bên phải */}
+      <div className="qc-main-area">
+        {/* Topbar điều hướng trên cùng */}
+        <header className="qc-topbar">
+          <div className="qc-topbar-left">
+            {view === 'DECKS' ? (
+              <span className="qc-page-title">{getPageTitle()}</span>
+            ) : (
+              <div className="qc-breadcrumb">
+                <button 
+                  onClick={handleGoHome} 
+                  className="qc-breadcrumb-back"
+                >
+                  ← {getPageTitle()}
+                </button>
+                <span className="qc-breadcrumb-sep">/</span>
+                <span className="qc-breadcrumb-current">{selectedDeck?.title}</span>
+                <span className="qc-breadcrumb-sep">/</span>
+                <span className="qc-breadcrumb-sub">
+                  {view === 'STUDY' ? 'Học lật thẻ 3D' : view === 'QUIZ' ? 'Luyện thi trắc nghiệm' : 'Quản lý thẻ'}
+                </span>
+              </div>
+            )}
           </div>
-        )}
 
-        {/* VIEW 1: Danh sách các bộ thẻ */}
-        {!restoringDeck && view === 'DECKS' && (
-          <DeckList
-            decks={decks}
-            categories={categories}
-            loading={loadingDecks}
-            onCreateDeck={handleCreateDeck}
-            onUpdateDeck={handleUpdateDeck}
-            onDeleteDeck={handleDeleteDeck}
-            onCreateCategory={handleCreateCategory}
-            onUpdateCategory={handleUpdateCategory}
-            onDeleteCategory={handleDeleteCategory}
-            onSelectDeckForStudy={handleSelectDeckForStudy}
-            onSelectDeckForQuiz={handleSelectDeckForQuiz}
-            onSelectDeckForCards={handleSelectDeckForCards}
-          />
-        )}
+          <div className="qc-topbar-search">
+            <Search size={14} className="qc-topbar-search-icon" />
+            <input 
+              type="text" 
+              placeholder={`Search ${getPageTitle()}`}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </header>
 
-        {/* VIEW 2: Màn hình quản lý thẻ (Thêm/Sửa/Xóa/Tìm kiếm/Nhập từ chuỗi) */}
-        {!restoringDeck && view === 'CARDS' && selectedDeck && (
-          <CardManager
-            deck={selectedDeck}
-            cards={cards}
-            loading={loadingCards}
-            onBack={handleGoHome}
-            onStartStudy={() => navigateTo('STUDY', selectedDeck)}
-            onStartQuiz={() => navigateTo('QUIZ', selectedDeck)}
-            onCreateCard={handleCreateCard}
-            onBatchCreateCards={handleBatchCreateCards}
-            onUpdateCard={handleUpdateCard}
-            onDeleteCard={handleDeleteCard}
-          />
-        )}
+        {/* Nội dung thay đổi theo view và sidebar tab */}
+        <main className="qc-main-scroll">
+          {/* Màn hình chờ khi khôi phục trang sau F5 */}
+          {restoringDeck && (
+            <div className="qc-restoring-state">
+              <div className="qc-restoring-spinner" />
+              <div className="qc-restoring-text">
+                Đang tải dữ liệu và khôi phục màn hình học...
+              </div>
+            </div>
+          )}
 
-        {/* VIEW 3: Chế độ Học Lật Thẻ 3D (Study Mode) */}
-        {!restoringDeck && view === 'STUDY' && selectedDeck && (
-          <StudyArena
-            deck={selectedDeck}
-            onExit={handleGoHome}
-            onGoToCards={() => navigateTo('CARDS', selectedDeck)}
-            onGoToQuiz={() => navigateTo('QUIZ', selectedDeck)}
-          />
-        )}
+          {/* VIEW 1: Quản lý chi tiết danh sách thẻ flashcard */}
+          {!restoringDeck && view === 'CARDS' && selectedDeck && (
+            <div className="qc-view-wrapper-wide">
+              <CardManager
+                deck={selectedDeck}
+                cards={cards}
+                loading={loadingCards}
+                onBack={handleGoHome}
+                onStartStudy={() => navigateTo('STUDY', selectedDeck)}
+                onStartQuiz={() => navigateTo('QUIZ', selectedDeck)}
+                onCreateCard={handleCreateCard}
+                onBatchCreateCards={handleBatchCreateCards}
+                onUpdateCard={handleUpdateCard}
+                onDeleteCard={handleDeleteCard}
+              />
+            </div>
+          )}
 
-        {/* VIEW 4: Chế độ Luyện Thi Trắc Nghiệm (Quiz Mode) */}
-        {!restoringDeck && view === 'QUIZ' && selectedDeck && (
-          <QuizArena
-            deck={selectedDeck}
-            onExit={handleGoHome}
-            onGoToStudy={() => navigateTo('STUDY', selectedDeck)}
-            onGoToCards={() => navigateTo('CARDS', selectedDeck)}
-          />
-        )}
-      </main>
+          {/* VIEW 2: Chế độ Học Lật Thẻ 3D (Study Mode) */}
+          {!restoringDeck && view === 'STUDY' && selectedDeck && (
+            <div className="qc-view-wrapper">
+              <StudyArena
+                deck={selectedDeck}
+                onExit={handleGoHome}
+                onGoToCards={() => navigateTo('CARDS', selectedDeck)}
+                onGoToQuiz={() => navigateTo('QUIZ', selectedDeck)}
+              />
+            </div>
+          )}
 
-      {/* Chân trang */}
-      <footer style={{
-        textAlign: 'center',
-        padding: '24px 20px',
-        borderTop: '1px solid var(--border)',
-        color: 'var(--text-muted)',
-        fontSize: '13px',
-        backgroundColor: '#ffffff',
-      }}>
-        QuizCard • Hệ thống ghi nhớ Flashcard theo phương pháp Lặp lại ngắt quãng (Spaced Repetition)
-      </footer>
+          {/* VIEW 3: Chế độ Luyện Thi Trắc Nghiệm (Quiz Mode) */}
+          {!restoringDeck && view === 'QUIZ' && selectedDeck && (
+            <div className="qc-view-wrapper">
+              <QuizArena
+                deck={selectedDeck}
+                onExit={handleGoHome}
+                onGoToStudy={() => navigateTo('STUDY', selectedDeck)}
+                onGoToCards={() => navigateTo('CARDS', selectedDeck)}
+              />
+            </div>
+          )}
+
+          {/* VIEW 4: Các tab màn hình tương tác từ Sidebar khi ở view === 'DECKS' */}
+          {!restoringDeck && view === 'DECKS' && (
+            <>
+              {/* Tab 4.1: My Resources (Kho học liệu và thống kê cá nhân) */}
+              {activeTab === 'resources' && (
+                <MyResources
+                  decks={decks}
+                  categories={categories}
+                  loading={loadingDecks}
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  selectedFilter={selectedFilter}
+                  onSelectFilter={setSelectedFilter}
+                  onOpenCreateDeck={handleOpenCreateDeck}
+                  onOpenCategories={() => setIsCategoryModalOpen(true)}
+                  onSelectDeckForStudy={handleSelectDeckForStudy}
+                  onSelectDeckForQuiz={handleSelectDeckForQuiz}
+                  onSelectDeckForCards={handleSelectDeckForCards}
+                  onEditDeck={(deck, e) => {
+                    e.stopPropagation();
+                    handleOpenEditDeck(deck);
+                  }}
+                  onDeleteDeck={async (deck, e) => {
+                    e.stopPropagation();
+                    if (window.confirm(`Bạn có chắc muốn xóa bộ thẻ "${deck.title}"?`)) {
+                      await handleDeleteDeck(deck.id);
+                    }
+                  }}
+                />
+              )}
+
+              {/* Tab 4.2: Videos (Video bài giảng & hướng dẫn kỹ thuật ghi nhớ) */}
+              {activeTab === 'video' && <VideoTutorials />}
+
+              {/* Tab 4.3: All Folders (Toàn bộ thư mục và phân loại) */}
+              {activeTab === 'folders' && (
+                <FolderList
+                  categories={categories}
+                  decks={decks}
+                  onOpenCreateCategory={() => setIsCategoryModalOpen(true)}
+                  onSelectCategory={(catName) => {
+                    setSelectedFilter(catName);
+                    setActiveTab('community');
+                  }}
+                />
+              )}
+
+              {/* Tab 4.4: Trash (Thùng rác) */}
+              {activeTab === 'trash' && (
+                <TrashView onGoHome={() => handleSelectTab('community')} />
+              )}
+
+              {/* Tab 4.5: Recents (Các bộ thẻ đã bắt đầu học) */}
+              {activeTab === 'recents' && (
+                <DeckList
+                  decks={decks}
+                  categories={categories}
+                  loading={loadingDecks}
+                  onCreateDeck={handleCreateDeck}
+                  onUpdateDeck={handleUpdateDeck}
+                  onDeleteDeck={handleDeleteDeck}
+                  onCreateCategory={handleCreateCategory}
+                  onUpdateCategory={handleUpdateCategory}
+                  onDeleteCategory={handleDeleteCategory}
+                  onSelectDeckForStudy={handleSelectDeckForStudy}
+                  onSelectDeckForQuiz={handleSelectDeckForQuiz}
+                  onSelectDeckForCards={handleSelectDeckForCards}
+                  onOpenCreateDeck={handleOpenCreateDeck}
+                  onOpenEditDeck={handleOpenEditDeck}
+                  onOpenCategories={() => setIsCategoryModalOpen(true)}
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  selectedFilter="STUDIED"
+                  onSelectFilter={setSelectedFilter}
+                />
+              )}
+
+              {/* Tab 4.6: Drafts (Các bộ thẻ bản nháp chưa bắt đầu) */}
+              {activeTab === 'drafts' && (
+                <DeckList
+                  decks={decks}
+                  categories={categories}
+                  loading={loadingDecks}
+                  onCreateDeck={handleCreateDeck}
+                  onUpdateDeck={handleUpdateDeck}
+                  onDeleteDeck={handleDeleteDeck}
+                  onCreateCategory={handleCreateCategory}
+                  onUpdateCategory={handleUpdateCategory}
+                  onDeleteCategory={handleDeleteCategory}
+                  onSelectDeckForStudy={handleSelectDeckForStudy}
+                  onSelectDeckForQuiz={handleSelectDeckForQuiz}
+                  onSelectDeckForCards={handleSelectDeckForCards}
+                  onOpenCreateDeck={handleOpenCreateDeck}
+                  onOpenEditDeck={handleOpenEditDeck}
+                  onOpenCategories={() => setIsCategoryModalOpen(true)}
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  selectedFilter="NOT_STARTED"
+                  onSelectFilter={setSelectedFilter}
+                />
+              )}
+
+              {/* Tab 4.7: Community (Khám phá cộng đồng - Mặc định) */}
+              {activeTab === 'community' && (
+                <DeckList
+                  decks={decks}
+                  categories={categories}
+                  loading={loadingDecks}
+                  onCreateDeck={handleCreateDeck}
+                  onUpdateDeck={handleUpdateDeck}
+                  onDeleteDeck={handleDeleteDeck}
+                  onCreateCategory={handleCreateCategory}
+                  onUpdateCategory={handleUpdateCategory}
+                  onDeleteCategory={handleDeleteCategory}
+                  onSelectDeckForStudy={handleSelectDeckForStudy}
+                  onSelectDeckForQuiz={handleSelectDeckForQuiz}
+                  onSelectDeckForCards={handleSelectDeckForCards}
+                  onOpenCreateDeck={handleOpenCreateDeck}
+                  onOpenEditDeck={handleOpenEditDeck}
+                  onOpenCategories={() => setIsCategoryModalOpen(true)}
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  selectedFilter={selectedFilter}
+                  onSelectFilter={setSelectedFilter}
+                />
+              )}
+            </>
+          )}
+        </main>
+      </div>
+
+      {/* Modal Tạo & Sửa Bộ Thẻ tập trung */}
+      <DeckModal
+        isOpen={isDeckModalOpen}
+        onClose={() => {
+          setIsDeckModalOpen(false);
+          setEditingDeck(null);
+        }}
+        onSubmit={async (data) => {
+          if (editingDeck) {
+            await handleUpdateDeck(editingDeck.id, data);
+          } else {
+            await handleCreateDeck(data);
+          }
+        }}
+        editingDeck={editingDeck}
+        categories={categories}
+        decks={decks}
+        defaultCategory={selectedFilter !== 'ALL' && selectedFilter !== 'STUDIED' && selectedFilter !== 'NOT_STARTED' ? selectedFilter : 'Chung'}
+        onOpenCategoryModal={() => setIsCategoryModalOpen(true)}
+      />
+
+      {/* Modal Quản Lý Phân Loại tập trung */}
+      <CategoryModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+        categories={categories}
+        decks={decks}
+        onCreateCategory={handleCreateCategory}
+        onDeleteCategory={handleDeleteCategory}
+      />
     </div>
   );
 };

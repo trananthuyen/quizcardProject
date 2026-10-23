@@ -13,7 +13,7 @@
  * 6. Màn hình kết thúc bắn pháo hoa ăn mừng (Confetti) và thống kê tỷ lệ chính xác.
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { StudyStatus, type Deck, type StudyCard, type AnswerResponse } from '../types';
 import { api } from '../api';
 import confetti from 'canvas-confetti';
@@ -23,6 +23,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { playTts, stopTts } from '../utils/tts';
+import './StudyArena.css';
 
 interface StudyArenaProps {
   deck: Deck;                   // Thông tin bộ thẻ đang học
@@ -89,6 +90,17 @@ export const StudyArena: React.FC<StudyArenaProps> = ({ deck, onExit, onGoToCard
 
   // Thẻ hiện tại đang hiển thị trên màn hình (luôn là phần tử đầu tiên của hàng đợi queue)
   const currentCard = queue[0];
+
+  /**
+   * Kiểm tra xem bộ thẻ hiện tại có phải là bộ thẻ học tiếng Anh hay không
+   * (Dựa vào phân loại Category hoặc tiêu đề Title có chứa 'tiếng anh', 'english', 'ielts', 'toeic'...).
+   */
+  const isEnglishDeck = useMemo(() => {
+    const cat = (deck.category || '').toLowerCase().trim();
+    const title = (deck.title || '').toLowerCase().trim();
+    const englishKeywords = ['tiếng anh', 'tieng anh', 'english', 'ielts', 'toeic', 'toefl'];
+    return englishKeywords.some((kw) => cat.includes(kw) || title.includes(kw));
+  }, [deck.category, deck.title]);
 
   /**
    * Đảo trạng thái lật mặt thẻ (Trước <-> Sau)
@@ -225,8 +237,8 @@ export const StudyArena: React.FC<StudyArenaProps> = ({ deck, onExit, onGoToCard
   // Giao diện khi đang tải dữ liệu
   if (loading) {
     return (
-      <div style={{ maxWidth: '800px', margin: '80px auto', textAlign: 'center', color: 'var(--text-muted)' }}>
-        <p style={{ fontSize: '16px' }}>Đang chuẩn bị bộ thẻ học tập...</p>
+      <div className="sa-loading-container">
+        <p className="sa-loading-text">Đang chuẩn bị bộ thẻ học tập...</p>
       </div>
     );
   }
@@ -234,19 +246,10 @@ export const StudyArena: React.FC<StudyArenaProps> = ({ deck, onExit, onGoToCard
   // Giao diện khi bộ thẻ chưa có thẻ nào
   if (queue.length === 0 && !sessionCompleted) {
     return (
-      <div style={{ maxWidth: '600px', margin: '60px auto', textAlign: 'center', padding: '40px', backgroundColor: '#fff', borderRadius: '16px', border: '1px solid var(--border)' }}>
-        <h2 style={{ fontSize: '22px', fontWeight: 800, marginBottom: '8px' }}>Không có thẻ nào trong bộ này</h2>
-        <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>Hãy thêm các thẻ flashcard trước khi bắt đầu học.</p>
-        <button
-          onClick={onGoToCards}
-          style={{
-            backgroundColor: 'var(--primary)',
-            color: '#fff',
-            padding: '10px 20px',
-            borderRadius: '10px',
-            fontWeight: 700,
-          }}
-        >
+      <div className="sa-empty-card">
+        <h2 className="sa-empty-title">Không có thẻ nào trong bộ này</h2>
+        <p className="sa-empty-text">Hãy thêm các thẻ flashcard trước khi bắt đầu học.</p>
+        <button onClick={onGoToCards} className="sa-empty-btn">
           Đến màn hình quản lý thẻ
         </button>
       </div>
@@ -261,117 +264,53 @@ export const StudyArena: React.FC<StudyArenaProps> = ({ deck, onExit, onGoToCard
     const accuracy = totalAnswers > 0 ? Math.round((correctInSession / totalAnswers) * 100) : 100;
 
     return (
-      <div style={{ maxWidth: '640px', margin: '40px auto', padding: '20px' }}>
-        <div style={{
-          backgroundColor: '#ffffff',
-          borderRadius: '24px',
-          border: '1px solid var(--border)',
-          padding: '40px 32px',
-          textAlign: 'center',
-          boxShadow: '0 20px 40px -10px rgba(0,0,0,0.06)',
-        }}>
+      <div className="sa-completed-wrapper">
+        <div className="sa-completed-card">
           {/* Cúp vàng chúc mừng */}
-          <div style={{
-            width: '80px',
-            height: '80px',
-            borderRadius: '50%',
-            backgroundColor: 'var(--success-light)',
-            color: 'var(--success)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 20px',
-          }}>
+          <div className="sa-trophy-circle">
             <Trophy size={42} />
           </div>
 
-          <h2 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '8px' }}>
+          <h2 className="sa-completed-title">
             Chúc Mừng Bạn Đã Hoàn Thành!
           </h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '15px', marginBottom: '32px' }}>
+          <p className="sa-completed-subtitle">
             Bạn đã hoàn tất phiên ôn tập cho bộ thẻ <strong>"{deck.title}"</strong>.
           </p>
 
           {/* Lưới thống kê kết quả phiên học */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '16px',
-            marginBottom: '32px',
-          }}>
-            <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)' }}>
-              <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--primary)' }}>{initialCount}</div>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', marginTop: '4px' }}>Thẻ đã ôn</div>
+          <div className="sa-stats-grid">
+            <div className="sa-stat-box">
+              <div className="sa-stat-num primary">{initialCount}</div>
+              <div className="sa-stat-label">Thẻ đã ôn</div>
             </div>
 
-            <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)' }}>
-              <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--success)' }}>{masteredInSession}</div>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', marginTop: '4px' }}>Đã thuộc mới</div>
+            <div className="sa-stat-box">
+              <div className="sa-stat-num success">{masteredInSession}</div>
+              <div className="sa-stat-label">Đã thuộc mới</div>
             </div>
 
-            <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)' }}>
-              <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--warning-dark)' }}>{accuracy}%</div>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', marginTop: '4px' }}>Độ chính xác</div>
+            <div className="sa-stat-box">
+              <div className="sa-stat-num warning">{accuracy}%</div>
+              <div className="sa-stat-label">Độ chính xác</div>
             </div>
           </div>
 
           {/* Các nút hành động: Ôn lại, Thi trắc nghiệm, Về danh sách */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', flexWrap: 'wrap' }}>
-            <button
-              onClick={loadCards}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                backgroundColor: 'var(--primary)',
-                color: '#fff',
-                padding: '12px 24px',
-                borderRadius: '12px',
-                fontWeight: 700,
-                fontSize: '14px',
-                boxShadow: '0 4px 14px var(--primary-glow)',
-              }}
-            >
+          <div className="sa-completed-actions">
+            <button onClick={loadCards} className="sa-btn-restart">
               <RotateCcw size={16} />
               <span>Ôn Lại Bộ Này</span>
             </button>
 
             {onGoToQuiz && (
-              <button
-                onClick={onGoToQuiz}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  backgroundColor: '#e0f2fe',
-                  border: '1px solid #bae6fd',
-                  color: '#0284c7',
-                  padding: '12px 24px',
-                  borderRadius: '12px',
-                  fontWeight: 700,
-                  fontSize: '14px',
-                }}
-              >
+              <button onClick={onGoToQuiz} className="sa-btn-quiz-comp">
                 <HelpCircle size={16} />
                 <span>Luyện Trắc Nghiệm</span>
               </button>
             )}
 
-            <button
-              onClick={onExit}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                backgroundColor: '#ffffff',
-                border: '1px solid var(--border)',
-                color: 'var(--text-main)',
-                padding: '12px 24px',
-                borderRadius: '12px',
-                fontWeight: 600,
-                fontSize: '14px',
-              }}
-            >
+            <button onClick={onExit} className="sa-btn-exit-comp">
               <ArrowLeft size={16} />
               <span>Về Danh Sách Bộ Thẻ</span>
             </button>
@@ -384,51 +323,26 @@ export const StudyArena: React.FC<StudyArenaProps> = ({ deck, onExit, onGoToCard
   // ==========================================================================
   // GIAO DIỆN HỌC THẺ CHÍNH (ACTIVE STUDY SCREEN)
   // ==========================================================================
+  const progressPercent = Math.min(100, Math.max(5, ((initialCount - queue.length) / (initialCount || 1)) * 100));
+
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '24px 20px' }}>
+    <div className="sa-container">
       {/* Thanh tiêu đề trên cùng: Nút Thoát, Tên bộ thẻ, Nút chuyển Trắc nghiệm, Số thẻ còn lại */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <button
-          onClick={onExit}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            color: 'var(--text-muted)',
-            fontSize: '14px',
-            fontWeight: 600,
-            padding: '8px 12px',
-            borderRadius: '8px',
-            backgroundColor: '#ffffff',
-            border: '1px solid var(--border)',
-          }}
-        >
+      <div className="sa-header-bar">
+        <button onClick={onExit} className="sa-btn-exit">
           <ArrowLeft size={16} />
           <span>Thoát phiên học</span>
         </button>
 
-        <div style={{ textAlign: 'center' }}>
-          <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--primary)' }}>
-            {deck.title}
-          </span>
+        <div className="sa-header-title">
+          <span>{deck.title}</span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div className="sa-header-right">
           {onGoToQuiz && (
             <button
               onClick={onGoToQuiz}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                color: '#0284c7',
-                fontSize: '12px',
-                fontWeight: 700,
-                padding: '6px 12px',
-                borderRadius: '8px',
-                backgroundColor: '#e0f2fe',
-                border: '1px solid #bae6fd',
-              }}
+              className="sa-btn-switch-quiz"
               title="Chuyển sang chế độ trắc nghiệm"
             >
               <HelpCircle size={14} />
@@ -436,46 +350,20 @@ export const StudyArena: React.FC<StudyArenaProps> = ({ deck, onExit, onGoToCard
             </button>
           )}
 
-          <div style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid var(--border)',
-            padding: '6px 14px',
-            borderRadius: '9999px',
-            fontSize: '13px',
-            fontWeight: 700,
-            color: 'var(--text-main)',
-          }}>
+          <div className="sa-remaining-badge">
             Còn lại: {queue.length} thẻ
           </div>
         </div>
       </div>
 
       {/* Thanh tiến độ học tập (Progress Bar) */}
-      <div style={{
-        width: '100%',
-        height: '6px',
-        backgroundColor: '#e2e8f0',
-        borderRadius: '9999px',
-        marginBottom: '28px',
-        overflow: 'hidden',
-      }}>
-        <div style={{
-          width: `${Math.min(100, Math.max(5, ((initialCount - queue.length) / (initialCount || 1)) * 100))}%`,
-          height: '100%',
-          backgroundColor: 'var(--primary)',
-          transition: 'width 0.3s ease',
-        }} />
+      <div className="sa-progress-track">
+        <div className="sa-progress-fill" style={{ width: `${progressPercent}%` }} />
       </div>
 
       {/* Thông tin trạng thái thẻ và Đèn LED báo chuỗi đúng 3/3 */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        maxWidth: '680px',
-        margin: '0 auto 12px',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div className="sa-status-led-row">
+        <div className="sa-status-badges">
           {currentCard.status === StudyStatus.Mastered && (
             <span className="badge badge-mastered"><CheckCircle2 size={12} /> Đã thuộc</span>
           )}
@@ -488,21 +376,15 @@ export const StudyArena: React.FC<StudyArenaProps> = ({ deck, onExit, onGoToCard
         </div>
 
         {/* 3 chấm tròn chỉ báo mức độ thuộc (ConsecutiveCorrect / 3) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)' }}>
+        <div className="sa-led-group">
+          <span className="sa-led-label">
             Độ thuộc ({currentCard.consecutiveCorrect}/3):
           </span>
-          <div style={{ display: 'flex', gap: '4px' }}>
+          <div className="sa-led-dots">
             {[1, 2, 3].map((step) => (
               <div
                 key={step}
-                style={{
-                  width: '12px',
-                  height: '12px',
-                  borderRadius: '50%',
-                  backgroundColor: step <= currentCard.consecutiveCorrect ? 'var(--success)' : '#e2e8f0',
-                  transition: 'background-color 0.2s',
-                }}
+                className={`sa-led-dot ${step <= currentCard.consecutiveCorrect ? 'active' : ''}`}
               />
             ))}
           </div>
@@ -511,18 +393,7 @@ export const StudyArena: React.FC<StudyArenaProps> = ({ deck, onExit, onGoToCard
 
       {/* Thông báo phản hồi kết quả trả lời */}
       {feedback && (
-        <div style={{
-          maxWidth: '680px',
-          margin: '0 auto 12px',
-          padding: '10px 16px',
-          borderRadius: '10px',
-          backgroundColor: feedback.isMastered ? 'var(--success-light)' : feedback.requiresRepeatInSession ? 'var(--danger-light)' : 'var(--primary-light)',
-          color: feedback.isMastered ? 'var(--success-dark)' : feedback.requiresRepeatInSession ? 'var(--danger-dark)' : 'var(--primary)',
-          fontSize: '13px',
-          fontWeight: 600,
-          textAlign: 'center',
-          animation: 'fadeIn 0.2s',
-        }}>
+        <div className={`sa-feedback-box ${feedback.isMastered ? 'mastered' : feedback.requiresRepeatInSession ? 'repeat' : 'normal'}`}>
           {feedback.feedbackMessage}
         </div>
       )}
@@ -532,77 +403,42 @@ export const StudyArena: React.FC<StudyArenaProps> = ({ deck, onExit, onGoToCard
         <div className={`flip-card-inner ${isFlipped ? 'is-flipped' : ''}`}>
           {/* MẶT TRƯỚC: Thuật ngữ / Từ vựng / Câu hỏi */}
           <div className="flip-card-front">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary)', letterSpacing: '1px' }}>
+            <div className="sa-front-top">
+              <div className="sa-front-top-left">
+                <span className="sa-term-label">
                   THUẬT NGỮ
                 </span>
 
-                {/* Nút Tra cứu từ điển Cambridge */}
-                <button
-                  type="button"
-                  onClick={handleOpenCambridge}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '5px',
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    color: '#0369a1',
-                    backgroundColor: '#f0f9ff',
-                    border: '1px solid #bae6fd',
-                    padding: '3px 9px',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#e0f2fe';
-                    e.currentTarget.style.color = '#0284c7';
-                    e.currentTarget.style.borderColor = '#7dd3fc';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#f0f9ff';
-                    e.currentTarget.style.color = '#0369a1';
-                    e.currentTarget.style.borderColor = '#bae6fd';
-                  }}
-                  title={`Tra cứu "${currentCard.term}" trên Từ điển Cambridge (Anh - Việt)`}
-                >
-                  <ExternalLink size={12} />
-                  <span>Tra từ điển Cambridge</span>
-                </button>
+                {/* Nút Tra cứu từ điển Cambridge - Chỉ hiển thị khi bộ thẻ là thẻ học tiếng Anh */}
+                {isEnglishDeck && (
+                  <button
+                    type="button"
+                    onClick={handleOpenCambridge}
+                    className="sa-btn-cambridge"
+                    title={`Tra cứu "${currentCard.term}" trên Từ điển Cambridge (Anh - Việt)`}
+                  >
+                    <ExternalLink size={12} />
+                    <span>Tra từ điển Cambridge</span>
+                  </button>
+                )}
               </div>
 
               <button
                 onClick={(e) => handleSpeak(currentCard.term, e, 'en')}
-                style={{ color: 'var(--text-muted)', padding: '6px' }}
+                className="sa-btn-speak"
                 title="Phát âm chuẩn AI (Google TTS)"
               >
                 <Volume2 size={20} />
               </button>
             </div>
 
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <h2 style={{
-                fontSize: '28px',
-                fontWeight: 800,
-                color: 'var(--text-main)',
-                textAlign: 'center',
-                lineHeight: 1.4,
-              }}>
+            <div className="sa-term-center">
+              <h2 className="sa-term-text">
                 {currentCard.term}
               </h2>
             </div>
 
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
-              color: 'var(--text-muted)',
-              fontSize: '13px',
-              fontWeight: 500,
-            }}>
+            <div className="sa-flip-hint">
               <RotateCw size={14} />
               <span>Bấm vào thẻ hoặc nhấn <strong>Space</strong> để lật xem đáp án</span>
             </div>
@@ -610,57 +446,32 @@ export const StudyArena: React.FC<StudyArenaProps> = ({ deck, onExit, onGoToCard
 
           {/* MẶT SAU: Định nghĩa & Ví dụ minh họa */}
           <div className="flip-card-back">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--success-dark)', letterSpacing: '1px' }}>
-                ĐỊNH NGHĨA & VÍ DỤ
+            <div className="sa-back-top">
+              <span className="sa-def-label">
+                ĐỊNH NGHĨA &amp; VÍ DỤ
               </span>
               <button
                 onClick={(e) => handleSpeak(currentCard.definition, e, 'auto')}
-                style={{ color: 'var(--text-muted)', padding: '6px' }}
+                className="sa-btn-speak"
                 title="Phát âm định nghĩa (Google TTS)"
               >
                 <Volume2 size={20} />
               </button>
             </div>
 
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 0' }}>
-              <p style={{
-                fontSize: '18px',
-                fontWeight: 600,
-                color: 'var(--text-main)',
-                textAlign: 'center',
-                lineHeight: 1.6,
-                marginBottom: currentCard.example ? '16px' : '0',
-              }}>
+            <div className="sa-def-center">
+              <p className="sa-def-text">
                 {currentCard.definition}
               </p>
 
               {currentCard.example && (
-                <div style={{
-                  backgroundColor: '#ffffff',
-                  border: '1px dashed var(--border)',
-                  padding: '12px 18px',
-                  borderRadius: '12px',
-                  fontSize: '14px',
-                  color: 'var(--text-muted)',
-                  fontStyle: 'italic',
-                  maxWidth: '90%',
-                  textAlign: 'center',
-                }}>
+                <div className="sa-example-box">
                   💡 Ví dụ: {currentCard.example}
                 </div>
               )}
             </div>
 
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
-              color: 'var(--text-muted)',
-              fontSize: '13px',
-              fontWeight: 500,
-            }}>
+            <div className="sa-rate-hint">
               <Sparkles size={14} color="var(--warning-dark)" />
               <span>Hãy tự đánh giá mức độ ghi nhớ của bạn bên dưới</span>
             </div>
@@ -669,44 +480,18 @@ export const StudyArena: React.FC<StudyArenaProps> = ({ deck, onExit, onGoToCard
       </div>
 
       {/* CÁC NÚT ĐÁNH GIÁ KẾT QUẢ HỌC (Active khi thẻ đã lật) */}
-      <div style={{
-        maxWidth: '680px',
-        margin: '24px auto 0',
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: '16px',
-      }}>
+      <div className="sa-actions-grid">
         {/* Nút 1: Chưa Nhớ / Sai */}
         <button
           onClick={() => handleAnswer(false)}
           disabled={!isFlipped || isAnswering}
-          style={{
-            padding: '16px',
-            borderRadius: '14px',
-            backgroundColor: isFlipped ? '#fff' : '#f1f5f9',
-            border: isFlipped ? '2px solid var(--danger)' : '2px solid #e2e8f0',
-            color: isFlipped ? 'var(--danger)' : '#94a3b8',
-            fontWeight: 700,
-            fontSize: '15px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '4px',
-            cursor: isFlipped ? 'pointer' : 'not-allowed',
-            transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            if (isFlipped) e.currentTarget.style.backgroundColor = 'var(--danger-light)';
-          }}
-          onMouseLeave={(e) => {
-            if (isFlipped) e.currentTarget.style.backgroundColor = '#fff';
-          }}
+          className="sa-btn-wrong"
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="sa-btn-row-title">
             <X size={20} strokeWidth={3} />
             <span>Chưa Nhớ / Sai</span>
           </div>
-          <span style={{ fontSize: '11px', fontWeight: 500, opacity: 0.8 }}>
+          <span className="sa-btn-subtext">
             (Phím 1 hoặc ← | Lặp lại ở cuối)
           </span>
         </button>
@@ -715,46 +500,20 @@ export const StudyArena: React.FC<StudyArenaProps> = ({ deck, onExit, onGoToCard
         <button
           onClick={() => handleAnswer(true)}
           disabled={!isFlipped || isAnswering}
-          style={{
-            padding: '16px',
-            borderRadius: '14px',
-            backgroundColor: isFlipped ? 'var(--success)' : '#f1f5f9',
-            color: isFlipped ? '#ffffff' : '#94a3b8',
-            border: '2px solid transparent',
-            fontWeight: 700,
-            fontSize: '15px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '4px',
-            cursor: isFlipped ? 'pointer' : 'not-allowed',
-            boxShadow: isFlipped ? '0 4px 14px rgba(16, 185, 129, 0.3)' : 'none',
-            transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            if (isFlipped) e.currentTarget.style.backgroundColor = '#059669';
-          }}
-          onMouseLeave={(e) => {
-            if (isFlipped) e.currentTarget.style.backgroundColor = 'var(--success)';
-          }}
+          className="sa-btn-correct"
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="sa-btn-row-title">
             <Check size={20} strokeWidth={3} />
             <span>Nhớ Đúng / Thuộc</span>
           </div>
-          <span style={{ fontSize: '11px', fontWeight: 500, opacity: 0.9 }}>
+          <span className="sa-btn-subtext">
             (Phím 2 hoặc → | Tích lũy chuỗi đúng)
           </span>
         </button>
       </div>
 
       {/* Hướng dẫn phím tắt */}
-      <div style={{
-        marginTop: '24px',
-        textAlign: 'center',
-        fontSize: '12px',
-        color: 'var(--text-muted)',
-      }}>
+      <div className="sa-shortcuts-hint">
         💡 Phím tắt nhanh: <strong>[Space]</strong> lật thẻ • <strong>[1]</strong> Chưa nhớ • <strong>[2]</strong> Đã nhớ đúng
       </div>
     </div>

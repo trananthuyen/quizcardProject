@@ -1,0 +1,115 @@
+/* ============================================================
+   FilterPills.css
+   Styles cho component FilterPills (bộ lọc danh mục và trạng thái)
+   ============================================================ */
+
+.fp-container {
+  margin-bottom: 20px;
+}
+
+.fp-sub-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  font-size: 12px;
+  scrollbar-width: none;
+}
+
+.fp-sub-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.fp-topic-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #a1a1aa;
+  text-transform: uppercase;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+/* Các nút tab bộ lọc */
+.fp-tab-btn {
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 500;
+  background-color: #f4f4f5;
+  color: #3f3f46;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.fp-tab-btn:hover:not(.active-all):not(.active-studied):not(.active-notstarted):not(.active-custom) {
+  background-color: #e4e4e7;
+}
+
+/* Trạng thái active */
+.fp-tab-btn.active-all {
+  font-weight: 700;
+  background-color: #0d99ff;
+  color: #ffffff;
+}
+
+.fp-tab-btn.active-studied {
+  font-weight: 700;
+  background-color: #10b981;
+  color: #ffffff;
+}
+
+.fp-tab-btn.active-notstarted {
+  font-weight: 700;
+  background-color: #f59e0b;
+  color: #ffffff;
+}
+
+.fp-tab-btn.active-custom {
+  font-weight: 700;
+  background-color: #18181b;
+  color: #ffffff;
+}
+
+/* Huy hiệu số lượng bên trong tab */
+.fp-tab-count {
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 8px;
+  background-color: #e4e4e7;
+  color: inherit;
+}
+
+.fp-tab-count.active {
+  background-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+/* Nút thêm phân loại mới */
+.fp-btn-add-cat {
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #ffffff;
+  color: #0d99ff;
+  border: 1px dashed #0d99ff;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: background-color 0.15s;
+}
+
+.fp-btn-add-cat:hover {
+  background-color: #f0f7fe;
+}
+

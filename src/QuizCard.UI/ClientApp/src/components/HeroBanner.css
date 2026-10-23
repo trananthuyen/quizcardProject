@@ -1,0 +1,206 @@
+/* ============================================================
+   HeroBanner.css
+   Styles cho component HeroBanner và các decorative stickers
+   ============================================================ */
+
+.qc-hero-banner {
+  position: relative;
+  background: linear-gradient(180deg, #f0f7fe 0%, #e6f1fc 100%);
+  border-radius: 16px;
+  padding: 44px 24px 40px 24px;
+  text-align: center;
+  margin-bottom: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(219, 234, 254, 0.8);
+}
+
+.qc-hero-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #18181b;
+  letter-spacing: -0.4px;
+  max-width: 680px;
+  margin: 0 auto 8px auto;
+  line-height: 1.35;
+}
+
+.qc-hero-title .highlight-blue {
+  color: #0d99ff;
+}
+
+.qc-hero-title .highlight-purple {
+  color: #6366f1;
+}
+
+.qc-hero-title .highlight-cyan {
+  color: #0284c7;
+}
+
+/* Floating stickers */
+.qc-sticker {
+  position: absolute;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.qc-sticker:hover {
+  transform: scale(1.15) rotate(4deg);
+}
+
+.qc-sticker-palette {
+  top: 22px;
+  left: 28%;
+  padding: 6px 8px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #e0f2fe;
+}
+
+.qc-sticker-hex {
+  top: 48px;
+  left: 20%;
+  padding: 5px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.qc-sticker-tag {
+  bottom: 24px;
+  left: 24%;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #fce7f3;
+}
+
+.qc-sticker-aa {
+  top: 24px;
+  right: 28%;
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  font-weight: 700;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.qc-sticker-sparkle {
+  top: 48px;
+  right: 20%;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #fae8ff;
+}
+
+.qc-sticker-book {
+  bottom: 22px;
+  right: 25%;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #e0f2fe;
+}
+
+/* Nội dung bên trong các stickers */
+.hb-palette-content {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hb-palette-dots {
+  display: flex;
+  gap: 3px;
+}
+
+.hb-dot-rose {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f43f5e;
+}
+
+.hb-dot-blue {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #3b82f6;
+}
+
+.hb-dot-green {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.hb-tag-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.hb-tag-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.hb-tag-dot-magenta {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #d946ef;
+}
+
+.hb-tag-bar-magenta {
+  width: 22px;
+  height: 4px;
+  border-radius: 2px;
+  background: #d946ef;
+}
+
+.hb-tag-dot-purple {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #a855f7;
+}
+
+.hb-tag-bar-purple {
+  width: 16px;
+  height: 4px;
+  border-radius: 2px;
+  background: #a855f7;
+}
+
+.hb-sparkle-bar-purple {
+  width: 20px;
+  height: 4px;
+  border-radius: 2px;
+  background: #8b5cf6;
+}
+
+.hb-sparkle-dot-pink {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #ec4899;
+}
+
+.hb-sparkle-bar-pink {
+  width: 14px;
+  height: 4px;
+  border-radius: 2px;
+  background: #ec4899;
+}
+

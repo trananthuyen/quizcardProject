@@ -1,0 +1,192 @@
+/* ============================================================
+   DeckCard.css
+   Styles cho component DeckCard (thẻ bộ bài trực quan)
+   ============================================================ */
+
+/* Theme 0: Gauge text styles */
+.dc-gauge-dark-title {
+  font-size: 9px;
+  color: #a1a1aa;
+  text-align: center;
+  margin-bottom: 4px;
+  padding: 0 6px;
+}
+
+.dc-gauge-number-dark {
+  color: #ffffff;
+}
+
+.dc-gauge-light-title {
+  font-size: 9px;
+  color: #71717a;
+  text-align: center;
+  margin-bottom: 4px;
+  padding: 0 6px;
+}
+
+.dc-gauge-number-light {
+  color: #09090b;
+}
+
+/* Theme 1: Mindmap styles */
+.dc-mindmap-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.3;
+}
+
+.dc-mindmap-subtitle {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 6px;
+  z-index: 2;
+}
+
+/* Theme 2: 3D App Icon Grid */
+.dc-icon-grid-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.dc-cube-blue {
+  background: #3b82f6 !important;
+}
+
+.dc-cube-green {
+  background: #10b981 !important;
+}
+
+.dc-cube-purple {
+  background: #8b5cf6 !important;
+}
+
+.dc-cube-amber {
+  background: #f59e0b !important;
+}
+
+.dc-icon-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #f4f4f5;
+  text-align: center;
+}
+
+/* Theme 3: Aurora Gradient & Stats */
+.dc-aurora-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  width: 100%;
+  padding: 4px;
+}
+
+.dc-aurora-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dc-aurora-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #38bdf8;
+  background-color: rgba(56, 189, 248, 0.15);
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.dc-aurora-count {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.dc-aurora-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.dc-aurora-desc {
+  font-size: 11px;
+  color: #cbd5e1;
+  opacity: 0.85;
+}
+
+.dc-aurora-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dc-progress-track {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.dc-progress-fill {
+  height: 100%;
+  background: #38bdf8;
+  transition: width 0.3s ease;
+}
+
+.dc-progress-percent {
+  font-size: 10px;
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+/* Hover Overlay Buttons */
+.dc-overlay-btn-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.dc-btn-edit {
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.dc-btn-edit:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.dc-btn-delete {
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.dc-btn-delete:hover {
+  background: rgba(239, 68, 68, 0.4);
+}
+

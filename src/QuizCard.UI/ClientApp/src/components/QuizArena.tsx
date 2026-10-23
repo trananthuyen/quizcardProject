@@ -24,6 +24,7 @@ import {
   HelpCircle, Volume2, Sparkles, BookOpen, ChevronRight
 } from 'lucide-react';
 import { playTts, stopTts } from '../utils/tts';
+import './QuizArena.css';
 
 /**
  * QuizArenaProps: Các thuộc tính (props) truyền từ component cha (App.tsx)
@@ -328,8 +329,8 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ deck, onExit, onGoToStudy,
   // Giao diện khi đang tải dữ liệu
   if (loading) {
     return (
-      <div style={{ maxWidth: '800px', margin: '80px auto', textAlign: 'center', color: 'var(--text-muted)' }}>
-        <p style={{ fontSize: '16px' }}>Đang chuẩn bị đề thi trắc nghiệm...</p>
+      <div className="qa-loading-container">
+        <p className="qa-loading-text">Đang chuẩn bị đề thi trắc nghiệm...</p>
       </div>
     );
   }
@@ -337,44 +338,17 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ deck, onExit, onGoToStudy,
   // Trường hợp bộ thẻ có ít hơn 2 thẻ flashcard (không đủ để sinh các phương án trắc nghiệm)
   if (cards.length < 2) {
     return (
-      <div style={{
-        maxWidth: '600px',
-        margin: '60px auto',
-        textAlign: 'center',
-        padding: '40px',
-        backgroundColor: '#fff',
-        borderRadius: '16px',
-        border: '1px solid var(--border)',
-      }}>
-        <div style={{
-          width: '64px',
-          height: '64px',
-          borderRadius: '50%',
-          backgroundColor: 'var(--warning-light)',
-          color: 'var(--warning-dark)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          margin: '0 auto 16px',
-        }}>
+      <div className="qa-empty-card">
+        <div className="qa-warning-circle">
           <HelpCircle size={32} />
         </div>
-        <h2 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '8px' }}>
+        <h2 className="qa-empty-title">
           Cần tối thiểu 2 thẻ flashcard
         </h2>
-        <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '24px' }}>
+        <p className="qa-empty-desc">
           Bộ thẻ hiện tại có {cards.length} thẻ. Để tạo các phương án lựa chọn trắc nghiệm A, B, C, D, bộ thẻ cần có từ 2 thẻ trở lên.
         </p>
-        <button
-          onClick={onGoToCards}
-          style={{
-            backgroundColor: 'var(--primary)',
-            color: '#fff',
-            padding: '10px 20px',
-            borderRadius: '10px',
-            fontWeight: 700,
-          }}
-        >
+        <button onClick={onGoToCards} className="qa-empty-btn">
           Thêm thẻ vào bộ này
         </button>
       </div>
@@ -395,76 +369,47 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ deck, onExit, onGoToStudy,
     }
 
     return (
-      <div style={{ maxWidth: '680px', margin: '40px auto', padding: '20px' }}>
-        <div style={{
-          backgroundColor: '#ffffff',
-          borderRadius: '24px',
-          border: '1px solid var(--border)',
-          padding: '40px 32px',
-          textAlign: 'center',
-          boxShadow: '0 20px 40px -10px rgba(0,0,0,0.06)',
-        }}>
+      <div className="qa-finished-wrapper">
+        <div className="qa-finished-card">
           {/* Cúp vinh danh */}
-          <div style={{
-            width: '80px',
-            height: '80px',
-            borderRadius: '50%',
-            backgroundColor: 'var(--success-light)',
-            color: 'var(--success)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 20px',
-          }}>
+          <div className="qa-trophy-circle">
             <Trophy size={42} />
           </div>
 
-          <h2 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '8px' }}>
+          <h2 className="qa-finished-title">
             Hoàn Thành Bài Trắc Nghiệm!
           </h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '15px', marginBottom: '28px' }}>
+          <p className="qa-finished-subtitle">
             {gradeMessage}
           </p>
 
           {/* Lưới thống kê kết quả */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '16px',
-            marginBottom: '32px',
-          }}>
-            <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '14px', border: '1px solid var(--border)' }}>
-              <div style={{ fontSize: '26px', fontWeight: 800, color: 'var(--primary)' }}>{accuracy}%</div>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', marginTop: '4px' }}>Độ chính xác</div>
+          <div className="qa-stats-grid">
+            <div className="qa-stat-box">
+              <div className="qa-stat-num primary">{accuracy}%</div>
+              <div className="qa-stat-label">Độ chính xác</div>
             </div>
 
-            <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '14px', border: '1px solid var(--border)' }}>
-              <div style={{ fontSize: '26px', fontWeight: 800, color: 'var(--success)' }}>{firstAttemptCorrect}/{initialTotal}</div>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', marginTop: '4px' }}>Đúng lần đầu</div>
+            <div className="qa-stat-box">
+              <div className="qa-stat-num success">{firstAttemptCorrect}/{initialTotal}</div>
+              <div className="qa-stat-label">Đúng lần đầu</div>
             </div>
 
-            <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '14px', border: '1px solid var(--border)' }}>
-              <div style={{ fontSize: '26px', fontWeight: 800, color: 'var(--warning-dark)' }}>{totalAttempts}</div>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', marginTop: '4px' }}>Lượt trả lời</div>
+            <div className="qa-stat-box">
+              <div className="qa-stat-num warning">{totalAttempts}</div>
+              <div className="qa-stat-label">Lượt trả lời</div>
             </div>
           </div>
 
           {/* Khối ôn tập các câu từng làm sai */}
           {incorrectList.length > 0 && (
-            <div style={{
-              textAlign: 'left',
-              backgroundColor: '#fff7ed',
-              border: '1px solid #ffedd5',
-              borderRadius: '12px',
-              padding: '16px 20px',
-              marginBottom: '32px',
-            }}>
-              <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#9a3412', marginBottom: '8px' }}>
+            <div className="qa-incorrect-card">
+              <h4 className="qa-incorrect-title">
                 Các câu bạn từng trả lời sai (đã được ôn lại):
               </h4>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <ul className="qa-incorrect-list">
                 {incorrectList.map((item, i) => (
-                  <li key={i} style={{ fontSize: '13px', color: '#7c2d12', display: 'flex', gap: '8px' }}>
+                  <li key={i} className="qa-incorrect-item">
                     <strong>• {item.term}:</strong> <span>{item.definition}</span>
                   </li>
                 ))}
@@ -473,58 +418,18 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ deck, onExit, onGoToStudy,
           )}
 
           {/* Các nút hành động sau khi hoàn thành */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', flexWrap: 'wrap' }}>
-            <button
-              onClick={loadCards}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                backgroundColor: 'var(--primary)',
-                color: '#fff',
-                padding: '12px 24px',
-                borderRadius: '12px',
-                fontWeight: 700,
-                fontSize: '14px',
-                boxShadow: '0 4px 14px var(--primary-glow)',
-              }}
-            >
+          <div className="qa-finished-actions">
+            <button onClick={loadCards} className="qa-btn-restart">
               <RotateCcw size={16} />
               <span>Thi Lại Bài Này</span>
             </button>
 
-            <button
-              onClick={onGoToStudy}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                backgroundColor: '#ffffff',
-                border: '1px solid var(--border)',
-                color: 'var(--text-main)',
-                padding: '12px 24px',
-                borderRadius: '12px',
-                fontWeight: 600,
-                fontSize: '14px',
-              }}
-            >
+            <button onClick={onGoToStudy} className="qa-btn-study">
               <BookOpen size={16} />
               <span>Học Lật Thẻ (Flashcard)</span>
             </button>
 
-            <button
-              onClick={onExit}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                color: 'var(--text-muted)',
-                padding: '12px 18px',
-                borderRadius: '12px',
-                fontWeight: 600,
-                fontSize: '14px',
-              }}
-            >
+            <button onClick={onExit} className="qa-btn-exit-finish">
               <ArrowLeft size={16} />
               <span>Về danh sách bộ thẻ</span>
             </button>
@@ -536,35 +441,22 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ deck, onExit, onGoToStudy,
 
   // Danh sách các chữ cái định danh phương án A, B, C, D
   const optionLetters = ['A', 'B', 'C', 'D'];
+  const progressPercent = Math.min(100, ((currentIndex + (isAnswered ? 1 : 0)) / questions.length) * 100);
 
   return (
-    <div style={{ maxWidth: '820px', margin: '0 auto', padding: '24px 20px' }}>
+    <div className="qa-container">
       {/* Thanh điều hướng và lựa chọn chế độ thi */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <button
-          onClick={onExit}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            color: 'var(--text-muted)',
-            fontSize: '14px',
-            fontWeight: 600,
-            padding: '8px 12px',
-            borderRadius: '8px',
-            backgroundColor: '#ffffff',
-            border: '1px solid var(--border)',
-          }}
-        >
+      <div className="qa-top-nav">
+        <button onClick={onExit} className="qa-btn-exit">
           <ArrowLeft size={16} />
           <span>Thoát trắc nghiệm</span>
         </button>
 
-        <div style={{ textAlign: 'center' }}>
-          <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--primary)' }}>
+        <div className="qa-title-center">
+          <span className="qa-title-deck">
             {deck.title}
           </span>
-          <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+          <div className="qa-title-sub">
             Luyện tập trắc nghiệm
           </div>
         </div>
@@ -583,16 +475,7 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ deck, onExit, onGoToStudy,
             setFeedback(null);
           }}
           disabled={isAnswered}
-          style={{
-            padding: '6px 10px',
-            borderRadius: '8px',
-            border: '1px solid var(--border)',
-            fontSize: '12px',
-            fontWeight: 600,
-            backgroundColor: '#ffffff',
-            color: 'var(--text-main)',
-            outline: 'none',
-          }}
+          className="qa-mode-select"
         >
           <option value="TERM_TO_DEF">Thuật ngữ → Định nghĩa</option>
           <option value="DEF_TO_TERM">Định nghĩa → Thuật ngữ</option>
@@ -601,67 +484,31 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ deck, onExit, onGoToStudy,
       </div>
 
       {/* Thanh tiến trình hoàn thành bài thi */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 700, marginBottom: '6px' }}>
-        <span style={{ color: 'var(--primary)' }}>
+      <div className="qa-progress-info">
+        <span className="qa-progress-current">
           Câu hỏi {currentIndex + 1} / {questions.length}
         </span>
-        <span style={{ color: 'var(--text-muted)' }}>
+        <span className="qa-progress-correct">
           Đúng lần đầu: {firstAttemptCorrect}
         </span>
       </div>
 
-      <div style={{
-        width: '100%',
-        height: '6px',
-        backgroundColor: '#e2e8f0',
-        borderRadius: '9999px',
-        marginBottom: '28px',
-        overflow: 'hidden',
-      }}>
-        <div style={{
-          width: `${Math.min(100, ((currentIndex + (isAnswered ? 1 : 0)) / questions.length) * 100)}%`,
-          height: '100%',
-          backgroundColor: 'var(--primary)',
-          transition: 'width 0.3s ease',
-        }} />
+      <div className="qa-progress-track">
+        <div className="qa-progress-fill" style={{ width: `${progressPercent}%` }} />
       </div>
 
       {/* Khung hiển thị nội dung câu hỏi */}
       {currentQ && (
-        <div style={{
-          backgroundColor: '#ffffff',
-          borderRadius: '20px',
-          border: '1px solid var(--border)',
-          padding: '32px',
-          boxShadow: '0 10px 25px -5px rgba(0,0,0,0.04)',
-          marginBottom: '24px',
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <span style={{
-              fontSize: '12px',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px',
-              backgroundColor: currentQ.questionType === 'TERM_TO_DEF' ? 'var(--primary-light)' : '#fef3c7',
-              color: currentQ.questionType === 'TERM_TO_DEF' ? 'var(--primary)' : 'var(--warning-dark)',
-              padding: '4px 10px',
-              borderRadius: '6px',
-            }}>
+        <div className="qa-question-card">
+          <div className="qa-prompt-header">
+            <span className={`qa-question-tag ${currentQ.questionType === 'TERM_TO_DEF' ? 'term-to-def' : 'def-to-term'}`}>
               {currentQ.questionType === 'TERM_TO_DEF' ? 'Chọn định nghĩa đúng' : 'Chọn thuật ngữ tương ứng'}
             </span>
 
             {/* Nút phát âm đề bài */}
             <button
               onClick={() => handleSpeak(currentQ.prompt)}
-              style={{
-                color: 'var(--text-muted)',
-                padding: '6px',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                fontSize: '12px',
-              }}
+              className="qa-btn-speak"
               title="Phát âm"
             >
               <Volume2 size={18} />
@@ -669,27 +516,13 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ deck, onExit, onGoToStudy,
             </button>
           </div>
 
-          <h3 style={{
-            fontSize: '24px',
-            fontWeight: 800,
-            color: 'var(--text-main)',
-            lineHeight: 1.4,
-            marginBottom: '8px',
-          }}>
+          <h3 className="qa-prompt-text">
             {currentQ.prompt}
           </h3>
 
           {/* Huy hiệu thông báo trạng thái SRS cập nhật từ backend */}
           {feedback && (
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '12px',
-              fontWeight: 700,
-              marginTop: '6px',
-              color: selectedOption === currentQ.correctAnswer ? 'var(--success-dark)' : 'var(--danger-dark)',
-            }}>
+            <div className={`qa-srs-feedback ${selectedOption === currentQ.correctAnswer ? 'correct' : 'incorrect'}`}>
               <Sparkles size={14} />
               <span>{feedback.feedbackMessage}</span>
             </div>
@@ -699,39 +532,28 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ deck, onExit, onGoToStudy,
 
       {/* Lưới 4 phương án lựa chọn trắc nghiệm (A, B, C, D) */}
       {currentQ && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
+        <div className="qa-options-container">
           {currentQ.options.map((option, idx) => {
             const letter = optionLetters[idx] || `${idx + 1}`;
             const isSelected = selectedOption === option;
             const isCorrect = option === currentQ.correctAnswer;
 
-            // Tính toán màu sắc hiển thị dựa trên trạng thái trả lời
-            let borderStyle = '1px solid var(--border)';
-            let bgStyle = '#ffffff';
-            let textColor = 'var(--text-main)';
-            let badgeBg = '#f1f5f9';
-            let badgeColor = 'var(--text-muted)';
+            let optionClass = 'qa-option-btn';
+            let letterClass = 'qa-option-letter';
 
             if (isAnswered) {
               if (isCorrect) {
-                // Đáp án đúng: viền xanh lá, nền xanh nhạt
-                borderStyle = '2px solid var(--success)';
-                bgStyle = 'var(--success-light)';
-                textColor = 'var(--success-dark)';
-                badgeBg = 'var(--success)';
-                badgeColor = '#ffffff';
+                optionClass += ' correct';
+                letterClass += ' correct';
               } else if (isSelected && !isCorrect) {
-                // Đáp án chọn sai: viền đỏ, nền đỏ nhạt
-                borderStyle = '2px solid var(--danger)';
-                bgStyle = 'var(--danger-light)';
-                textColor = 'var(--danger-dark)';
-                badgeBg = 'var(--danger)';
-                badgeColor = '#ffffff';
+                optionClass += ' incorrect';
+                letterClass += ' incorrect';
               } else {
-                // Các phương án khác không được chọn
-                bgStyle = '#f8fafc';
-                textColor = '#94a3b8';
+                optionClass += ' unselected';
               }
+            }
+            if (isSelected) {
+              optionClass += ' selected';
             }
 
             return (
@@ -739,67 +561,26 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ deck, onExit, onGoToStudy,
                 key={idx}
                 onClick={() => handleSelectOption(option)}
                 disabled={isAnswered}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '16px 20px',
-                  borderRadius: '14px',
-                  backgroundColor: bgStyle,
-                  border: borderStyle,
-                  textAlign: 'left',
-                  cursor: isAnswered ? 'default' : 'pointer',
-                  transition: 'all 0.15s ease',
-                  boxShadow: isSelected ? '0 4px 12px rgba(0,0,0,0.05)' : 'none',
-                }}
-                onMouseEnter={(e) => {
-                  if (!isAnswered) {
-                    e.currentTarget.style.backgroundColor = '#f8fafc';
-                    e.currentTarget.style.borderColor = 'var(--primary)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isAnswered) {
-                    e.currentTarget.style.backgroundColor = '#ffffff';
-                    e.currentTarget.style.borderColor = 'var(--border)';
-                  }
-                }}
+                className={optionClass}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1 }}>
+                <div className="qa-option-inner">
                   {/* Nhãn chữ cái A, B, C, D */}
-                  <span style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '8px',
-                    backgroundColor: badgeBg,
-                    color: badgeColor,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 800,
-                    fontSize: '14px',
-                    flexShrink: 0,
-                  }}>
+                  <span className={letterClass}>
                     {letter}
                   </span>
 
                   {/* Nội dung phương án */}
-                  <span style={{
-                    fontSize: '15px',
-                    fontWeight: isSelected || (isAnswered && isCorrect) ? 700 : 500,
-                    color: textColor,
-                    lineHeight: 1.5,
-                  }}>
+                  <span className={`qa-option-text ${isSelected || (isAnswered && isCorrect) ? 'selected-or-correct' : ''}`}>
                     {option}
                   </span>
                 </div>
 
                 {/* Biểu tượng trạng thái Đúng/Sai sau khi người học đã chọn */}
                 {isAnswered && isCorrect && (
-                  <CheckCircle2 size={22} color="var(--success)" style={{ flexShrink: 0, marginLeft: '12px' }} />
+                  <CheckCircle2 size={22} color="var(--success)" className="qa-option-status-icon" />
                 )}
                 {isAnswered && isSelected && !isCorrect && (
-                  <XCircle size={22} color="var(--danger)" style={{ flexShrink: 0, marginLeft: '12px' }} />
+                  <XCircle size={22} color="var(--danger)" className="qa-option-status-icon" />
                 )}
               </button>
             );
@@ -809,27 +590,16 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ deck, onExit, onGoToStudy,
 
       {/* Khối giải thích kiến thức và nút "Tiếp tục" sau khi đã trả lời */}
       {isAnswered && currentQ && (
-        <div style={{
-          backgroundColor: '#ffffff',
-          borderRadius: '14px',
-          border: '1px solid var(--border)',
-          padding: '18px 24px',
-          marginBottom: '24px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          gap: '16px',
-          animation: 'fadeIn 0.2s',
-        }}>
+        <div className="qa-explanation-card">
           <div>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '4px' }}>
+            <div className="qa-explanation-title">
               💡 GHI NHỚ THUẬT NGỮ:
             </div>
-            <div style={{ fontSize: '14px', color: 'var(--text-main)', fontWeight: 600 }}>
+            <div className="qa-explanation-text">
               <strong>{currentQ.term}</strong>: {currentQ.definition}
             </div>
             {currentQ.example && (
-              <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontStyle: 'italic', marginTop: '4px' }}>
+              <div className="qa-explanation-example">
                 Ví dụ: {currentQ.example}
               </div>
             )}
@@ -837,21 +607,7 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ deck, onExit, onGoToStudy,
 
           <button
             onClick={handleNextQuestion}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              backgroundColor: 'var(--primary)',
-              color: '#ffffff',
-              padding: '12px 22px',
-              borderRadius: '10px',
-              fontWeight: 700,
-              fontSize: '14px',
-              whiteSpace: 'nowrap',
-              boxShadow: '0 4px 12px var(--primary-glow)',
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--primary-hover)')}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--primary)')}
+            className="qa-btn-continue"
           >
             <span>Tiếp tục</span>
             <ChevronRight size={18} />
@@ -860,11 +616,7 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ deck, onExit, onGoToStudy,
       )}
 
       {/* Dòng hướng dẫn phím tắt */}
-      <div style={{
-        textAlign: 'center',
-        fontSize: '12px',
-        color: 'var(--text-muted)',
-      }}>
+      <div className="qa-shortcuts-hint">
         💡 Phím tắt nhanh: <strong>[1, 2, 3, 4]</strong> hoặc <strong>[A, B, C, D]</strong> để chọn đáp án • <strong>[Enter]</strong> hoặc <strong>[Space]</strong> sang câu tiếp theo
       </div>
     </div>
