@@ -1,16 +1,10 @@
-using Microsoft.EntityFrameworkCore;
-using QuizCard.Services.Models;
+﻿using Microsoft.EntityFrameworkCore;
 
-namespace QuizCard.Services.Data;
+namespace QuizCard.Entities;
 
-/// <summary>
-/// Lớp ngữ cảnh cơ sở dữ liệu Entity Framework Core (DbContext) cho ứng dụng QuizCard.
-/// Quản lý kết nối tới cơ sở dữ liệu SQLite, định nghĩa các bảng dữ liệu (DbSet)
-/// và cấu hình ràng buộc quan hệ giữa các thực thể (Relationships & Cascade Delete).
-/// </summary>
-public class QuizCardDbContext : DbContext
+public class ApplicationDbContext : DbContext
 {
-    public QuizCardDbContext(DbContextOptions<QuizCardDbContext> options) : base(options)
+    public ApplicationDbContext(DbContextOptions options) : base(options)
     {
     }
 
@@ -93,3 +87,4 @@ public class QuizCardDbContext : DbContext
         });
     }
 }
+

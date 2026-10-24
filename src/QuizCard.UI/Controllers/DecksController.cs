@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using QuizCard.Services.DTOs;
-using QuizCard.Services.Services;
+using QuizCard.ServiceContracts;
+using QuizCard.ServiceContracts.DTOs.DeckDTOs;
 
 namespace QuizCard.UI.Controllers;
 

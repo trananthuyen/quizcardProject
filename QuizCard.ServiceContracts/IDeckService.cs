@@ -1,6 +1,6 @@
-using QuizCard.Services.DTOs;
+﻿using QuizCard.ServiceContracts.DTOs.DeckDTOs;
 
-namespace QuizCard.Services.Services;
+namespace QuizCard.ServiceContracts;
 
 /// <summary>
 /// Giao diện (Interface) định nghĩa các nghiệp vụ quản lý Bộ thẻ / Dự án (Deck Management).
@@ -40,3 +40,4 @@ public interface IDeckService
     /// <returns>True nếu xóa thành công, False nếu không tìm thấy bộ thẻ.</returns>
     Task<bool> DeleteDeckAsync(Guid id);
 }
+

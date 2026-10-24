@@ -1,21 +1,21 @@
-using Microsoft.EntityFrameworkCore;
-using QuizCard.Services.Data;
-using QuizCard.Services.DTOs;
-using QuizCard.Services.Models;
+using QuizCard.Entities;
+using QuizCard.RepositoryContracts;
+using QuizCard.ServiceContracts;
+using QuizCard.ServiceContracts.DTOs.CategoryDTOs;
 
-namespace QuizCard.Services.Services;
+namespace QuizCard.Services;
 
 /// <summary>
 /// Lớp triển khai các thao tác CRUD cho Phân loại bộ thẻ (CategoryService).
-/// Sử dụng Entity Framework Core và lưu trữ trong SQLite.
+/// Sử dụng ICategoriesRespository theo chuẩn Clean Architecture.
 /// </summary>
 public class CategoryService : ICategoryService
 {
-    private readonly QuizCardDbContext _context;
+    private readonly ICategoriesRespository _categoriesRespository;
 
-    public CategoryService(QuizCardDbContext context)
+    public CategoryService(ICategoriesRespository categoriesRespository)
     {
-        _context = context;
+        _categoriesRespository = categoriesRespository;
     }
 
     /// <summary>
@@ -24,15 +24,8 @@ public class CategoryService : ICategoryService
     /// </summary>
     public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
     {
-        var categories = await _context.Categories
-            .OrderBy(c => c.CreatedAt)
-            .ToListAsync();
-
-        // Lấy danh sách số lượng bộ thẻ theo từng category
-        var deckCounts = await _context.Decks
-            .GroupBy(d => d.Category.ToLower())
-            .Select(g => new { CategoryLower = g.Key, Count = g.Count() })
-            .ToDictionaryAsync(x => x.CategoryLower, x => x.Count);
+        var categories = await _categoriesRespository.GetAllCategories();
+        var deckCounts = await _categoriesRespository.GetDeckCountsGroupedByCategory();
 
         return categories.Select(c =>
         {
@@ -55,22 +48,21 @@ public class CategoryService : ICategoryService
     /// </summary>
     public async Task<CategoryDto?> GetCategoryByIdAsync(Guid id)
     {
-        var c = await _context.Categories.FindAsync(id);
+        var c = await _categoriesRespository.GetCategoryById(id);
         if (c is null) return null;
 
-        var count = await _context.Decks.CountAsync(d => d.Category.ToLower() == c.Name.ToLower());
+        var count = await _categoriesRespository.CountDecksByCategoryName(c.Name);
         return new CategoryDto(c.Id, c.Name, c.Description, c.Icon, c.Color, count, c.CreatedAt);
     }
 
     /// <summary>
     /// Tạo một phân loại bộ thẻ mới.
-    /// Kiểm tra nếu tên phân loại đã tồn tại (không phân biệt hoa thường) thì ném lỗi hoặc trả về bản ghi cũ.
+    /// Kiểm tra nếu tên phân loại đã tồn tại (không phân biệt hoa thường) thì ném lỗi.
     /// </summary>
     public async Task<CategoryDto> CreateCategoryAsync(CreateCategoryRequest request)
     {
         var trimmedName = request.Name.Trim();
-        var existing = await _context.Categories
-            .FirstOrDefaultAsync(c => c.Name.ToLower() == trimmedName.ToLower());
+        var existing = await _categoriesRespository.FindCategoryByName(trimmedName);
 
         if (existing is not null)
         {
@@ -87,10 +79,9 @@ public class CategoryService : ICategoryService
             CreatedAt = DateTime.UtcNow
         };
 
-        _context.Categories.Add(category);
-        await _context.SaveChangesAsync();
+        await _categoriesRespository.CreateCategory(category);
 
-        var count = await _context.Decks.CountAsync(d => d.Category.ToLower() == category.Name.ToLower());
+        var count = await _categoriesRespository.CountDecksByCategoryName(category.Name);
         return new CategoryDto(category.Id, category.Name, category.Description, category.Icon, category.Color, count, category.CreatedAt);
     }
 
@@ -100,7 +91,7 @@ public class CategoryService : ICategoryService
     /// </summary>
     public async Task<CategoryDto?> UpdateCategoryAsync(Guid id, UpdateCategoryRequest request)
     {
-        var category = await _context.Categories.FindAsync(id);
+        var category = await _categoriesRespository.GetCategoryById(id);
         if (category is null) return null;
 
         var oldName = category.Name;
@@ -109,22 +100,14 @@ public class CategoryService : ICategoryService
         // Kiểm tra xem tên mới có bị trùng với phân loại khác không
         if (!string.Equals(oldName, newName, StringComparison.OrdinalIgnoreCase))
         {
-            var isDuplicate = await _context.Categories
-                .AnyAsync(c => c.Id != id && c.Name.ToLower() == newName.ToLower());
+            var isDuplicate = await _categoriesRespository.CategoryExistsByName(newName, id);
             if (isDuplicate)
             {
                 throw new InvalidOperationException($"Phân loại '{newName}' đã tồn tại");
             }
 
             // Đồng bộ tên phân loại mới cho tất cả các bộ thẻ liên quan
-            var relatedDecks = await _context.Decks
-                .Where(d => d.Category.ToLower() == oldName.ToLower())
-                .ToListAsync();
-
-            foreach (var deck in relatedDecks)
-            {
-                deck.Category = newName;
-            }
+            await _categoriesRespository.UpdateDecksCategory(oldName, newName);
         }
 
         category.Name = newName;
@@ -132,9 +115,9 @@ public class CategoryService : ICategoryService
         category.Icon = string.IsNullOrWhiteSpace(request.Icon) ? "📁" : request.Icon.Trim();
         category.Color = string.IsNullOrWhiteSpace(request.Color) ? "#3b82f6" : request.Color.Trim();
 
-        await _context.SaveChangesAsync();
+        await _categoriesRespository.UpdateCategory(category);
 
-        var count = await _context.Decks.CountAsync(d => d.Category.ToLower() == category.Name.ToLower());
+        var count = await _categoriesRespository.CountDecksByCategoryName(category.Name);
         return new CategoryDto(category.Id, category.Name, category.Description, category.Icon, category.Color, count, category.CreatedAt);
     }
 
@@ -144,23 +127,12 @@ public class CategoryService : ICategoryService
     /// </summary>
     public async Task<bool> DeleteCategoryAsync(Guid id)
     {
-        var category = await _context.Categories.FindAsync(id);
+        var category = await _categoriesRespository.GetCategoryById(id);
         if (category is null) return false;
 
         // Chuyển các bộ thẻ liên quan sang category "Chung"
-        var relatedDecks = await _context.Decks
-            .Where(d => d.Category.ToLower() == category.Name.ToLower())
-            .ToListAsync();
+        await _categoriesRespository.UpdateDecksCategory(category.Name, "Chung");
 
-        foreach (var deck in relatedDecks)
-        {
-            deck.Category = "Chung";
-        }
-
-        _context.Categories.Remove(category);
-        await _context.SaveChangesAsync();
-
-        return true;
+        return await _categoriesRespository.DeleteCategory(category);
     }
 }
-

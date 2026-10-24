@@ -1,9 +1,9 @@
-using Microsoft.EntityFrameworkCore;
-using QuizCard.Services.Data;
-using QuizCard.Services.DTOs;
-using QuizCard.Services.Models;
+using QuizCard.Entities;
+using QuizCard.RepositoryContracts;
+using QuizCard.ServiceContracts;
+using QuizCard.ServiceContracts.DTOs.CardDTOs;
 
-namespace QuizCard.Services.Services;
+namespace QuizCard.Services;
 
 /// <summary>
 /// Lớp triển khai các nghiệp vụ liên quan đến Thẻ Flashcard (CardService).
@@ -11,11 +11,11 @@ namespace QuizCard.Services.Services;
 /// </summary>
 public class CardService : ICardService
 {
-    private readonly QuizCardDbContext _context;
+    private readonly ICardsRespository _cardsRespository;
 
-    public CardService(QuizCardDbContext context)
+    public CardService(ICardsRespository cardsRespository)
     {
-        _context = context;
+        _cardsRespository = cardsRespository;
     }
 
     /// <summary>
@@ -25,12 +25,7 @@ public class CardService : ICardService
     /// </summary>
     public async Task<IEnumerable<CardDto>> GetCardsByDeckIdAsync(Guid deckId)
     {
-        var cards = await _context.Cards
-            .Where(c => c.DeckId == deckId)
-            .Include(c => c.StudyProgress)
-            .OrderBy(c => c.CreatedAt)
-            .ToListAsync();
-
+        var cards = await _cardsRespository.GetAllCardsByDeckId(deckId);
         return cards.Select(MapToCardDto);
     }
 
@@ -39,10 +34,7 @@ public class CardService : ICardService
     /// </summary>
     public async Task<CardDto?> GetCardByIdAsync(Guid id)
     {
-        var card = await _context.Cards
-            .Include(c => c.StudyProgress)
-            .FirstOrDefaultAsync(c => c.Id == id);
-
+        var card = await _cardsRespository.GetCardById(id);
         return card is null ? null : MapToCardDto(card);
     }
 
@@ -52,8 +44,7 @@ public class CardService : ICardService
     /// </summary>
     public async Task<CardDto?> CreateCardAsync(Guid deckId, CreateCardRequest request)
     {
-        // Kiểm tra xem bộ thẻ có tồn tại trong hệ thống không
-        var deckExists = await _context.Decks.AnyAsync(d => d.Id == deckId);
+        var deckExists = await _cardsRespository.DeckExists(deckId);
         if (!deckExists) return null;
 
         var card = new Card
@@ -66,7 +57,6 @@ public class CardService : ICardService
             CreatedAt = DateTime.UtcNow
         };
 
-        // Tự động tạo bản ghi tiến độ học tập ban đầu
         var progress = new StudyProgress
         {
             Id = Guid.NewGuid(),
@@ -80,9 +70,7 @@ public class CardService : ICardService
 
         card.StudyProgress = progress;
 
-        _context.Cards.Add(card);
-        _context.StudyProgresses.Add(progress);
-        await _context.SaveChangesAsync();
+        await _cardsRespository.CreateCard(card);
 
         return MapToCardDto(card);
     }
@@ -93,7 +81,12 @@ public class CardService : ICardService
     /// </summary>
     public async Task<IEnumerable<CardDto>> CreateCardsBatchAsync(Guid deckId, IEnumerable<CreateCardRequest> requests)
     {
-        var deckExists = await _context.Decks.AnyAsync(d => d.Id == deckId);
+        if (requests == null)
+        {
+            throw new ArgumentNullException(nameof(requests));
+        }
+
+        var deckExists = await _cardsRespository.DeckExists(deckId);
         if (!deckExists) return Enumerable.Empty<CardDto>();
 
         var createdCards = new List<Card>();
@@ -101,7 +94,6 @@ public class CardService : ICardService
 
         foreach (var req in requests)
         {
-            // Bỏ qua các dòng không có thuật ngữ hoặc định nghĩa
             if (string.IsNullOrWhiteSpace(req.Term) || string.IsNullOrWhiteSpace(req.Definition))
                 continue;
 
@@ -128,14 +120,11 @@ public class CardService : ICardService
 
             card.StudyProgress = progress;
             createdCards.Add(card);
-            _context.Cards.Add(card);
-            _context.StudyProgresses.Add(progress);
         }
 
-        // Lưu toàn bộ danh sách thẻ vào DB
         if (createdCards.Count > 0)
         {
-            await _context.SaveChangesAsync();
+            await _cardsRespository.CreateCardsBatch(createdCards);
         }
 
         return createdCards.Select(MapToCardDto);
@@ -146,10 +135,7 @@ public class CardService : ICardService
     /// </summary>
     public async Task<CardDto?> UpdateCardAsync(Guid id, UpdateCardRequest request)
     {
-        var card = await _context.Cards
-            .Include(c => c.StudyProgress)
-            .FirstOrDefaultAsync(c => c.Id == id);
-
+        var card = await _cardsRespository.GetCardById(id);
         if (card is null) return null;
 
         card.Term = request.Term.Trim();
@@ -157,7 +143,7 @@ public class CardService : ICardService
         card.Example = request.Example?.Trim();
         card.UpdatedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        await _cardsRespository.UpdateCard(card);
         return MapToCardDto(card);
     }
 
@@ -166,12 +152,10 @@ public class CardService : ICardService
     /// </summary>
     public async Task<bool> DeleteCardAsync(Guid id)
     {
-        var card = await _context.Cards.FindAsync(id);
+        var card = await _cardsRespository.GetCardById(id);
         if (card is null) return false;
 
-        _context.Cards.Remove(card);
-        await _context.SaveChangesAsync();
-        return true;
+        return await _cardsRespository.DeleteCard(card);
     }
 
     /// <summary>

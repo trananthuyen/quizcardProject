@@ -1,4 +1,4 @@
-namespace QuizCard.Services.Models;
+﻿namespace QuizCard.Entities;
 
 /// <summary>
 /// Đại diện cho một "Bộ thẻ" hoặc "Dự án học tập" (Deck / Project).

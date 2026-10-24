@@ -1,4 +1,4 @@
-namespace QuizCard.Services.Models;
+﻿namespace QuizCard.Entities;
 
 /// <summary>
 /// Đại diện cho một thẻ nhớ Flashcard đơn lẻ.
@@ -52,3 +52,4 @@ public class Card
     /// </summary>
     public StudyProgress? StudyProgress { get; set; }
 }
+

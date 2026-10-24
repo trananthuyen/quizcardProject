@@ -1,11 +1,5 @@
-namespace QuizCard.Services.Models;
+﻿namespace QuizCard.Entities;
 
-/// <summary>
-/// Trạng thái học tập của một thẻ Flashcard theo phương pháp ghi nhớ:
-/// - NotStarted: Thẻ mới tạo, người dùng chưa từng tương tác ôn tập.
-/// - Learning: Thẻ đang trong quá trình học và rèn luyện trí nhớ.
-/// - Mastered: Thẻ đã thuộc (đạt đủ số lần trả lời đúng liên tiếp theo thuật toán).
-/// </summary>
 public enum StudyStatus
 {
     /// <summary>
@@ -23,3 +17,4 @@ public enum StudyStatus
     /// </summary>
     Mastered = 2
 }
+

@@ -1,4 +1,4 @@
-namespace QuizCard.Services.Models;
+﻿namespace QuizCard.Entities;
 
 /// <summary>
 /// Đại diện cho một "Phân loại / Danh mục" của Bộ thẻ (Deck Category).

@@ -2,10 +2,15 @@ import React, { useState } from 'react';
 import { 
   Clock, Compass, ChevronDown, ChevronRight, ChevronLeft, Star, 
   Folder, ArrowUp, Package, LayoutGrid, BookOpen, Trash2, 
-  Search, Sparkles, Check, X, MonitorPlay, PanelLeftClose 
+  Search, Sparkles, Check, X, MonitorPlay, Bell 
 } from 'lucide-react';
 import type { Category } from '../types';
+import { UserMenu } from './UserMenu';
 import './Sidebar.css';
+
+const USER_AVATAR_URL = 'https://images.unsplash.com/photo-1519741497674-611481863552?w=160&auto=format&fit=crop&q=80';
+const USER_NAME = 'tran an thuyen';
+const USER_EMAIL = 'tranvancay1986@gmail.com';
 
 export type SidebarTab = 'community' | 'resources' | 'video' | 'recents' | 'drafts' | 'folders' | 'trash';
 
@@ -50,6 +55,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
 
   const handleTabClick = (tab: SidebarTab) => {
     onSelectTab(tab);
@@ -57,30 +64,60 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      <div className={`qc-sidebar-wrapper ${!actualIsOpen ? 'collapsed' : ''}`}>
-        <aside className={`qc-sidebar ${!actualIsOpen ? 'collapsed' : ''}`}>
+      <div className={`qc-sidebar-wrapper ${!actualIsOpen ? 'collapsed' : ''} ${isUserMenuOpen ? 'menu-open' : ''}`}>
+        <aside className={`qc-sidebar ${!actualIsOpen ? 'collapsed' : ''} ${isUserMenuOpen ? 'menu-open' : ''}`}>
           <div className="qc-sidebar-inner">
             {/* User Profile Header */}
-            <div className="qc-sidebar-header">
-              <div className="qc-user-profile" title="Tài khoản cá nhân">
-                <div className="qc-avatar">
-                  <span>TA</span>
+            <div className="qc-sidebar-header" style={{ position: 'relative' }}>
+              <div 
+                className={`qc-user-profile ${isUserMenuOpen ? 'active' : ''}`} 
+                title="Tài khoản cá nhân"
+                onClick={() => setIsUserMenuOpen((prev) => !prev)}
+              >
+                <div className="qc-avatar" style={{ overflow: 'hidden' }}>
+                  {!avatarError ? (
+                    <img 
+                      src={USER_AVATAR_URL} 
+                      alt={USER_NAME} 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={() => setAvatarError(true)}
+                    />
+                  ) : (
+                    <span>TA</span>
+                  )}
                 </div>
-                <span className="qc-user-name">tran an thuyen</span>
-                <ChevronDown size={14} color="#71717a" />
+                <span className="qc-user-name" title={USER_NAME}>{USER_NAME}</span>
+                <ChevronDown 
+                  size={14} 
+                  color="#71717a" 
+                  style={{ 
+                    transform: isUserMenuOpen ? 'rotate(180deg)' : 'none', 
+                    transition: 'transform 0.2s ease',
+                    flexShrink: 0
+                  }} 
+                />
               </div>
 
               <div className="qc-sidebar-header-actions">
                 <button
                   type="button"
-                  className="qc-sidebar-close-btn"
-                  title="Thu gọn sidebar (Ctrl+B)"
-                  onClick={handleToggle}
-                  aria-label="Thu gọn sidebar"
+                  className="qc-bell-btn"
+                  title="Thông báo"
+                  onClick={() => alert('Không có thông báo mới')}
+                  aria-label="Thông báo"
                 >
-                  <PanelLeftClose size={16} />
+                  <Bell size={16} />
                 </button>
               </div>
+
+              {/* Menu Popover khi click vào tên người dùng */}
+              <UserMenu 
+                isOpen={isUserMenuOpen} 
+                onClose={() => setIsUserMenuOpen(false)}
+                avatarUrl={USER_AVATAR_URL}
+                userName={USER_NAME}
+                userEmail={USER_EMAIL}
+              />
             </div>
 
             {/* Search input in sidebar */}
@@ -225,25 +262,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Nút đóng mở ở mép giữa sidebar */}
         <button
           type="button"
-          className={`qc-sidebar-edge-toggle ${!actualIsOpen ? 'collapsed' : ''}`}
+          className={`qc-sidebar-edge-toggle ${isUserMenuOpen ? 'hidden-by-menu' : ''}`}
           onClick={handleToggle}
-          title={actualIsOpen ? "Thu gọn sidebar (Ctrl+B)" : "Mở rộng sidebar (Ctrl+B)"}
-          aria-label={actualIsOpen ? "Thu gọn sidebar" : "Mở rộng sidebar"}
+          title="Thu gọn sidebar (Ctrl+B)"
+          aria-label="Thu gọn sidebar"
         >
-          {actualIsOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+          <ChevronLeft size={14} />
         </button>
       </div>
 
-      {/* Nút đóng mở ở mép giữa sidebar */}
+      {/* Nút mở lại sidebar khi đang thu gọn */}
+      {!actualIsOpen && (
         <button
           type="button"
-          className={`qc-sidebar-edge-toggle ${!actualIsOpen ? 'collapsed' : ''}`}
+          className="qc-sidebar-edge-toggle collapsed"
           onClick={handleToggle}
-          title={actualIsOpen ? "Thu gọn sidebar (Ctrl+B)" : "Mở rộng sidebar (Ctrl+B)"}
-          aria-label={actualIsOpen ? "Thu gọn sidebar" : "Mở rộng sidebar"}
+          title="Mở rộng sidebar (Ctrl+B)"
+          aria-label="Mở rộng sidebar"
         >
-          {actualIsOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+          <ChevronRight size={14} />
         </button>
+      )}
 
       {/* Modal Kế hoạch & Nâng cấp (Plan & Upgrade Modal) */}
       {isPlanModalOpen && (

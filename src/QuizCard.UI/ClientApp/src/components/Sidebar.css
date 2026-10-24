@@ -179,9 +179,17 @@
   display: none;
 }
 
+.qc-sidebar-wrapper.menu-open {
+  z-index: 100 !important;
+}
+
+.qc-sidebar.menu-open {
+  overflow: visible !important;
+}
+
 .qc-sidebar-inner {
-  width: 226px;
-  min-width: 226px;
+  width: 236px;
+  min-width: 236px;
   display: flex;
   flex-direction: column;
   min-height: 100%;
@@ -245,6 +253,12 @@
   box-shadow: 2px 4px 12px rgba(13, 153, 255, 0.25);
 }
 
+.qc-sidebar-edge-toggle.hidden-by-menu {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
 .qc-sidebar-header-actions {
   display: flex;
   align-items: center;
@@ -268,4 +282,300 @@
 .qc-sidebar-close-btn:hover {
   background-color: #f4f4f5;
   color: #18181b;
+}
+
+/* Nút Chuông Thông Báo (Notification Bell) */
+.qc-bell-btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: #71717a;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.qc-bell-btn:hover {
+  background-color: #f4f4f5;
+  color: #18181b;
+}
+
+/* ============================================================
+   Menu Tài Khoản Người Dùng (User Profile Dropdown Popover)
+   Giao diện nền tối sang trọng chuẩn xác theo ảnh mẫu
+   ============================================================ */
+.qc-user-menu-popover {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #1e1e1e;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  padding: 6px;
+  color: #ffffff;
+  animation: qcUserMenuFade 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+@keyframes qcUserMenuFade {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Phần Header Hồ Sơ Người Dùng */
+.qc-user-menu-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 12px 14px 12px;
+  text-align: center;
+}
+
+.qc-user-menu-avatar-large {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  background-color: #27272a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.qc-user-menu-avatar-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.qc-user-menu-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  text-decoration: underline;
+  text-decoration-color: #38bdf8;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qc-user-menu-email {
+  font-size: 11.5px;
+  color: #a1a1aa;
+  margin-top: 3px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Đường phân cách mảnh */
+.qc-user-menu-divider {
+  height: 1px;
+  background-color: #2f2f33;
+  margin: 4px 0;
+}
+
+/* Danh sách nút chức năng */
+.qc-user-menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.qc-user-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #f4f4f5;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.12s;
+}
+
+.qc-user-menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.qc-user-menu-icon {
+  color: #d4d4d8;
+  flex-shrink: 0;
+}
+
+.qc-user-menu-label {
+  flex: 1;
+}
+
+.qc-user-menu-chevron {
+  color: #71717a;
+  margin-left: auto;
+}
+
+/* ============================================================
+   Menu Con Lựa Chọn Theme (Light, Dark, System theme)
+   Thiết kế chuẩn xác theo mẫu Figma:
+   - Nút Change theme đổi nền xanh dương #0d99ff
+   - Submenu hiện cạnh phải có dấu tích check bên cạnh tùy chọn đang chọn
+   ============================================================ */
+.qc-theme-menu-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.qc-user-menu-item.active-sub {
+  background-color: #0d99ff !important;
+  color: #ffffff !important;
+}
+
+.qc-user-menu-item.active-sub .qc-user-menu-icon,
+.qc-user-menu-item.active-sub .qc-user-menu-chevron {
+  color: #ffffff !important;
+}
+
+.qc-theme-submenu-popover {
+  position: absolute;
+  left: calc(100% + 4px);
+  top: 0;
+  width: 152px;
+  background-color: #1e1e1e;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65), 0 4px 12px rgba(0, 0, 0, 0.35);
+  z-index: 1001;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: qcSubMenuFade 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+/* Cầu nối tàng hình giúp con trỏ chuột di chuyển mượt mà không bị mất menu */
+.qc-theme-submenu-popover::before {
+  content: '';
+  position: absolute;
+  left: -14px;
+  top: -8px;
+  bottom: -8px;
+  width: 18px;
+  background: transparent;
+}
+
+@keyframes qcSubMenuFade {
+  from {
+    opacity: 0;
+    transform: translateX(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.qc-theme-sub-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 7px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #f4f4f5;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.12s, color 0.12s;
+}
+
+.qc-theme-sub-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.qc-theme-check-box {
+  width: 18px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  color: #ffffff;
+}
+
+/* Mục Tạo Hồ Sơ Cộng Đồng */
+.qc-user-menu-community-item {
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+}
+
+.qc-user-menu-avatar-small {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background-color: #27272a;
+}
+
+.qc-user-menu-avatar-small img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.qc-user-menu-community-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+  min-width: 0;
+  flex: 1;
+}
+
+.qc-user-menu-community-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qc-user-menu-community-email {
+  font-size: 11px;
+  color: #888890;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

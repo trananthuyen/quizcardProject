@@ -1,9 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using QuizCard.Services.Data;
-using QuizCard.Services.Models;
+using QuizCard.Entities;
 
 namespace QuizCard.UI.Data;
-
 /// <summary>
 /// Lớp khởi tạo cơ sở dữ liệu ban đầu (Database Initializer).
 /// Tự động tạo bảng SQLite nếu chưa có, cập nhật cấu trúc cột mới và chèn dữ liệu mẫu đa dạng theo các phân loại:
@@ -13,7 +11,7 @@ namespace QuizCard.UI.Data;
 /// </summary>
 public static class DbInitializer
 {
-    public static async Task InitializeAsync(QuizCardDbContext context)
+    public static async Task InitializeAsync(ApplicationDbContext context)
     {
         // 1. Tự động tạo cơ sở dữ liệu và bảng nếu chưa tồn tại
         await context.Database.EnsureCreatedAsync();

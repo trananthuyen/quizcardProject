@@ -1,4 +1,4 @@
-﻿/* QuizCard Community Layout Styling */
+/* QuizCard Community Layout Styling */
 
 :root {
   --qc-bg: #f8fafc;
@@ -25,9 +25,9 @@
 
 /* Sidebar */
 .qc-sidebar {
-  width: 250px;
-  min-width: 250px;
-  max-width: 250px;
+  width: 260px;
+  min-width: 260px;
+  max-width: 260px;
   height: 100vh;
   position: sticky;
   top: 0;
@@ -56,6 +56,8 @@
   padding: 4px 6px;
   border-radius: 6px;
   transition: background-color 0.15s;
+  min-width: 0;
+  flex: 1;
 }
 
 .qc-user-profile:hover {
@@ -81,6 +83,10 @@
   font-weight: 600;
   color: #18181b;
   letter-spacing: -0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
 }
 
 .qc-bell-btn {
@@ -312,10 +318,94 @@
   z-index: 20;
 }
 
+.qc-topbar-left {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.qc-topbar-center {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 16px;
+}
+
+.qc-topbar-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* Thẻ chỉ số nổi bật ở giữa Header (Stat Pills: Energy & Streak) */
+.qc-stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  user-select: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.qc-stat-pill:hover {
+  transform: translateY(-1px);
+}
+
+/* Thẻ Năng lượng (Energy Zap) - Màu vàng ánh kim nổi bật */
+.qc-stat-energy {
+  background-color: #fefce8;
+  color: #ca8a04;
+  border: 1px solid #fef08a;
+}
+
+.qc-stat-energy:hover {
+  background-color: #fef9c3;
+  border-color: #fde047;
+  box-shadow: 0 2px 8px rgba(202, 138, 4, 0.2);
+}
+
+.qc-stat-energy svg {
+  color: #eab308;
+  fill: #eab308;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(234, 179, 8, 0.35));
+}
+
+/* Thẻ Chuỗi ngày học (Streak Flame) - Màu cam đỏ ngọn lửa */
+.qc-stat-streak {
+  background-color: #fff7ed;
+  color: #ea580c;
+  border: 1px solid #fed7aa;
+}
+
+.qc-stat-streak:hover {
+  background-color: #ffedd5;
+  border-color: #fdba74;
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.2);
+}
+
+.qc-stat-streak svg {
+  color: #f97316;
+  fill: #f97316;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(249, 115, 22, 0.35));
+}
+
 .qc-page-title {
   font-size: 13.5px;
   font-weight: 600;
   color: #18181b;
+  white-space: nowrap;
 }
 
 .qc-topbar-search {
@@ -1126,4 +1216,1119 @@
   background-color: #f4f4f5;
   color: #0d99ff;
   border-color: #bae6fd;
+}
+
+/* ============================================================
+   CHẾ ĐỘ TỐI TOÀN DIỆN (COMPREHENSIVE DARK THEME)
+   Tự động kích hoạt khi html hoặc body có [data-theme="dark"]
+   Bao gồm: QuizArena, StudyArena, CardManager, TrashView, FolderList, MyResources, Modals
+   ============================================================ */
+
+[data-theme="dark"] {
+  --qc-bg: #121214;
+  --qc-sidebar-bg: #18181b;
+  --qc-border: #27272a;
+  --qc-border-subtle: #202023;
+  --qc-text-primary: #f4f4f5;
+  --qc-text-secondary: #a1a1aa;
+  --qc-text-muted: #71717a;
+  --qc-blue: #0d99ff;
+  --qc-blue-hover: #38bdf8;
+  --qc-blue-light: rgba(13, 153, 255, 0.15);
+  --qc-blue-text: #38bdf8;
+
+  --bg-main: #121214;
+  --bg-card: #18181b;
+  --text-main: #f4f4f5;
+  --text-muted: #a1a1aa;
+  --border: #27272a;
+
+  --primary: #38bdf8;
+  --primary-hover: #0ea5e9;
+  --primary-light: rgba(56, 189, 248, 0.15);
+  --primary-glow: rgba(56, 189, 248, 0.25);
+}
+
+[data-theme="dark"] body {
+  background-color: #121214;
+  color: #f4f4f5;
+}
+
+[data-theme="dark"] .qc-app-container {
+  background-color: #121214;
+  color: #f4f4f5;
+}
+
+/* ------------------------------------------------------------ */
+/* 1. SIDEBAR & TOPBAR                                          */
+/* ------------------------------------------------------------ */
+[data-theme="dark"] .qc-sidebar {
+  background-color: #18181b;
+  border-right-color: #27272a;
+}
+
+[data-theme="dark"] .qc-user-name {
+  color: #f4f4f5;
+}
+
+[data-theme="dark"] .qc-user-profile:hover {
+  background-color: #27272a;
+}
+
+[data-theme="dark"] .qc-bell-btn {
+  color: #a1a1aa;
+}
+
+[data-theme="dark"] .qc-bell-btn:hover {
+  background-color: #27272a;
+  color: #f4f4f5;
+}
+
+[data-theme="dark"] .qc-sidebar-search input {
+  background-color: #27272a;
+  border-color: #3f3f46;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .qc-sidebar-search input:focus {
+  background-color: #222226;
+  border-color: #0d99ff;
+}
+
+[data-theme="dark"] .qc-nav-item {
+  color: #a1a1aa;
+}
+
+[data-theme="dark"] .qc-nav-item:hover {
+  background-color: #27272a;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .qc-nav-item.active {
+  background-color: rgba(13, 153, 255, 0.15);
+  color: #38bdf8;
+}
+
+[data-theme="dark"] .qc-nav-divider {
+  background-color: #27272a;
+}
+
+[data-theme="dark"] .qc-team-row:hover {
+  background-color: #27272a;
+}
+
+[data-theme="dark"] .qc-team-name {
+  color: #f4f4f5;
+}
+
+[data-theme="dark"] .qc-free-badge {
+  background-color: #27272a;
+  color: #a1a1aa;
+}
+
+/* Hộp Plan & Usage trong Sidebar */
+[data-theme="dark"] .qc-plan-card {
+  background-color: #202024 !important;
+  border: 1px solid #2e2e34 !important;
+}
+
+[data-theme="dark"] .qc-plan-card:hover {
+  background-color: #27272a !important;
+  border-color: #3f3f46 !important;
+}
+
+[data-theme="dark"] .sb-plan-title {
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .sb-plan-desc {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .qc-section-title {
+  color: #a1a1aa;
+}
+
+[data-theme="dark"] .qc-sidebar-edge-toggle {
+  background-color: #27272a;
+  border-color: #3f3f46;
+  color: #a1a1aa;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .qc-sidebar-edge-toggle:hover {
+  background-color: #3f3f46;
+  color: #38bdf8;
+  border-color: #38bdf8;
+}
+
+[data-theme="dark"] .qc-main-area {
+  background-color: #121214;
+}
+
+[data-theme="dark"] .qc-topbar {
+  background-color: #18181b;
+  border-bottom-color: #27272a;
+}
+
+[data-theme="dark"] .qc-page-title {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .qc-topbar-search input {
+  background-color: #27272a;
+  border-color: #3f3f46;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .qc-topbar-search input:focus {
+  background-color: #222226;
+  border-color: #0d99ff;
+}
+
+[data-theme="dark"] .qc-main-scroll {
+  background-color: #121214;
+}
+
+/* ------------------------------------------------------------ */
+/* 2. COMMUNITY & DECK CARDS                                    */
+/* ------------------------------------------------------------ */
+[data-theme="dark"] .qc-hero-banner {
+  background: linear-gradient(180deg, #182234 0%, #111a26 100%);
+  border-color: #1e3a5f;
+}
+
+[data-theme="dark"] .qc-hero-title {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .qc-sticker {
+  background-color: #1c1c20;
+  border-color: #2e2e34;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .qc-sticker-palette {
+  background: #1c1c20;
+  border-color: #1e3a5f;
+}
+
+[data-theme="dark"] .qc-sticker-hex {
+  background: #1c1c20;
+  border-color: #2e2e34;
+}
+
+[data-theme="dark"] .qc-sticker-tag {
+  background: #1c1c20;
+  border-color: #382436;
+}
+
+[data-theme="dark"] .qc-sticker-aa {
+  background: #1c1c20;
+  border-color: #2e2e34;
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .qc-sticker-sparkle {
+  background: #1c1c20;
+  border-color: #382442;
+}
+
+[data-theme="dark"] .qc-sticker-book {
+  background: #1c1c20;
+  border-color: #1e3a5f;
+}
+
+[data-theme="dark"] .qc-pill-btn {
+  background-color: #1c1c20;
+  border-color: #2e2e34;
+  color: #a1a1aa;
+}
+
+[data-theme="dark"] .qc-pill-btn:hover {
+  background-color: #27272a;
+  color: #ffffff;
+  border-color: #3f3f46;
+}
+
+[data-theme="dark"] .qc-pill-btn.active {
+  background-color: #ffffff;
+  color: #18181b;
+  border-color: #ffffff;
+}
+
+[data-theme="dark"] .qc-feed-title {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .qc-card {
+  background-color: #18181b !important;
+  border-color: #27272a !important;
+}
+
+[data-theme="dark"] .qc-card:hover {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.6) !important;
+}
+
+[data-theme="dark"] .qc-card-title {
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .qc-card-desc {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .qc-card-footer {
+  background-color: #18181b !important;
+  border-top: 1px solid #27272a !important;
+}
+
+[data-theme="dark"] .qc-author-name {
+  color: #e4e4e7 !important;
+}
+
+[data-theme="dark"] .qc-like-btn {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .qc-like-btn:hover {
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .qc-gauge-light {
+  background: #242428 !important;
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .dc-gauge-light-title {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .dc-gauge-number-light {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .qc-upload-card {
+  background-color: #18181b;
+  border-color: #27272a;
+}
+
+[data-theme="dark"] .qc-upload-card:hover {
+  background-color: #1c1c20;
+  border-color: #38bdf8;
+}
+
+[data-theme="dark"] .qc-upload-title {
+  color: #f4f4f5;
+}
+
+[data-theme="dark"] .qc-upload-subtitle {
+  color: #a1a1aa;
+}
+
+[data-theme="dark"] .qc-hoop-dropzone {
+  background-color: #1c1c20;
+  border-color: #3f3f46;
+}
+
+/* ------------------------------------------------------------ */
+/* 3. MY RESOURCES VIEW                                         */
+/* ------------------------------------------------------------ */
+[data-theme="dark"] .mr-title {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .mr-subtitle {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .mr-btn-categories {
+  background-color: #27272a !important;
+  color: #f4f4f5 !important;
+  border: 1px solid #3f3f46 !important;
+}
+
+[data-theme="dark"] .mr-btn-categories:hover {
+  background-color: #3f3f46 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .mr-stat-card {
+  background-color: #18181b !important;
+  border: 1px solid #27272a !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .mr-stat-num {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .mr-stat-label {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .mr-stat-icon.blue {
+  background-color: rgba(13, 153, 255, 0.15) !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .mr-stat-icon.green {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .mr-stat-icon.amber {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+  color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .mr-stat-icon.purple {
+  background-color: rgba(168, 85, 247, 0.15) !important;
+  color: #c084fc !important;
+}
+
+/* ------------------------------------------------------------ */
+/* 4. FILTER PILLS                                              */
+/* ------------------------------------------------------------ */
+[data-theme="dark"] .fp-topic-label {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .fp-tab-btn {
+  background-color: #1c1c20 !important;
+  color: #d4d4d8 !important;
+  border: 1px solid #2e2e34 !important;
+}
+
+[data-theme="dark"] .fp-tab-btn:hover:not(.active-all):not(.active-studied):not(.active-notstarted):not(.active-custom) {
+  background-color: #27272a !important;
+  color: #ffffff !important;
+  border-color: #3f3f46 !important;
+}
+
+[data-theme="dark"] .fp-tab-btn.active-all {
+  background-color: #0d99ff !important;
+  color: #ffffff !important;
+  border-color: #0d99ff !important;
+}
+
+[data-theme="dark"] .fp-tab-btn.active-studied {
+  background-color: #10b981 !important;
+  color: #ffffff !important;
+  border-color: #10b981 !important;
+}
+
+[data-theme="dark"] .fp-tab-btn.active-notstarted {
+  background-color: #f59e0b !important;
+  color: #ffffff !important;
+  border-color: #f59e0b !important;
+}
+
+[data-theme="dark"] .fp-tab-btn.active-custom {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+  border-color: #3b82f6 !important;
+}
+
+[data-theme="dark"] .fp-tab-count {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .fp-btn-add-cat {
+  background-color: transparent !important;
+  color: #38bdf8 !important;
+  border: 1px dashed #38bdf8 !important;
+}
+
+[data-theme="dark"] .fp-btn-add-cat:hover {
+  background-color: rgba(56, 189, 248, 0.12) !important;
+  color: #7dd3fc !important;
+  border-color: #7dd3fc !important;
+}
+
+/* ------------------------------------------------------------ */
+/* 5. QUIZ ARENA (Luyện thi trắc nghiệm)                         */
+/* ------------------------------------------------------------ */
+[data-theme="dark"] .qa-empty-card,
+[data-theme="dark"] .qa-finished-card,
+[data-theme="dark"] .qa-question-card,
+[data-theme="dark"] .qa-explanation-card {
+  background-color: #18181b !important;
+  border-color: #27272a !important;
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .qa-empty-title,
+[data-theme="dark"] .qa-finished-title,
+[data-theme="dark"] .qa-prompt-text,
+[data-theme="dark"] .qa-explanation-text {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .qa-empty-desc,
+[data-theme="dark"] .qa-finished-subtitle,
+[data-theme="dark"] .qa-explanation-title,
+[data-theme="dark"] .qa-explanation-example,
+[data-theme="dark"] .qa-shortcuts-hint,
+[data-theme="dark"] .qa-title-sub,
+[data-theme="dark"] .qa-progress-correct {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .qa-stat-box {
+  background-color: #202024 !important;
+  border: 1px solid #2e2e34 !important;
+}
+
+[data-theme="dark"] .qa-stat-num {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .qa-stat-label {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .qa-incorrect-card {
+  background-color: #2a1917 !important;
+  border: 1px solid #4a2018 !important;
+}
+
+[data-theme="dark"] .qa-incorrect-title {
+  color: #fca5a5 !important;
+}
+
+[data-theme="dark"] .qa-incorrect-item {
+  color: #fed7aa !important;
+}
+
+[data-theme="dark"] .qa-btn-exit,
+[data-theme="dark"] .qa-btn-study {
+  background-color: #27272a !important;
+  border: 1px solid #3f3f46 !important;
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .qa-btn-exit:hover,
+[data-theme="dark"] .qa-btn-study:hover {
+  background-color: #3f3f46 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .qa-mode-select {
+  background-color: #27272a !important;
+  border: 1px solid #3f3f46 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .qa-progress-track {
+  background-color: #27272a !important;
+}
+
+[data-theme="dark"] .qa-option-btn {
+  background-color: #1c1c20 !important;
+  border: 1px solid #2e2e34 !important;
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .qa-option-btn:hover:not(:disabled) {
+  background-color: #27272a !important;
+  border-color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .qa-option-btn.unselected {
+  background-color: #141416 !important;
+  color: #71717a !important;
+  border-color: #222226 !important;
+}
+
+[data-theme="dark"] .qa-option-btn.correct {
+  background-color: rgba(16, 185, 129, 0.2) !important;
+  border: 2px solid #10b981 !important;
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .qa-option-btn.incorrect {
+  background-color: rgba(239, 68, 68, 0.2) !important;
+  border: 2px solid #ef4444 !important;
+  color: #fca5a5 !important;
+}
+
+[data-theme="dark"] .qa-option-letter {
+  background-color: #27272a !important;
+  color: #d4d4d8 !important;
+}
+
+[data-theme="dark"] .qa-btn-speak {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .qa-btn-speak:hover {
+  background-color: #27272a !important;
+  color: #38bdf8 !important;
+}
+
+/* ------------------------------------------------------------ */
+/* 6. STUDY ARENA (Phòng học Flashcard tương tác 3D)            */
+/* ------------------------------------------------------------ */
+[data-theme="dark"] .sa-empty-card,
+[data-theme="dark"] .sa-completed-card {
+  background-color: #18181b !important;
+  border-color: #27272a !important;
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .sa-empty-title,
+[data-theme="dark"] .sa-completed-title,
+[data-theme="dark"] .sa-term-text,
+[data-theme="dark"] .sa-def-text {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .sa-empty-text,
+[data-theme="dark"] .sa-completed-subtitle,
+[data-theme="dark"] .sa-flip-hint,
+[data-theme="dark"] .sa-rate-hint,
+[data-theme="dark"] .sa-shortcuts-hint,
+[data-theme="dark"] .sa-led-label {
+  color: #a1a1aa !important;
+}
+
+/* Thẻ 3D Mặt Trước & Mặt Sau */
+[data-theme="dark"] .flip-card-front {
+  background: linear-gradient(135deg, #1c1c20 0%, #151518 100%) !important;
+  border: 1px solid #2e2e34 !important;
+  color: #f4f4f5 !important;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6) !important;
+}
+
+[data-theme="dark"] .flip-card-back {
+  background: linear-gradient(135deg, #1c1c20 0%, #121c17 100%) !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+  color: #f4f4f5 !important;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6) !important;
+}
+
+[data-theme="dark"] .sa-example-box {
+  background-color: #222226 !important;
+  border: 1px dashed #3f3f46 !important;
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .sa-btn-wrong {
+  background-color: #231618 !important;
+  border: 2px solid #ef4444 !important;
+  color: #fca5a5 !important;
+}
+
+[data-theme="dark"] .sa-btn-wrong:not(:disabled):hover {
+  background-color: #361a1e !important;
+}
+
+[data-theme="dark"] .sa-btn-correct {
+  background-color: #059669 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .sa-btn-correct:not(:disabled):hover {
+  background-color: #047857 !important;
+}
+
+[data-theme="dark"] .sa-btn-cambridge {
+  background-color: rgba(2, 132, 199, 0.2) !important;
+  border: 1px solid #0284c7 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .sa-btn-cambridge:hover {
+  background-color: rgba(2, 132, 199, 0.35) !important;
+  color: #7dd3fc !important;
+  border-color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .sa-btn-speak {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .sa-btn-speak:hover {
+  background-color: #27272a !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .sa-remaining-badge {
+  background-color: #1c1c20 !important;
+  border: 1px solid #2e2e34 !important;
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .sa-btn-exit,
+[data-theme="dark"] .sa-btn-exit-comp {
+  background-color: #27272a !important;
+  border: 1px solid #3f3f46 !important;
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .sa-btn-exit:hover,
+[data-theme="dark"] .sa-btn-exit-comp:hover {
+  background-color: #3f3f46 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .sa-btn-switch-quiz,
+[data-theme="dark"] .sa-btn-quiz-comp {
+  background-color: rgba(13, 153, 255, 0.18) !important;
+  border: 1px solid #0284c7 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .sa-btn-switch-quiz:hover,
+[data-theme="dark"] .sa-btn-quiz-comp:hover {
+  background-color: rgba(13, 153, 255, 0.3) !important;
+}
+
+[data-theme="dark"] .sa-progress-track {
+  background-color: #27272a !important;
+}
+
+[data-theme="dark"] .sa-stat-box {
+  background-color: #202024 !important;
+  border: 1px solid #2e2e34 !important;
+}
+
+[data-theme="dark"] .sa-stat-num {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .sa-stat-label {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .sa-led-dot {
+  background-color: #27272a !important;
+}
+
+[data-theme="dark"] .sa-led-dot.active {
+  background-color: #10b981 !important;
+}
+
+/* ------------------------------------------------------------ */
+/* 7. CARD MANAGER (Quản lý thẻ Flashcard)                      */
+/* ------------------------------------------------------------ */
+[data-theme="dark"] .cm-deck-info {
+  background-color: #18181b !important;
+  border: 1px solid #27272a !important;
+}
+
+[data-theme="dark"] .cm-deck-title {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .cm-deck-description,
+[data-theme="dark"] .cm-deck-count,
+[data-theme="dark"] .cm-card-index,
+[data-theme="dark"] .cm-card-score,
+[data-theme="dark"] .cm-empty-text {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .cm-deck-label {
+  background-color: rgba(13, 153, 255, 0.18) !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .cm-btn-batch {
+  background-color: #27272a !important;
+  border: 1px solid #3f3f46 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .cm-btn-batch:hover {
+  background-color: #3f3f46 !important;
+  color: #7dd3fc !important;
+}
+
+[data-theme="dark"] .cm-btn-add,
+[data-theme="dark"] .cm-btn-empty-add {
+  background-color: #27272a !important;
+  border: 1px solid #3f3f46 !important;
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .cm-btn-add:hover,
+[data-theme="dark"] .cm-btn-empty-add:hover {
+  background-color: #3f3f46 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .cm-btn-quiz {
+  background-color: rgba(13, 153, 255, 0.18) !important;
+  border: 1px solid #0284c7 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .cm-btn-quiz:hover:not(:disabled) {
+  background-color: rgba(13, 153, 255, 0.3) !important;
+}
+
+[data-theme="dark"] .cm-filter-btn {
+  background-color: #1c1c20 !important;
+  border: 1px solid #2e2e34 !important;
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .cm-filter-btn:hover {
+  background-color: #27272a !important;
+  color: #ffffff !important;
+  border-color: #3f3f46 !important;
+}
+
+[data-theme="dark"] .cm-filter-btn.active-all {
+  background-color: #0d99ff !important;
+  color: #ffffff !important;
+  border-color: #0d99ff !important;
+}
+
+[data-theme="dark"] .cm-filter-btn.active-notstarted {
+  background-color: #3f3f46 !important;
+  color: #ffffff !important;
+  border-color: #3f3f46 !important;
+}
+
+[data-theme="dark"] .cm-filter-btn.active-learning {
+  background-color: #d97706 !important;
+  color: #ffffff !important;
+  border-color: #d97706 !important;
+}
+
+[data-theme="dark"] .cm-filter-btn.active-mastered {
+  background-color: #059669 !important;
+  color: #ffffff !important;
+  border-color: #059669 !important;
+}
+
+[data-theme="dark"] .cm-empty {
+  background-color: #18181b !important;
+  border: 1px solid #27272a !important;
+}
+
+[data-theme="dark"] .cm-card-item {
+  background-color: #18181b !important;
+  border: 1px solid #27272a !important;
+}
+
+[data-theme="dark"] .cm-card-term {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .cm-card-definition {
+  color: #e4e4e7 !important;
+}
+
+[data-theme="dark"] .cm-card-example {
+  background-color: #222226 !important;
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .cm-btn-edit:hover {
+  background-color: #27272a !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .cm-modal-title,
+[data-theme="dark"] .cm-single-title {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .cm-modal-subtitle,
+[data-theme="dark"] .cm-single-subtitle,
+[data-theme="dark"] .cm-guide-text {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .cm-guide-bar {
+  background-color: #222226 !important;
+  border: 1px solid #2e2e34 !important;
+}
+
+[data-theme="dark"] .cm-delimiter-label {
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .cm-delimiter-select {
+  background-color: #27272a !important;
+  border: 1px solid #3f3f46 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .cm-batch-textarea {
+  background-color: #222226 !important;
+  border: 1px solid #3f3f46 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .cm-preview-box {
+  background-color: #18181b !important;
+  border: 1px solid #27272a !important;
+}
+
+[data-theme="dark"] .cm-preview-title {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .cm-preview-row.even {
+  background-color: #202024 !important;
+}
+
+[data-theme="dark"] .cm-preview-row.odd {
+  background-color: #18181b !important;
+}
+
+[data-theme="dark"] .cm-preview-def {
+  color: #e4e4e7 !important;
+}
+
+[data-theme="dark"] .cm-preview-ex {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .cm-btn-cancel {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .cm-btn-cancel:hover {
+  color: #ffffff !important;
+}
+
+/* ------------------------------------------------------------ */
+/* 8. FOLDER LIST (All Folders)                                 */
+/* ------------------------------------------------------------ */
+[data-theme="dark"] .fl-title {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .fl-subtitle,
+[data-theme="dark"] .fl-card-count,
+[data-theme="dark"] .fl-card-desc {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .fl-card {
+  background: #18181b !important;
+  border: 1px solid #27272a !important;
+}
+
+[data-theme="dark"] .fl-card:hover {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .fl-card-icon-box {
+  background-color: #27272a !important;
+}
+
+[data-theme="dark"] .fl-card-name {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .fl-card-footer {
+  border-top-color: #27272a !important;
+  color: #38bdf8 !important;
+}
+
+/* ------------------------------------------------------------ */
+/* 9. TRASH VIEW (Thùng rác)                                    */
+/* ------------------------------------------------------------ */
+[data-theme="dark"] .tv-empty-box {
+  background: #18181b !important;
+  border: 1px dashed #3f3f46 !important;
+}
+
+[data-theme="dark"] .tv-icon-circle {
+  background-color: #27272a !important;
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .tv-title {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .tv-desc {
+  color: #a1a1aa !important;
+}
+
+/* ------------------------------------------------------------ */
+/* 10. MODALS & COMMON CONTROLS                                 */
+/* ------------------------------------------------------------ */
+[data-theme="dark"] .modal-content {
+  background-color: #1c1c20 !important;
+  border: 1px solid #2e2e34 !important;
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .modal-header {
+  border-bottom-color: #2e2e34 !important;
+}
+
+[data-theme="dark"] .modal-footer {
+  border-top-color: #2e2e34 !important;
+  background-color: #18181b !important;
+}
+
+[data-theme="dark"] .modal-title,
+[data-theme="dark"] .sb-modal-title {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .sb-modal-subtitle {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .sb-feature-box {
+  background-color: #18181b !important;
+  border-color: #27272a !important;
+}
+
+[data-theme="dark"] .sb-feature-title {
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .sb-feature-item {
+  color: #d4d4d8 !important;
+}
+
+[data-theme="dark"] .sb-btn-modal-close {
+  background-color: #27272a !important;
+  color: #f4f4f5 !important;
+  border: 1px solid #3f3f46 !important;
+}
+
+[data-theme="dark"] .sb-btn-modal-close:hover {
+  background-color: #3f3f46 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .dl-cat-item {
+  background-color: #222226 !important;
+  border-color: #2e2e34 !important;
+}
+
+[data-theme="dark"] .dl-cat-item-name {
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .dl-cat-item-count {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .dl-icon-btn {
+  background-color: #27272a !important;
+  border-color: #3f3f46 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .dl-icon-btn.selected {
+  background-color: rgba(13, 153, 255, 0.25) !important;
+  border-color: #0d99ff !important;
+}
+
+[data-theme="dark"] .dl-cat-list-title {
+  color: #f4f4f5 !important;
+}
+
+/* Form Controls & Inputs */
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background-color: #27272a !important;
+  border-color: #3f3f46 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] textarea:focus,
+[data-theme="dark"] select:focus {
+  background-color: #222226 !important;
+  border-color: #0d99ff !important;
+}
+
+/* Status Badges */
+[data-theme="dark"] .badge-notstarted {
+  background-color: #27272a !important;
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .badge-learning {
+  background-color: rgba(245, 158, 11, 0.2) !important;
+  color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .badge-mastered {
+  background-color: rgba(16, 185, 129, 0.2) !important;
+  color: #34d399 !important;
+}
+
+/* Help Modal Steps */
+[data-theme="dark"] .hm-intro {
+  color: #d4d4d8 !important;
+}
+
+[data-theme="dark"] .hm-step-item {
+  background-color: #202024 !important;
+  border: 1px solid #2e2e34 !important;
+}
+
+[data-theme="dark"] .hm-step-title {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .hm-step-desc {
+  color: #a1a1aa !important;
+}
+
+/* Video Tutorials */
+[data-theme="dark"] .vt-title {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .vt-subtitle {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .vt-video-card {
+  background-color: #18181b !important;
+  border: 1px solid #27272a !important;
+}
+
+[data-theme="dark"] .vt-video-title {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .vt-video-desc {
+  color: #a1a1aa !important;
+}
+
+/* Stat Pills trong Dark Mode */
+[data-theme="dark"] .qc-stat-energy {
+  background-color: rgba(234, 179, 8, 0.12) !important;
+  color: #fde047 !important;
+  border: 1px solid rgba(234, 179, 8, 0.3) !important;
+}
+
+[data-theme="dark"] .qc-stat-energy:hover {
+  background-color: rgba(234, 179, 8, 0.22) !important;
+  border-color: #fde047 !important;
+  box-shadow: 0 2px 10px rgba(234, 179, 8, 0.25) !important;
+}
+
+[data-theme="dark"] .qc-stat-streak {
+  background-color: rgba(249, 115, 22, 0.12) !important;
+  color: #fdba74 !important;
+  border: 1px solid rgba(249, 115, 22, 0.3) !important;
+}
+
+[data-theme="dark"] .qc-stat-streak:hover {
+  background-color: rgba(249, 115, 22, 0.22) !important;
+  border-color: #fdba74 !important;
+  box-shadow: 0 2px 10px rgba(249, 115, 22, 0.25) !important;
 }

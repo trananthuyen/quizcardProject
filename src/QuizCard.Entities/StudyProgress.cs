@@ -1,4 +1,4 @@
-namespace QuizCard.Services.Models;
+﻿namespace QuizCard.Entities;
 
 /// <summary>
 /// Đại diện cho tiến trình học tập của một thẻ Flashcard cụ thể.

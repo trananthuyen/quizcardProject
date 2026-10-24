@@ -21,7 +21,7 @@ import { QuizArena } from './components/QuizArena';
 import { DeckModal } from './components/DeckModal';
 import { CategoryModal } from './components/CategoryModal';
 
-import { Search } from 'lucide-react';
+import { Search, Flame, Zap } from 'lucide-react';
 import './App.css';
 
 export type ViewType = 'DECKS' | 'CARDS' | 'STUDY' | 'QUIZ';
@@ -76,7 +76,7 @@ const getInitialHash = (): string => {
     if (saved && saved !== '#' && saved !== '#/') {
       return saved;
     }
-  } catch {}
+  } catch { }
   return '#/community';
 };
 
@@ -140,7 +140,7 @@ export const App: React.FC = () => {
       const next = !prev;
       try {
         localStorage.setItem('quizcard_sidebar_open', String(next));
-      } catch {}
+      } catch { }
       return next;
     });
   }, []);
@@ -326,7 +326,7 @@ export const App: React.FC = () => {
 
     try {
       sessionStorage.setItem('quizcard_last_hash', window.location.hash);
-    } catch {}
+    } catch { }
   }, [view]);
 
   /**
@@ -341,7 +341,7 @@ export const App: React.FC = () => {
       window.location.hash = hash;
       try {
         sessionStorage.setItem('quizcard_last_hash', hash);
-      } catch {}
+      } catch { }
     } else {
       setSelectedDeck(deck);
       selectedDeckRef.current = deck;
@@ -351,7 +351,7 @@ export const App: React.FC = () => {
       window.location.hash = newHash;
       try {
         sessionStorage.setItem('quizcard_last_hash', newHash);
-      } catch {}
+      } catch { }
     }
   }, [activeTab]);
 
@@ -368,13 +368,13 @@ export const App: React.FC = () => {
             window.location.hash = savedHash;
             return;
           }
-        } catch {}
+        } catch { }
         currentHash = '#/community';
       }
 
       try {
         sessionStorage.setItem('quizcard_last_hash', currentHash);
-      } catch {}
+      } catch { }
 
       const route = parseRoute(currentHash);
       setView(route.view);
@@ -515,8 +515,8 @@ export const App: React.FC = () => {
               <span className="qc-page-title">{getPageTitle()}</span>
             ) : (
               <div className="qc-breadcrumb">
-                <button 
-                  onClick={handleGoHome} 
+                <button
+                  onClick={handleGoHome}
                   className="qc-breadcrumb-back"
                 >
                   ← {getPageTitle()}
@@ -531,14 +531,28 @@ export const App: React.FC = () => {
             )}
           </div>
 
-          <div className="qc-topbar-search">
-            <Search size={14} className="qc-topbar-search-icon" />
-            <input 
-              type="text" 
-              placeholder={`Search ${getPageTitle()}`}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+          <div className="qc-topbar-center">
+            <div className="qc-stat-pill qc-stat-energy" title="Điểm năng lượng học tập">
+              <Zap size={16} />
+              <span>20</span>
+            </div>
+
+            <div className="qc-stat-pill qc-stat-streak" title="Chuỗi 10 ngày học liên tục (Streak)">
+              <Flame size={16} />
+              <span>10 days</span>
+            </div>
+          </div>
+
+          <div className="qc-topbar-right">
+            <div className="qc-topbar-search">
+              <Search size={14} className="qc-topbar-search-icon" />
+              <input
+                type="text"
+                placeholder={`Search ${getPageTitle()}`}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
           </div>
         </header>
 

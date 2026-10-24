@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using QuizCard.ServiceContracts;
 using QuizCard.Services.Services;
 
 namespace QuizCard.UI.Controllers;

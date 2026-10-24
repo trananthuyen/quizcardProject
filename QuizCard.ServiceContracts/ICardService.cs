@@ -1,6 +1,6 @@
-using QuizCard.Services.DTOs;
+﻿using QuizCard.ServiceContracts.DTOs.CardDTOs;
 
-namespace QuizCard.Services.Services;
+namespace QuizCard.ServiceContracts;
 
 /// <summary>
 /// Giao diện (Interface) quản lý các thao tác CRUD và nhập hàng loạt thẻ Flashcard.
@@ -38,3 +38,4 @@ public interface ICardService
     /// </summary>
     Task<bool> DeleteCardAsync(Guid id);
 }
+

@@ -1,12 +1,17 @@
 using Microsoft.EntityFrameworkCore;
-using QuizCard.Services.Data;
+using QuizCard.Entities;
+using QuizCard.Repositories;
+using QuizCard.RepositoryContracts;
+using QuizCard.ServiceContracts;
+using QuizCard.Services;
 using QuizCard.Services.Services;
 using QuizCard.UI.Data;
+using QuizCard.UI.StartupExtensions;
 
 /// <summary>
 /// File điểm nhập (Entry Point) của ứng dụng ASP.NET Core (.NET 10).
 /// Chịu trách nhiệm:
-/// 1. Cấu hình các dịch vụ vào IoC Container (Services Registration): Database, DI Services, CORS, Controllers.
+/// 1. Cấu hình các dịch vụ vào IoC Container (Services Registration): Database, Repositories, DI Services, CORS, Controllers.
 /// 2. Khởi tạo CSDL SQLite và nạp dữ liệu mẫu khi ứng dụng khởi chạy.
 /// 3. Cấu hình chuỗi Middleware đường ống xử lý HTTP Request (Pipeline) và phục vụ SPA (React).
 /// </summary>
@@ -36,20 +41,11 @@ if (rawConn.StartsWith("Data Source=", StringComparison.OrdinalIgnoreCase))
     }
 }
 
-builder.Services.AddDbContext<QuizCardDbContext>(options =>
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(connectionString));
 
-// Đăng ký các tầng nghiệp vụ (Business Services) theo vòng đời Scoped (mỗi HTTP request một instance):
-// - IDeckService     -> DeckService     (Xử lý CRUD bộ thẻ)
-// - ICardService     -> CardService     (Xử lý CRUD thẻ, tạo thẻ từ chuỗi)
-// - IStudyService    -> StudyService    (Xử lý thuật toán Spaced Repetition, phiên học, trắc nghiệm)
-// - ICategoryService -> CategoryService (Xử lý CRUD phân loại bộ thẻ)
-// - ITtsService      -> TtsService      (Xử lý phát âm từ vựng bên thứ 3)
-builder.Services.AddScoped<IDeckService, DeckService>();
-builder.Services.AddScoped<ICardService, CardService>();
-builder.Services.AddScoped<IStudyService, StudyService>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
-builder.Services.AddSingleton<ITtsService, TtsService>();
+// ================= SERVICES =================
+builder.Services.ConfigureService(builder.Configuration);
 
 // Cấu hình chính sách CORS để cho phép máy chủ phát triển React Vite (port 5173) gọi API dễ dàng
 builder.Services.AddCors(options =>
@@ -64,19 +60,16 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// ============================================================================
-// 2. KHỞI TẠO CSDL & NẠP DỮ LIỆU MẪU (DATABASE INITIALIZATION)
-// ============================================================================
+// ============ DATABASE INITIALIZATION ============================
+
 // Tạo một phạm vi (Scope) tạm thời để lấy DbContext và chạy migration/seed dữ liệu
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<QuizCardDbContext>();
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await DbInitializer.InitializeAsync(context);
 }
 
-// ============================================================================
-// 3. CẤU HÌNH HTTP REQUEST PIPELINE (MIDDLEWARE)
-// ============================================================================
+// ========== CONFIGURE HTTP REQUEST PIPELINE (MIDDLEWARE) ===================
 
 // Kích hoạt chính sách CORS
 app.UseCors("AllowAll");

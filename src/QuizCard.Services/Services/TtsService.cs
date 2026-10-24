@@ -1,7 +1,8 @@
+using QuizCard.ServiceContracts;
 using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 
-namespace QuizCard.Services.Services;
+namespace QuizCard.Services;
 
 /// <summary>
 /// Lớp triển khai dịch vụ phát âm từ vựng Text-to-Speech gọi API từ bên thứ 3 (Google TTS Engine).

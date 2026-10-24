@@ -1,6 +1,6 @@
-using QuizCard.Services.DTOs;
+﻿using QuizCard.ServiceContracts.DTOs.StudyDTOs;
 
-namespace QuizCard.Services.Services;
+namespace QuizCard.ServiceContracts;
 
 /// <summary>
 /// Giao diện (Interface) định nghĩa các phương thức phục vụ phiên học thẻ (Study Mode)
@@ -32,3 +32,4 @@ public interface IStudyService
     /// </summary>
     Task<bool> ResetDeckProgressAsync(Guid deckId);
 }
+
