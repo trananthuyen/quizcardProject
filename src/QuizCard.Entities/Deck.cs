@@ -1,4 +1,4 @@
-﻿namespace QuizCard.Entities;
+namespace QuizCard.Entities;
 
 /// <summary>
 /// Đại diện cho một "Bộ thẻ" hoặc "Dự án học tập" (Deck / Project).
@@ -10,6 +10,12 @@ public class Deck
     /// Khóa chính (Primary Key) định danh duy nhất cho bộ thẻ. Dùng kiểu Guid để tránh trùng lặp.
     /// </summary>
     public Guid Id { get; set; } = Guid.NewGuid();
+
+    /// <summary>
+    /// ID tài khoản người dùng tạo và sở hữu bộ thẻ (ApplicationUser.Id).
+    /// Null nếu là bộ thẻ mẫu hệ thống hoặc bộ thẻ công cộng.
+    /// </summary>
+    public Guid? UserId { get; set; }
 
     /// <summary>
     /// Tiêu đề hoặc tên của bộ thẻ (Bắt buộc, tối đa 200 ký tự).

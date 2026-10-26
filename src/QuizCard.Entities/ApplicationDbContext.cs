@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using QuizCard.Entities.IdentifyEntities;
 
 namespace QuizCard.Entities;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
 {
-    public ApplicationDbContext(DbContextOptions options) : base(options)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
     }
 
@@ -29,6 +31,11 @@ public class ApplicationDbContext : DbContext
     public DbSet<Category> Categories => Set<Category>();
 
     /// <summary>
+    /// Bảng lưu trữ lịch sử điểm danh và duy trì chuỗi lửa của người dùng.
+    /// </summary>
+    public DbSet<Attendance> Attendances => Set<Attendance>();
+
+    /// <summary>
     /// Cấu hình chi tiết các bảng, độ dài cột và quan hệ giữa các bảng (Fluent API).
     /// </summary>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -42,6 +49,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(d => d.Title).IsRequired().HasMaxLength(200);
             entity.Property(d => d.Description).HasMaxLength(1000);
             entity.Property(d => d.Category).IsRequired().HasMaxLength(100).HasDefaultValue("Chung");
+            entity.HasIndex(d => d.UserId);
 
             // Quan hệ 1 - N: Một Deck có nhiều Cards.
             // Khi xóa Deck -> Toàn bộ Cards con sẽ tự động bị xóa theo (Cascade Delete).
@@ -83,8 +91,24 @@ public class ApplicationDbContext : DbContext
             entity.Property(c => c.Description).HasMaxLength(500);
             entity.Property(c => c.Icon).HasMaxLength(50).HasDefaultValue("📁");
             entity.Property(c => c.Color).HasMaxLength(20).HasDefaultValue("#3b82f6");
+            entity.HasIndex(c => c.UserId);
             entity.HasIndex(c => c.Name).IsUnique();
+        });
+
+        // 5. Cấu hình bảng Attendance (Điểm danh và chuỗi lửa)
+        modelBuilder.Entity<Attendance>(entity =>
+        {
+            entity.HasKey(a => a.Id);
+            entity.Property(a => a.GuestId).HasMaxLength(100);
+            entity.HasIndex(a => new { a.UserId, a.CheckInDate });
+            entity.HasIndex(a => new { a.GuestId, a.CheckInDate });
+        });
+
+        // 6. Cấu hình bảng ApplicationUser (Người dùng xác thực qua Google & Facebook)
+        modelBuilder.Entity<ApplicationUser>(entity =>
+        {
+            entity.HasIndex(u => new { u.Provider, u.ProviderKey });
+            entity.HasIndex(u => new { u.Provider, u.Email });
         });
     }
 }
-

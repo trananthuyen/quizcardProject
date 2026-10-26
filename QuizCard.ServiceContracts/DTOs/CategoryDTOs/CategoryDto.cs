@@ -1,4 +1,4 @@
-﻿namespace QuizCard.ServiceContracts.DTOs.CategoryDTOs;
+namespace QuizCard.ServiceContracts.DTOs.CategoryDTOs;
 
 /// <summary>
 /// Data Transfer Object (DTO) chứa thông tin phân loại bộ thẻ gửi về cho giao diện Frontend.
@@ -12,5 +12,6 @@ public record CategoryDto
     string Icon,
     string Color,
     int DeckCount,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    Guid? UserId = null
 );

@@ -19,13 +19,13 @@ public class CategoryService : ICategoryService
     }
 
     /// <summary>
-    /// Lấy danh sách toàn bộ các phân loại kèm số lượng bộ thẻ đang thuộc phân loại đó (DeckCount).
+    /// Lấy danh sách toàn bộ các phân loại kèm số lượng bộ thẻ đang thuộc phân loại đó (DeckCount) dựa theo UserId.
     /// Sắp xếp theo ngày tạo hoặc theo số lượng bộ thẻ giảm dần.
     /// </summary>
-    public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
+    public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync(Guid? userId = null)
     {
-        var categories = await _categoriesRespository.GetAllCategories();
-        var deckCounts = await _categoriesRespository.GetDeckCountsGroupedByCategory();
+        var categories = await _categoriesRespository.GetAllCategories(userId);
+        var deckCounts = await _categoriesRespository.GetDeckCountsGroupedByCategory(userId);
 
         return categories.Select(c =>
         {
@@ -38,7 +38,8 @@ public class CategoryService : ICategoryService
                 c.Icon,
                 c.Color,
                 count,
-                c.CreatedAt
+                c.CreatedAt,
+                c.UserId
             );
         });
     }
@@ -52,7 +53,7 @@ public class CategoryService : ICategoryService
         if (c is null) return null;
 
         var count = await _categoriesRespository.CountDecksByCategoryName(c.Name);
-        return new CategoryDto(c.Id, c.Name, c.Description, c.Icon, c.Color, count, c.CreatedAt);
+        return new CategoryDto(c.Id, c.Name, c.Description, c.Icon, c.Color, count, c.CreatedAt, c.UserId);
     }
 
     /// <summary>
@@ -72,6 +73,7 @@ public class CategoryService : ICategoryService
         var category = new Category
         {
             Id = Guid.NewGuid(),
+            UserId = request.UserId,
             Name = trimmedName,
             Description = request.Description?.Trim(),
             Icon = string.IsNullOrWhiteSpace(request.Icon) ? "📁" : request.Icon.Trim(),
@@ -82,7 +84,7 @@ public class CategoryService : ICategoryService
         await _categoriesRespository.CreateCategory(category);
 
         var count = await _categoriesRespository.CountDecksByCategoryName(category.Name);
-        return new CategoryDto(category.Id, category.Name, category.Description, category.Icon, category.Color, count, category.CreatedAt);
+        return new CategoryDto(category.Id, category.Name, category.Description, category.Icon, category.Color, count, category.CreatedAt, category.UserId);
     }
 
     /// <summary>
@@ -118,7 +120,7 @@ public class CategoryService : ICategoryService
         await _categoriesRespository.UpdateCategory(category);
 
         var count = await _categoriesRespository.CountDecksByCategoryName(category.Name);
-        return new CategoryDto(category.Id, category.Name, category.Description, category.Icon, category.Color, count, category.CreatedAt);
+        return new CategoryDto(category.Id, category.Name, category.Description, category.Icon, category.Color, count, category.CreatedAt, category.UserId);
     }
 
     /// <summary>

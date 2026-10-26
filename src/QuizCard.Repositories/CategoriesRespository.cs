@@ -24,9 +24,15 @@ public class CategoriesRespository : ICategoriesRespository
         return await _db.Decks.CountAsync(d => d.Category.ToLower() == name.Trim().ToLower());
     }
 
-    public async Task<Dictionary<string, int>> GetDeckCountsGroupedByCategory()
+    public async Task<Dictionary<string, int>> GetDeckCountsGroupedByCategory(Guid? userId = null)
     {
-        return await _db.Decks
+        IQueryable<Deck> query = _db.Decks;
+        if (userId.HasValue && userId.Value != Guid.Empty)
+        {
+            query = query.Where(d => d.UserId == userId.Value || d.UserId == null);
+        }
+
+        return await query
             .GroupBy(d => d.Category.ToLower())
             .Select(g => new { CategoryLower = g.Key, Count = g.Count() })
             .ToDictionaryAsync(x => x.CategoryLower, x => x.Count);
@@ -39,9 +45,22 @@ public class CategoriesRespository : ICategoriesRespository
         return category;
     }
 
-    public async Task<List<Category>> GetAllCategories()
+    public async Task<List<Category>> GetAllCategories(Guid? userId = null)
     {
-        return await _db.Categories
+        IQueryable<Category> query = _db.Categories;
+
+        if (userId.HasValue && userId.Value != Guid.Empty)
+        {
+            // Trả về phân loại của người dùng này HOẶC phân loại mặc định hệ thống (UserId == null)
+            query = query.Where(c => c.UserId == userId.Value || c.UserId == null);
+        }
+        else
+        {
+            // Người dùng vãng lai hoặc chưa đăng nhập: chỉ trả về các phân loại mặc định hệ thống
+            query = query.Where(c => c.UserId == null);
+        }
+
+        return await query
             .OrderBy(c => c.CreatedAt)
             .ToListAsync();
     }
@@ -89,4 +108,3 @@ public class CategoriesRespository : ICategoriesRespository
         await _db.SaveChangesAsync();
     }
 }
-

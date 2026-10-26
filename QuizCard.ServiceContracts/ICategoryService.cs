@@ -1,17 +1,18 @@
-﻿using QuizCard.ServiceContracts.DTOs.CategoryDTOs;
+using QuizCard.ServiceContracts.DTOs.CategoryDTOs;
 
 namespace QuizCard.ServiceContracts;
 
 /// <summary>
 /// Giao diện (Interface) định nghĩa các nghiệp vụ quản lý Phân loại bộ thẻ (Category Management).
 /// </summary>
-/// 
-/// <summary>
-/// Lấy danh sách toàn bộ các phân loại kèm số lượng bộ thẻ tương ứng.
-/// </summary>
 public interface ICategoryService
 {
-    Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync();
+    /// <summary>
+    /// Lấy danh sách các phân loại kèm số lượng bộ thẻ tương ứng dựa theo UserId.
+    /// Nếu có userId: trả về phân loại của người dùng đó và phân loại mặc định hệ thống.
+    /// Nếu không có userId: chỉ trả về phân loại mặc định hệ thống.
+    /// </summary>
+    Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync(Guid? userId = null);
 
     /// <summary>
     /// Lấy chi tiết một phân loại theo Id.
@@ -33,4 +34,3 @@ public interface ICategoryService
     /// </summary>
     Task<bool> DeleteCategoryAsync(Guid id);
 }
-

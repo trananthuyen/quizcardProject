@@ -1,4 +1,4 @@
-# KIẾN TRÚC HỆ THỐNG QUIZCARD (SYSTEM ARCHITECTURE)
+﻿# KIẾN TRÚC HỆ THỐNG QUIZCARD (SYSTEM ARCHITECTURE)
 
 Tài liệu này mô tả chi tiết kiến trúc giải pháp, tổ chức tầng (Clean Architecture / Layered Architecture), luồng dữ liệu, cấu trúc thư mục, mô hình dữ liệu và các thành phần chính của hệ thống **QuizCard**.
 
@@ -98,38 +98,38 @@ quizcardProject/
         │
         └── ClientApp/                          # Mã nguồn Single Page Application (React 19)
             ├── index.html                      # Template HTML chính
-            ├── vite.config.ts                  # Cấu hình Vite build ra wwwroot & proxy API
+            ├── vite.config.js                  # Cấu hình Vite build ra wwwroot & proxy API
             ├── tsconfig.json                   # Cấu hình TypeScript
             ├── package.json                    # Danh sách package npm (lucide-react, canvas-confetti...)
             └── src/
-                ├── main.tsx                    # Entry point React, bọc ThemeProvider
-                ├── App.tsx                     # Điều hướng View chính (Tab/Hash Routing) & Layout
+                ├── main.jsx                    # Entry point React, bọc ThemeProvider
+                ├── App.jsx                     # Điều hướng View chính (Tab/Hash Routing) & Layout
                 ├── App.css                     # CSS biến toàn cục, header, streak, stats
                 ├── index.css                   # Cấu hình CSS cơ bản & Theme mode (Dark/Light)
-                ├── api.ts                      # Client gọi API Backend thống nhất
-                ├── types.ts                    # TypeScript Interfaces tương ứng với backend DTOs
+                ├── api.js                      # Client gọi API Backend thống nhất
+                ├── types.js                    # TypeScript Interfaces tương ứng với backend DTOs
                 ├── context/
-                │   └── ThemeContext.tsx        # Quản lý Theme: Light / Dark / System Theme
+                │   └── ThemeContext.jsx        # Quản lý Theme: Light / Dark / System Theme
                 ├── utils/
-                │   └── tts.ts                  # Hỗ trợ phát âm từ vựng (Audio API & Cache)
+                │   └── tts.js                  # Hỗ trợ phát âm từ vựng (Audio API & Cache)
                 └── components/                 # Các UI Components chuyên biệt
-                    ├── Navbar.tsx              # Thanh điều hướng trên cùng, tìm kiếm & profile
-                    ├── Sidebar.tsx             # Menu cạnh bên trái điều hướng tính năng
-                    ├── UserMenu.tsx            # Popup thông tin tài khoản & menu đổi giao diện (Theme)
-                    ├── HeroBanner.tsx          # Banner chào mừng, thống kê nhanh & nút thao tác
-                    ├── FilterPills.tsx         # Thanh lọc nhanh danh mục và trạng thái bộ thẻ
-                    ├── DeckList.tsx            # Danh sách lưới bộ thẻ & phân trang/lọc
-                    ├── DeckCard.tsx            # Card hiển thị thông tin, tiến độ % của bộ thẻ
-                    ├── DeckModal.tsx           # Modal thêm / sửa thông tin bộ thẻ
-                    ├── CategoryModal.tsx       # Modal quản lý danh mục / chủ đề
-                    ├── MyResources.tsx         # Trang thống kê toàn diện kho học liệu cá nhân
-                    ├── FolderList.tsx          # Quản lý tài nguyên theo thư mục
-                    ├── TrashView.tsx           # Thùng rác xem và khôi phục các bộ thẻ đã xóa
-                    ├── VideoTutorials.tsx      # Danh sách video hướng dẫn học tập
-                    ├── CardManager.tsx         # Quản lý danh sách thẻ, thêm thẻ lẻ / tạo nhanh
-                    ├── StudyArena.tsx          # Không gian học thẻ lật 3D (Flashcard Flip)
-                    ├── QuizArena.tsx           # Không gian thi đấu trắc nghiệm 4 phương án
-                    └── HelpModal.tsx           # Modal hướng dẫn sử dụng phím tắt & tính năng
+                    ├── Navbar.jsx              # Thanh điều hướng trên cùng, tìm kiếm & profile
+                    ├── Sidebar.jsx             # Menu cạnh bên trái điều hướng tính năng
+                    ├── UserMenu.jsx            # Popup thông tin tài khoản & menu đổi giao diện (Theme)
+                    ├── HeroBanner.jsx          # Banner chào mừng, thống kê nhanh & nút thao tác
+                    ├── FilterPills.jsx         # Thanh lọc nhanh danh mục và trạng thái bộ thẻ
+                    ├── DeckList.jsx            # Danh sách lưới bộ thẻ & phân trang/lọc
+                    ├── DeckCard.jsx            # Card hiển thị thông tin, tiến độ % của bộ thẻ
+                    ├── DeckModal.jsx           # Modal thêm / sửa thông tin bộ thẻ
+                    ├── CategoryModal.jsx       # Modal quản lý danh mục / chủ đề
+                    ├── MyResources.jsx         # Trang thống kê toàn diện kho học liệu cá nhân
+                    ├── FolderList.jsx          # Quản lý tài nguyên theo thư mục
+                    ├── TrashView.jsx           # Thùng rác xem và khôi phục các bộ thẻ đã xóa
+                    ├── VideoTutorials.jsx      # Danh sách video hướng dẫn học tập
+                    ├── CardManager.jsx         # Quản lý danh sách thẻ, thêm thẻ lẻ / tạo nhanh
+                    ├── StudyArena.jsx          # Không gian học thẻ lật 3D (Flashcard Flip)
+                    ├── QuizArena.jsx           # Không gian thi đấu trắc nghiệm 4 phương án
+                    └── HelpModal.jsx           # Modal hướng dẫn sử dụng phím tắt & tính năng
 ```
 
 

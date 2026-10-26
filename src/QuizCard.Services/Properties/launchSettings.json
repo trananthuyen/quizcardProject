@@ -2,6 +2,10 @@
   "profiles": {
     "QuizCard.Services": {
       "commandName": "Project"
+    },
+    "Profile 1": {
+      "commandName": "Executable",
+      "executablePath": "D:\\quizcardProject\\src\\QuizCard.UI\\QuizCard.UI.csproj.user"
     }
   }
 }

@@ -16,34 +16,61 @@ public static class DbInitializer
         // 1. Tự động tạo cơ sở dữ liệu và bảng nếu chưa tồn tại
         await context.Database.EnsureCreatedAsync();
 
-        // 2. Tự động thêm cột Category vào bảng Decks và tạo bảng Categories nếu DB SQLite đã được tạo từ trước
+        // 1.1 Đảm bảo bảng Attendances tồn tại trong MySQL
         try
         {
-            await context.Database.ExecuteSqlRawAsync("ALTER TABLE Decks ADD COLUMN Category TEXT NOT NULL DEFAULT 'Chung';");
+            await context.Database.ExecuteSqlRawAsync(@"
+                CREATE TABLE IF NOT EXISTS `Attendances` (
+                    `Id` CHAR(36) NOT NULL,
+                    `UserId` CHAR(36) NULL,
+                    `GuestId` VARCHAR(100) NULL,
+                    `CheckInDate` DATETIME NOT NULL,
+                    `StreakCount` INT NOT NULL DEFAULT 1,
+                    `PointsEarned` INT NOT NULL DEFAULT 10,
+                    `CreatedAt` DATETIME NOT NULL,
+                    PRIMARY KEY (`Id`),
+                    INDEX `IX_Attendances_UserId_CheckInDate` (`UserId`, `CheckInDate`),
+                    INDEX `IX_Attendances_GuestId_CheckInDate` (`GuestId`, `CheckInDate`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            ");
         }
-        catch
-        {
-            // Cột Category đã tồn tại
-        }
+        catch { }
+
+        // 1.2 Đảm bảo bảng AspNetUsers hỗ trợ Provider, ProviderKey, FullName, AvatarUrl...
+        await AddColumnIfNotExistsAsync(context, "AspNetUsers", "Provider", "VARCHAR(50) NULL");
+        await AddColumnIfNotExistsAsync(context, "AspNetUsers", "ProviderKey", "VARCHAR(255) NULL");
+        await AddColumnIfNotExistsAsync(context, "AspNetUsers", "FullName", "VARCHAR(255) NULL");
+        await AddColumnIfNotExistsAsync(context, "AspNetUsers", "AvatarUrl", "VARCHAR(500) NULL");
+        await AddColumnIfNotExistsAsync(context, "AspNetUsers", "TermsAccepted", "TINYINT(1) NOT NULL DEFAULT 1");
+        await AddColumnIfNotExistsAsync(context, "AspNetUsers", "TermsAcceptedAt", "DATETIME NULL");
+        await AddColumnIfNotExistsAsync(context, "AspNetUsers", "CreatedAt", "DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP");
 
         try
         {
             await context.Database.ExecuteSqlRawAsync(@"
-                CREATE TABLE IF NOT EXISTS ""Categories"" (
-                    ""Id"" TEXT NOT NULL CONSTRAINT ""PK_Categories"" PRIMARY KEY,
-                    ""Name"" TEXT NOT NULL,
-                    ""Description"" TEXT NULL,
-                    ""Icon"" TEXT NOT NULL DEFAULT '📁',
-                    ""Color"" TEXT NOT NULL DEFAULT '#3b82f6',
-                    ""CreatedAt"" TEXT NOT NULL
-                );
-                CREATE UNIQUE INDEX IF NOT EXISTS ""IX_Categories_Name"" ON ""Categories"" (""Name"");
+                ALTER TABLE `AspNetUsers` DROP INDEX `EmailIndex`;
             ");
         }
-        catch
+        catch { }
+
+        try
         {
-            // Bảng Categories đã tồn tại
+            await context.Database.ExecuteSqlRawAsync(@"
+                CREATE INDEX `EmailIndex` ON `AspNetUsers` (`NormalizedEmail`);
+            ");
         }
+        catch { }
+
+        await AddIndexIfNotExistsAsync(context, "AspNetUsers", "IX_AspNetUsers_Provider_Key", "`Provider`, `ProviderKey`");
+        await AddIndexIfNotExistsAsync(context, "AspNetUsers", "IX_AspNetUsers_Provider_Email", "`Provider`, `Email`");
+
+        // 1.3 Đảm bảo bảng Decks có cột UserId để liên kết người dùng tạo và sở hữu
+        await AddColumnIfNotExistsAsync(context, "Decks", "UserId", "CHAR(36) NULL");
+        await AddIndexIfNotExistsAsync(context, "Decks", "IX_Decks_UserId", "`UserId`");
+
+        // 1.4 Đảm bảo bảng Categories có cột UserId để liên kết người dùng tạo
+        await AddColumnIfNotExistsAsync(context, "Categories", "UserId", "CHAR(36) NULL");
+        await AddIndexIfNotExistsAsync(context, "Categories", "IX_Categories_UserId", "`UserId`");
 
         // Tự động phân loại thông minh các bộ thẻ hiện có (nếu chưa được phân loại hoặc đang là Chung)
         var allExistingDecks = await context.Decks.ToListAsync();
@@ -440,5 +467,71 @@ public static class DbInitializer
             context.Decks.Add(englishDeck);
             await context.SaveChangesAsync();
         }
+    }
+
+    private static async Task AddColumnIfNotExistsAsync(ApplicationDbContext context, string tableName, string columnName, string columnDefinition)
+    {
+        try
+        {
+            var conn = context.Database.GetDbConnection();
+            var databaseName = conn.Database;
+            if (conn.State != System.Data.ConnectionState.Open)
+            {
+                await conn.OpenAsync();
+            }
+
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+                SELECT COUNT(*) 
+                FROM information_schema.columns 
+                WHERE table_schema = @p0 AND table_name = @p1 AND column_name = @p2;";
+
+            var p0 = cmd.CreateParameter(); p0.ParameterName = "@p0"; p0.Value = databaseName; cmd.Parameters.Add(p0);
+            var p1 = cmd.CreateParameter(); p1.ParameterName = "@p1"; p1.Value = tableName; cmd.Parameters.Add(p1);
+            var p2 = cmd.CreateParameter(); p2.ParameterName = "@p2"; p2.Value = columnName; cmd.Parameters.Add(p2);
+
+            var result = await cmd.ExecuteScalarAsync();
+            var count = result != null && result != DBNull.Value ? Convert.ToInt32(result) : 0;
+            if (count == 0)
+            {
+                using var alterCmd = conn.CreateCommand();
+                alterCmd.CommandText = $"ALTER TABLE `{tableName}` ADD COLUMN `{columnName}` {columnDefinition};";
+                await alterCmd.ExecuteNonQueryAsync();
+            }
+        }
+        catch { }
+    }
+
+    private static async Task AddIndexIfNotExistsAsync(ApplicationDbContext context, string tableName, string indexName, string columnList)
+    {
+        try
+        {
+            var conn = context.Database.GetDbConnection();
+            var databaseName = conn.Database;
+            if (conn.State != System.Data.ConnectionState.Open)
+            {
+                await conn.OpenAsync();
+            }
+
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+                SELECT COUNT(*) 
+                FROM information_schema.statistics 
+                WHERE table_schema = @p0 AND table_name = @p1 AND index_name = @p2;";
+
+            var p0 = cmd.CreateParameter(); p0.ParameterName = "@p0"; p0.Value = databaseName; cmd.Parameters.Add(p0);
+            var p1 = cmd.CreateParameter(); p1.ParameterName = "@p1"; p1.Value = tableName; cmd.Parameters.Add(p1);
+            var p2 = cmd.CreateParameter(); p2.ParameterName = "@p2"; p2.Value = indexName; cmd.Parameters.Add(p2);
+
+            var result = await cmd.ExecuteScalarAsync();
+            var count = result != null && result != DBNull.Value ? Convert.ToInt32(result) : 0;
+            if (count == 0)
+            {
+                using var idxCmd = conn.CreateCommand();
+                idxCmd.CommandText = $"CREATE INDEX `{indexName}` ON `{tableName}` ({columnList});";
+                await idxCmd.ExecuteNonQueryAsync();
+            }
+        }
+        catch { }
     }
 }

@@ -19,13 +19,31 @@ public class DeckService : IDeckService
     }
 
     /// <summary>
+    /// 1. Lấy tất cả các bộ thẻ hiển thị ở Community (Cộng đồng).
+    /// </summary>
+    public async Task<IEnumerable<DeckDto>> GetCommunityDecksAsync(string? category = null)
+    {
+        var decks = await _decksRespository.GetCommunityDecks(category);
+        return decks.Select(MapToDeckDto);
+    }
+
+    /// <summary>
+    /// 2. Lấy tất cả các bộ thẻ của người dùng cụ thể ở My Resources (Kho học liệu cá nhân).
+    /// </summary>
+    public async Task<IEnumerable<DeckDto>> GetUserDecksAsync(Guid userId, string? category = null)
+    {
+        var decks = await _decksRespository.GetUserDecks(userId, category);
+        return decks.Select(MapToDeckDto);
+    }
+
+    /// <summary>
     /// Lấy toàn bộ danh sách bộ thẻ từ Repository.
     /// Kèm theo nạp danh sách thẻ con và tiến độ học để tính toán thống kê.
-    /// Hỗ trợ lọc theo thể loại (Category) nếu được cung cấp.
+    /// Hỗ trợ lọc theo thể loại (Category) hoặc theo người sở hữu (UserId) nếu được cung cấp.
     /// </summary>
-    public async Task<IEnumerable<DeckDto>> GetAllDecksAsync(string? category = null)
+    public async Task<IEnumerable<DeckDto>> GetAllDecksAsync(string? category = null, Guid? userId = null)
     {
-        var decks = await _decksRespository.GetAllDecks(category);
+        var decks = await _decksRespository.GetAllDecks(category, userId);
         return decks.Select(MapToDeckDto);
     }
 
@@ -39,7 +57,7 @@ public class DeckService : IDeckService
     }
 
     /// <summary>
-    /// Tạo một bộ thẻ mới với tiêu đề, mô tả và thể loại (Category).
+    /// Tạo một bộ thẻ mới với tiêu đề, mô tả, thể loại (Category) và người sở hữu (UserId).
     /// Mặc định thể loại là "Chung" nếu để trống.
     /// </summary>
     public async Task<DeckDto> CreateDeckAsync(CreateDeckRequest request)
@@ -47,6 +65,7 @@ public class DeckService : IDeckService
         var deck = new Deck
         {
             Id = Guid.NewGuid(),
+            UserId = request.UserId,
             Title = request.Title.Trim(),
             Description = request.Description?.Trim(),
             Category = string.IsNullOrWhiteSpace(request.Category) ? "Chung" : request.Category.Trim(),
@@ -86,7 +105,7 @@ public class DeckService : IDeckService
     }
 
     /// <summary>
-    /// Hàm tiện ích: Ánh xạ thực thể Deck sang DeckDto.
+    /// Hàm tiện ích: Ánh xạ thực thể Deck sang DeckDto (kèm UserId người sở hữu).
     /// </summary>
     private static DeckDto MapToDeckDto(Deck deck)
     {
@@ -104,7 +123,8 @@ public class DeckService : IDeckService
             totalCards,
             masteredCards,
             learningCards,
-            notStartedCards
+            notStartedCards,
+            deck.UserId
         );
     }
 }

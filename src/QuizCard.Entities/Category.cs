@@ -1,4 +1,4 @@
-﻿namespace QuizCard.Entities;
+namespace QuizCard.Entities;
 
 /// <summary>
 /// Đại diện cho một "Phân loại / Danh mục" của Bộ thẻ (Deck Category).
@@ -11,6 +11,12 @@ public class Category
     /// Khóa chính định danh duy nhất cho phân loại.
     /// </summary>
     public Guid Id { get; set; } = Guid.NewGuid();
+
+    /// <summary>
+    /// ID tài khoản người dùng tạo và sở hữu phân loại (ApplicationUser.Id).
+    /// Null nếu là phân loại mặc định của hệ thống.
+    /// </summary>
+    public Guid? UserId { get; set; }
 
     /// <summary>
     /// Tên phân loại (Bắt buộc, ví dụ: "Lập trình", "Tiếng Anh", tối đa 100 ký tự).
@@ -38,4 +44,3 @@ public class Category
     /// </summary>
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
-

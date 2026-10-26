@@ -9,12 +9,24 @@ namespace QuizCard.RepositoryContracts;
 public interface IDecksRespository
 {
     /// <summary>
-    /// Lấy danh sách tất cả các bộ thẻ trong hệ thống, kèm theo danh sách thẻ và tiến độ học.
+    /// 1. Lấy tất cả các bộ thẻ hiển thị ở Community (Cộng đồng).
     /// Hỗ trợ lọc theo phân loại (Category) nếu được chỉ định và sắp xếp theo ngày tạo giảm dần.
     /// </summary>
     /// <param name="category">Tên phân loại cần lọc (tùy chọn, không bắt buộc).</param>
-    /// <returns>Danh sách các bộ thẻ kèm dữ liệu liên quan.</returns>
-    Task<List<Deck>> GetAllDecks(string? category = null);
+    Task<List<Deck>> GetCommunityDecks(string? category = null);
+
+    /// <summary>
+    /// 2. Lấy tất cả các bộ thẻ của người dùng cụ thể ở My Resources (Kho học liệu cá nhân).
+    /// </summary>
+    /// <param name="userId">ID người dùng sở hữu bộ thẻ.</param>
+    /// <param name="category">Tên phân loại cần lọc (tùy chọn, không bắt buộc).</param>
+    Task<List<Deck>> GetUserDecks(Guid userId, string? category = null);
+
+    /// <summary>
+    /// Lấy danh sách tất cả các bộ thẻ trong hệ thống, kèm theo danh sách thẻ và tiến độ học.
+    /// Hỗ trợ lọc theo phân loại (Category) hoặc theo người dùng sở hữu (UserId) nếu được chỉ định và sắp xếp theo ngày tạo giảm dần.
+    /// </summary>
+    Task<List<Deck>> GetAllDecks(string? category = null, Guid? userId = null);
 
     /// <summary>
     /// Tìm và lấy thông tin chi tiết một bộ thẻ theo Id, kèm theo danh sách thẻ và tiến độ học tập.
@@ -48,6 +60,6 @@ public interface IDecksRespository
     /// Kiểm tra xem một bộ thẻ có tồn tại trong cơ sở dữ liệu hay không.
     /// </summary>
     /// <param name="id">Định danh duy nhất (Id) của bộ thẻ cần kiểm tra.</param>
-    /// <returns>True nếu tồn tại, ngược lại trả về False.</returns>
+    /// <returns>True nếu bộ thẻ tồn tại, ngược lại trả về False.</returns>
     Task<bool> DeckExists(Guid id);
 }

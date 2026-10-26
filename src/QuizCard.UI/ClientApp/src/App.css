@@ -401,6 +401,38 @@
   filter: drop-shadow(0 1px 2px rgba(249, 115, 22, 0.35));
 }
 
+.qc-stat-streak.pending-streak {
+  border-style: dashed;
+  animation: qcStatPulse 2.5s infinite;
+}
+
+@keyframes qcStatPulse {
+  0%, 100% {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.4);
+  }
+}
+
+.qc-flame-pending {
+  animation: qcFlameBob 1.6s infinite ease-in-out;
+}
+
+@keyframes qcFlameBob {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+.qc-flame-active {
+  color: #ea580c !important;
+  fill: #ea580c !important;
+}
+
 .qc-page-title {
   font-size: 13.5px;
   font-weight: 600;
@@ -2331,4 +2363,73 @@
   background-color: rgba(249, 115, 22, 0.22) !important;
   border-color: #fdba74 !important;
   box-shadow: 0 2px 10px rgba(249, 115, 22, 0.25) !important;
+}
+
+
+/* Topbar Login Button & User Badge */
+.qc-topbar-login-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 12px;
+  padding: 6px 14px;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.qc-topbar-login-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+}
+
+.qc-topbar-user-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 12px;
+  padding: 4px 10px 4px 4px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.qc-topbar-user-badge:hover {
+  background: #e2e8f0;
+}
+
+.qc-topbar-user-badge img {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.qc-topbar-user-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1e293b;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+[data-theme="dark"] .qc-topbar-user-badge {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .qc-topbar-user-name {
+  color: #f1f5f9;
 }

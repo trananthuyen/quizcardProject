@@ -1,10 +1,8 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Facebook;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
 using QuizCard.Entities;
-using QuizCard.Repositories;
-using QuizCard.RepositoryContracts;
-using QuizCard.ServiceContracts;
-using QuizCard.Services;
-using QuizCard.Services.Services;
 using QuizCard.UI.Data;
 using QuizCard.UI.StartupExtensions;
 
@@ -24,25 +22,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Đăng ký dịch vụ hỗ trợ Controller REST API
 builder.Services.AddControllers();
 
-// Cấu hình kết nối cơ sở dữ liệu SQLite:
-// Đọc chuỗi kết nối từ appsettings.json, nếu không có thì mặc định file "quizcard.db"
-var rawConn = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=quizcard.db";
-
-// Nếu chuỗi kết nối sử dụng đường dẫn tương đối, gắn với ContentRootPath của ứng dụng
-// để đảm bảo dù ứng dụng được khởi chạy từ bất kỳ thư mục nào cũng đọc đúng file database cùng cấp
-var connectionString = rawConn;
-if (rawConn.StartsWith("Data Source=", StringComparison.OrdinalIgnoreCase))
-{
-    var pathPart = rawConn.Substring("Data Source=".Length).Trim();
-    if (!Path.IsPathRooted(pathPart))
-    {
-        var absolutePath = Path.Combine(builder.Environment.ContentRootPath, pathPart);
-        connectionString = $"Data Source={absolutePath}";
-    }
-}
+// Cấu hình kết nối cơ sở dữ liệu MySQL:
+// Đọc chuỗi kết nối từ appsettings.json
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(connectionString));
+    options.UseMySQL(connectionString)
+);
 
 // ================= SERVICES =================
 builder.Services.ConfigureService(builder.Configuration);
@@ -79,6 +66,10 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+// Xác thực & Phân quyền Identity Middleware
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Định tuyến các yêu cầu API tới các Controller tương ứng (/api/decks, /api/cards, /api/study)
 app.MapControllers();

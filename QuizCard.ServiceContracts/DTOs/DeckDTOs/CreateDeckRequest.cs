@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace QuizCard.ServiceContracts.DTOs.DeckDTOs;
 
@@ -8,15 +8,17 @@ namespace QuizCard.ServiceContracts.DTOs.DeckDTOs;
 /// <param name="Title">Tên bộ thẻ (Bắt buộc nhập, tối đa 200 ký tự).</param>
 /// <param name="Description">Mô tả bộ thẻ (Tùy chọn, tối đa 1000 ký tự).</param>
 /// <param name="Category">Phân loại bộ thẻ (Tùy chọn, tối đa 100 ký tự, mặc định "Chung").</param>
+/// <param name="UserId">ID tài khoản người dùng tạo và sở hữu bộ thẻ.</param>
 public record CreateDeckRequest(
     [Required(ErrorMessage = "Tiêu đề bộ thẻ không được để trống")]
-        [MaxLength(200, ErrorMessage = "Tiêu đề không được vượt quá 200 ký tự")]
-        string Title,
+    [MaxLength(200, ErrorMessage = "Tiêu đề không được vượt quá 200 ký tự")]
+    string Title,
 
     [MaxLength(1000, ErrorMessage = "Mô tả không được vượt quá 1000 ký tự")]
-        string? Description,
+    string? Description,
 
     [MaxLength(100, ErrorMessage = "Phân loại không được vượt quá 100 ký tự")]
-        string? Category
-);
+    string? Category,
 
+    Guid? UserId = null
+);

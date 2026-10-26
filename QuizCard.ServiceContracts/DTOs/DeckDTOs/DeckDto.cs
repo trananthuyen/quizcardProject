@@ -1,4 +1,4 @@
-﻿namespace QuizCard.ServiceContracts.DTOs.DeckDTOs;
+namespace QuizCard.ServiceContracts.DTOs.DeckDTOs;
 
 /// <summary>
 /// Data Transfer Object (DTO) chứa thông tin đầy đủ của một bộ thẻ kèm phân loại và số liệu thống kê tiến độ học.
@@ -13,6 +13,7 @@
 /// <param name="MasteredCards">Số lượng thẻ đã thuộc (Mastered).</param>
 /// <param name="LearningCards">Số lượng thẻ đang học (Learning).</param>
 /// <param name="NotStartedCards">Số lượng thẻ chưa học (NotStarted).</param>
+/// <param name="UserId">ID tài khoản người dùng tạo và sở hữu bộ thẻ.</param>
 public record DeckDto(
     Guid Id,
     string Title,
@@ -22,6 +23,6 @@ public record DeckDto(
     int TotalCards,
     int MasteredCards,
     int LearningCards,
-    int NotStartedCards
+    int NotStartedCards,
+    Guid? UserId = null
 );
-

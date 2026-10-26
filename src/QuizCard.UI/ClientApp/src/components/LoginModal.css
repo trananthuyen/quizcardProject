@@ -1,0 +1,439 @@
+/* Modal Backdrop Overlay */
+.qc-login-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: qcFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes qcFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Modal Window Container */
+.qc-login-container {
+  width: 100%;
+  max-width: 920px;
+  min-height: 540px;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35);
+  display: flex;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+/* Close Button (X) */
+.qc-login-close-btn {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 20;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.qc-login-close-btn:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: rotate(90deg);
+}
+
+/* ==========================================================================
+   LEFT COLUMN: FORM ĐĂNG NHẬP
+   ========================================================================== */
+.qc-login-left {
+  flex: 1.15;
+  padding: 3rem 2.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #ffffff;
+}
+
+/* Brand Header */
+.qc-login-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 1.5rem;
+}
+
+.qc-login-brand-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 14px -3px rgba(37, 99, 235, 0.4);
+}
+
+.qc-login-brand-name {
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+}
+
+.qc-login-brand-name span {
+  color: #2563eb;
+}
+
+/* Headers */
+.qc-login-header {
+  margin-bottom: 1.5rem;
+}
+
+.qc-login-title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 0.4rem 0;
+  letter-spacing: -0.02em;
+}
+
+.qc-login-subtitle {
+  font-size: 0.92rem;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Error Alert */
+.qc-login-error-alert {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  animation: qcShake 0.3s ease-in-out;
+}
+
+@keyframes qcShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+/* Terms & Conditions Checkbox */
+.qc-login-terms-box {
+  margin-bottom: 1.5rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.qc-login-terms-box:hover {
+  border-color: #cbd5e1;
+  background: #f1f5f9;
+}
+
+.qc-login-terms-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.qc-login-checkbox {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: #2563eb;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.qc-login-terms-text {
+  font-size: 0.835rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.qc-login-terms-link {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.qc-login-terms-link:hover {
+  color: #1d4ed8;
+}
+
+/* OAuth Buttons Stack */
+.qc-login-oauth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.qc-btn-oauth {
+  width: 100%;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 1.5rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.qc-btn-oauth:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Nút Google */
+.qc-btn-google {
+  background: #ffffff;
+  color: #1f2937;
+  border: 1.5px solid #e5e7eb;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+}
+
+.qc-btn-google:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+/* Nút Facebook */
+.qc-btn-facebook {
+  background: #1877f2;
+  color: #ffffff;
+  border: 1.5px solid #1877f2;
+  box-shadow: 0 4px 12px rgba(24, 119, 242, 0.25);
+}
+
+.qc-btn-facebook:hover:not(:disabled) {
+  background: #166fe5;
+  border-color: #166fe5;
+  box-shadow: 0 6px 16px rgba(24, 119, 242, 0.35);
+  transform: translateY(-1px);
+}
+
+.qc-oauth-icon {
+  flex-shrink: 0;
+}
+
+/* Footer note */
+.qc-login-footer-info {
+  margin-top: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.qc-login-shield-icon {
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   RIGHT COLUMN: BANNER CHÀO MỪNG THEO MOCKUP
+   ========================================================================== */
+.qc-login-right {
+  flex: 1;
+  background: linear-gradient(145deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%);
+  padding: 3rem 2.5rem;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.qc-login-right::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -20%;
+  width: 350px;
+  height: 350px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.qc-login-right-content {
+  position: relative;
+  z-index: 1;
+}
+
+.qc-login-hero-title {
+  font-size: 2.1rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.02em;
+}
+
+.qc-login-hero-subtitle {
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0 0 0.75rem 0;
+  color: #dbeafe;
+}
+
+.qc-login-hero-desc {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 1.75rem 0;
+}
+
+/* Widget biểu đồ học tập */
+.qc-login-chart-card {
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 18px;
+  padding: 1.25rem 1.35rem;
+  box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.25);
+  color: #1e293b;
+}
+
+.qc-login-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.qc-chart-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.qc-chart-badge {
+  font-size: 0.725rem;
+  font-weight: 700;
+  color: #16a34a;
+  background: #dcfce7;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* Bar Chart */
+.qc-login-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  height: 95px;
+}
+
+.qc-bar-item {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.qc-bar-track {
+  width: 100%;
+  max-width: 28px;
+  height: 70px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.qc-bar-fill {
+  width: 100%;
+  background: #93c5fd;
+  border-radius: 6px 6px 0 0;
+  transition: height 0.3s ease;
+}
+
+.qc-bar-item.active .qc-bar-fill {
+  background: #2563eb;
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.4);
+}
+
+.qc-bar-day {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.qc-bar-item.active .qc-bar-day {
+  color: #2563eb;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
+@media (max-width: 768px) {
+  .qc-login-container {
+    flex-direction: column;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .qc-login-right {
+    display: none;
+  }
+
+  .qc-login-left {
+    padding: 2.25rem 1.75rem;
+  }
+
+  .qc-login-close-btn {
+    color: #64748b;
+    background: #f1f5f9;
+  }
+}

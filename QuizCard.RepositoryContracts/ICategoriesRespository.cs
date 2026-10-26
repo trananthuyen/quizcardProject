@@ -24,9 +24,11 @@ public interface ICategoriesRespository
 
     /// <summary>
     /// Thống kê số lượng bộ thẻ được nhóm theo từng tên phân loại (dạng chữ thường làm key).
+    /// Nếu có userId: tính số lượng bộ thẻ thuộc người dùng đó hoặc bộ thẻ mẫu.
     /// </summary>
+    /// <param name="userId">ID người dùng (tùy chọn).</param>
     /// <returns>Dictionary với Key là tên phân loại viết thường và Value là số lượng bộ thẻ.</returns>
-    Task<Dictionary<string, int>> GetDeckCountsGroupedByCategory();
+    Task<Dictionary<string, int>> GetDeckCountsGroupedByCategory(Guid? userId = null);
 
     /// <summary>
     /// Thêm mới một phân loại vào cơ sở dữ liệu.
@@ -36,10 +38,13 @@ public interface ICategoriesRespository
     Task<Category> CreateCategory(Category category);
 
     /// <summary>
-    /// Lấy danh sách toàn bộ các phân loại trong hệ thống, sắp xếp theo thời gian tạo tăng dần.
+    /// Lấy danh sách các phân loại trong hệ thống:
+    /// Nếu có userId: trả về phân loại của người dùng đó và phân loại hệ thống (UserId == null).
+    /// Nếu không có userId: chỉ trả về phân loại mặc định của hệ thống (UserId == null).
     /// </summary>
-    /// <returns>Danh sách tất cả phân loại.</returns>
-    Task<List<Category>> GetAllCategories();
+    /// <param name="userId">ID người dùng (tùy chọn).</param>
+    /// <returns>Danh sách phân loại tương ứng.</returns>
+    Task<List<Category>> GetAllCategories(Guid? userId = null);
 
     /// <summary>
     /// Tìm và lấy thông tin chi tiết một phân loại theo mã định danh (Id).
