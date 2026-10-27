@@ -1,6 +1,7 @@
 /* ============================================================
    FolderList.css
-   Styles cho khu vực Quản lý thư mục / Phân loại (All Folders)
+   Giao diện Quản lý Thư mục (All Folders) & Chi tiết bộ thẻ trong thư mục
+   Hỗ trợ hoàn hảo Light / Dark Mode & Responsive
    ============================================================ */
 
 .fl-container {
@@ -9,6 +10,9 @@
   margin: 0 auto;
 }
 
+/* ------------------------------------------------------------
+   VIEW 1: Header màn hình Tất Cả Thư Mục
+   ------------------------------------------------------------ */
 .fl-header {
   display: flex;
   align-items: center;
@@ -26,6 +30,7 @@
   align-items: center;
   gap: 10px;
   margin-bottom: 6px;
+  letter-spacing: -0.4px;
 }
 
 .fl-subtitle {
@@ -54,19 +59,20 @@
   transform: translateY(-1px);
 }
 
+/* Lưới thẻ thư mục (Folder Grid) */
 .fl-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
 }
 
 .fl-card {
   background: #ffffff;
-  border: 1px solid #eef2f6;
-  border-radius: 14px;
-  padding: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-  transition: all 0.2s ease;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -75,60 +81,519 @@
 }
 
 .fl-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   border-color: #0d99ff;
-  box-shadow: 0 6px 16px rgba(13, 153, 255, 0.08);
+  box-shadow: 0 10px 24px rgba(13, 153, 255, 0.12);
 }
 
 .fl-card-top {
   display: flex;
   align-items: flex-start;
   gap: 14px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .fl-card-icon-box {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: 24px;
   flex-shrink: 0;
-  background-color: #f1f5f9;
+  border: 1px solid transparent;
+  transition: transform 0.2s ease;
+}
+
+.fl-card:hover .fl-card-icon-box {
+  transform: scale(1.06);
+}
+
+.fl-card-header-text {
+  flex: 1;
+  min-width: 0;
 }
 
 .fl-card-name {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
-  color: #18181b;
+  color: #0f172a;
   margin-bottom: 4px;
   line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .fl-card-count {
   font-size: 12.5px;
-  color: #71717a;
+  color: #64748b;
   font-weight: 500;
 }
 
 .fl-card-desc {
-  font-size: 12px;
-  color: #a1a1aa;
-  line-height: 1.4;
-  margin-bottom: 14px;
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.5;
+  margin-bottom: 18px;
   flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .fl-card-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 1px solid #f4f4f5;
-  padding-top: 10px;
-  font-size: 12px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 12px;
+  font-size: 12.5px;
   color: #0d99ff;
   font-weight: 600;
+  transition: gap 0.15s ease;
 }
 
+.fl-card:hover .fl-card-footer {
+  color: #0284c7;
+}
+
+.fl-card:hover .fl-card-footer svg {
+  transform: translateX(3px);
+  transition: transform 0.15s ease;
+}
+
+/* ------------------------------------------------------------
+   VIEW 2: CHI TIẾT BỘ THẺ TRONG THƯ MỤC
+   ------------------------------------------------------------ */
+
+/* Thanh Breadcrumb & Nút Quay lại */
+.fl-detail-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.fl-btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background-color: #f1f5f9;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.fl-btn-back:hover {
+  background-color: #e2e8f0;
+  color: #0f172a;
+}
+
+.fl-breadcrumb-sep {
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.fl-breadcrumb-current {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Banner thông tin thư mục */
+.fl-folder-banner {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+}
+
+.fl-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+  min-width: 280px;
+}
+
+.fl-banner-icon-box {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  border: 1px solid transparent;
+  flex-shrink: 0;
+}
+
+.fl-banner-info {
+  flex: 1;
+}
+
+.fl-banner-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.fl-banner-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.3px;
+}
+
+.fl-banner-count-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+
+.fl-banner-desc {
+  font-size: 13.5px;
+  color: #64748b;
+  line-height: 1.5;
+  max-width: 650px;
+}
+
+.fl-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fl-btn-add-deck {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border-radius: 12px;
+  background-color: #0d99ff;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(13, 153, 255, 0.25);
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.fl-btn-add-deck:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.fl-btn-manage-folder {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: 12px;
+  background-color: #f8fafc;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid #cbd5e1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.fl-btn-manage-folder:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+/* Toolbar tìm kiếm & Sắp xếp */
+.fl-folder-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.fl-search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 8px 16px;
+  flex: 1;
+  max-width: 480px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: border-color 0.15s ease;
+}
+
+.fl-search-box:focus-within {
+  border-color: #0d99ff;
+  box-shadow: 0 0 0 3px rgba(13, 153, 255, 0.1);
+}
+
+.fl-search-icon {
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.fl-search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  font-size: 13.5px;
+  color: #0f172a;
+}
+
+.fl-search-input::placeholder {
+  color: #94a3b8;
+}
+
+.fl-search-clear {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 50%;
+}
+
+.fl-search-clear:hover {
+  color: #0f172a;
+}
+
+.fl-sort-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fl-sort-label {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.fl-sort-select {
+  padding: 7px 12px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Lưới các bộ thẻ bên trong thư mục */
+.fl-deck-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 24px;
+}
+
+/* Empty State khi thư mục trống */
+.fl-empty-box {
+  background: #ffffff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 20px;
+  padding: 64px 32px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 12px 0 40px 0;
+}
+
+.fl-empty-icon-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.fl-empty-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.fl-empty-desc {
+  font-size: 13.5px;
+  color: #64748b;
+  max-width: 440px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.fl-btn-create-first-deck {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 12px;
+  background-color: #0d99ff;
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(13, 153, 255, 0.25);
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.fl-btn-create-first-deck:hover {
+  opacity: 0.92;
+  transform: translateY(-2px);
+}
+
+/* ------------------------------------------------------------
+   CHẾ ĐỘ TỐI (DARK MODE)
+   ------------------------------------------------------------ */
+[data-theme="dark"] .fl-title {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .fl-subtitle {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .fl-card {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .fl-card:hover {
+  border-color: #38bdf8;
+  box-shadow: 0 10px 24px rgba(56, 189, 248, 0.15);
+}
+
+[data-theme="dark"] .fl-card-name {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .fl-card-count {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .fl-card-desc {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .fl-card-footer {
+  border-top-color: #334155;
+  color: #38bdf8;
+}
+
+[data-theme="dark"] .fl-btn-back {
+  background-color: #1e293b;
+  color: #cbd5e1;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .fl-btn-back:hover {
+  background-color: #334155;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .fl-breadcrumb-current {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .fl-folder-banner {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .fl-banner-name {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .fl-banner-count-badge {
+  background-color: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+}
+
+[data-theme="dark"] .fl-banner-desc {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .fl-btn-manage-folder {
+  background-color: #0f172a;
+  color: #cbd5e1;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .fl-btn-manage-folder:hover {
+  background-color: #334155;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .fl-search-box {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .fl-search-input {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .fl-sort-label {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .fl-sort-select {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .fl-empty-box {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .fl-empty-title {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .fl-empty-desc {
+  color: #94a3b8;
+}

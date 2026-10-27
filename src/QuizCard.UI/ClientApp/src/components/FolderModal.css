@@ -1,0 +1,495 @@
+/* ============================================================
+   FolderModal.css
+   Giao diện Quản lý / Tạo Thư mục tinh gọn, tối ưu chiều cao
+   Hỗ trợ hoàn hảo Light & Dark Mode
+   ============================================================ */
+
+/* Overlay phủ toàn màn hình */
+.fm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  animation: fmFadeIn 0.15s ease-out;
+}
+
+/* Hộp thoại Modal tối ưu chiều cao */
+.fm-modal-content {
+  background: #ffffff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 540px;
+  max-height: min(90vh, 600px);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  padding: 18px 22px;
+  animation: fmScaleUp 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+@keyframes fmFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fmScaleUp {
+  from { transform: scale(0.96); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Header Modal */
+.fm-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.fm-modal-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fm-modal-subtitle {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.fm-btn-close {
+  padding: 5px;
+  color: #64748b;
+  border-radius: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.fm-btn-close:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+/* Phần nội dung có thể cuộn nếu màn hình quá nhỏ */
+.fm-modal-body {
+  overflow-y: auto;
+  padding-right: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fm-modal-body::-webkit-scrollbar {
+  width: 5px;
+}
+
+.fm-modal-body::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
+}
+
+/* Thông báo lỗi */
+.fm-error-box {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+/* Khung form tạo thư mục (Tối ưu tiết kiệm chiều cao) */
+.fm-form-box {
+  background-color: #f8fafc;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fm-form-label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 4px;
+}
+
+.fm-required {
+  color: #ef4444;
+}
+
+.fm-input-text {
+  width: 100%;
+  padding: 7px 11px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  font-size: 13px;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.fm-input-text:focus {
+  border-color: #0d99ff;
+  box-shadow: 0 0 0 2px rgba(13, 153, 255, 0.15);
+}
+
+.fm-input-text::placeholder {
+  color: #94a3b8;
+  font-size: 12.5px;
+}
+
+/* Hàng ngang 2 cột: Biểu tượng bên trái, Màu sắc bên phải */
+.fm-compact-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.fm-icon-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 5px;
+}
+
+.fm-icon-preview {
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fm-icon-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.fm-icon-btn {
+  font-size: 13px;
+  width: 27px;
+  height: 27px;
+  border-radius: 6px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.12s ease;
+  padding: 0;
+}
+
+.fm-icon-btn:hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.fm-icon-btn.selected {
+  background-color: #e0f2fe;
+  border: 2px solid #0d99ff;
+  transform: scale(1.05);
+}
+
+.fm-color-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  padding-top: 2px;
+}
+
+.fm-color-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: transform 0.15s ease;
+  padding: 0;
+}
+
+.fm-color-btn:hover {
+  transform: scale(1.15);
+}
+
+.fm-color-btn.selected {
+  outline: 2px solid #0d99ff;
+  outline-offset: 1px;
+}
+
+/* Hàng Mô tả kết hợp Nút Tạo Thư Mục */
+.fm-desc-action-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fm-btn-submit {
+  background-color: #0d99ff;
+  color: #ffffff;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(13, 153, 255, 0.25);
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.fm-btn-submit:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.fm-btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Danh sách thư mục đã có */
+.fm-list-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.fm-list-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.fm-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 140px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.fm-list-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.fm-list-container::-webkit-scrollbar-thumb {
+  background-color: #e2e8f0;
+  border-radius: 4px;
+}
+
+.fm-folder-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  font-size: 12.5px;
+}
+
+.fm-folder-item-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.fm-folder-item-icon {
+  font-size: 14px;
+}
+
+.fm-folder-item-name {
+  font-weight: 600;
+  color: #0f172a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fm-folder-item-count {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.fm-btn-delete {
+  color: #ef4444;
+  padding: 3px 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: background-color 0.15s;
+}
+
+.fm-btn-delete:hover {
+  background-color: #fee2e2;
+}
+
+/* Footer Modal */
+.fm-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 10px;
+  margin-top: 6px;
+  border-top: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+
+.fm-btn-close-footer {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  background-color: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.fm-btn-close-footer:hover {
+  background-color: #e2e8f0;
+  color: #0f172a;
+}
+
+/* ------------------------------------------------------------
+   CHẾ ĐỘ TỐI (DARK MODE)
+   ------------------------------------------------------------ */
+[data-theme="dark"] .fm-modal-content {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .fm-modal-title {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .fm-modal-subtitle {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .fm-btn-close {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .fm-btn-close:hover {
+  background-color: #334155;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .fm-form-box {
+  background-color: #0f172a;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .fm-form-label,
+[data-theme="dark"] .fm-icon-header,
+[data-theme="dark"] .fm-list-title {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .fm-input-text {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .fm-input-text:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+[data-theme="dark"] .fm-input-text::placeholder {
+  color: #64748b;
+}
+
+[data-theme="dark"] .fm-icon-btn {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .fm-icon-btn:hover {
+  background-color: #334155;
+}
+
+[data-theme="dark"] .fm-icon-btn.selected {
+  background-color: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+}
+
+[data-theme="dark"] .fm-color-btn {
+  border-color: #1e293b;
+}
+
+[data-theme="dark"] .fm-color-btn.selected {
+  outline-color: #38bdf8;
+}
+
+[data-theme="dark"] .fm-folder-item {
+  background-color: #0f172a;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .fm-folder-item-name {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .fm-folder-item-count {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .fm-btn-delete:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+}
+
+[data-theme="dark"] .fm-modal-footer {
+  border-top-color: #334155;
+}
+
+[data-theme="dark"] .fm-btn-close-footer {
+  background-color: #0f172a;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .fm-btn-close-footer:hover {
+  background-color: #334155;
+  color: #f8fafc;
+}
+

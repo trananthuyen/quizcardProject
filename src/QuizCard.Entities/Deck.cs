@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace QuizCard.Entities;
 
 /// <summary>
@@ -28,10 +30,22 @@ public class Deck
     public string? Description { get; set; }
 
     /// <summary>
-    /// Phân loại / Thể loại của bộ thẻ (ví dụ: "Lập trình", "Tiếng Anh", "Khoa học", v.v.).
+    /// Thư mục chứa bộ thẻ này (mục đích để người sở hữu dễ quản lý các decks).
     /// Mặc định là "Chung" nếu người dùng không chỉ định.
     /// </summary>
-    public string Category { get; set; } = "Chung";
+    public string Folder { get; set; } = "Chung";
+
+    /// <summary>
+    /// Thẻ nhãn phân loại nội dung bộ thẻ (ví dụ: "english, toeic, ielts", "csharp, backend").
+    /// Dùng để phân loại deck là gì và hỗ trợ tìm kiếm/lọc nhanh.
+    /// </summary>
+    public string? Tag { get; set; }
+
+    /// <summary>
+    /// Cho biết bộ thẻ có được chia sẻ công khai lên Community để mọi người cùng nhìn thấy và học tập hay không.
+    /// True: Công khai trên Community; False: Riêng tư (chỉ người tạo nhìn thấy).
+    /// </summary>
+    public bool IsPublic { get; set; } = true;
 
     /// <summary>
     /// Thời điểm tạo bộ thẻ (tính theo chuẩn UTC để đồng bộ trên mọi múi giờ).

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { api } from '../api';
 
 /**
  * Hàm tiện ích lấy thông tin tài khoản người dùng đã lưu từ LocalStorage.
@@ -62,10 +63,13 @@ export const useAuth = () => {
     /**
      * Xử lý đăng xuất tài khoản
      */
-    const handleLogout = useCallback(() => {
+    const handleLogout = useCallback(async () => {
         setCurrentUser(null);
         try {
             localStorage.removeItem('quizcard_user');
+        } catch { }
+        try {
+            await api.logout();
         } catch { }
     }, []);
 
@@ -75,6 +79,7 @@ export const useAuth = () => {
     useEffect(() => {
         const checkAuthCallback = () => {
             const hash = window.location.hash || '';
+            const search = window.location.search || '';
             if (hash.includes('auth-callback')) {
                 try {
                     const queryPart = hash.includes('?') ? hash.split('?')[1] : '';
@@ -92,6 +97,9 @@ export const useAuth = () => {
             } else if (hash.includes('auth_error')) {
                 alert('Đăng nhập OAuth không thành công từ nhà cung cấp. Vui lòng thử lại.');
                 window.location.hash = '#/community';
+            } else if (search.includes('ReturnUrl') || search.includes('login') || hash.includes('login')) {
+                // Tự động mở modal đăng nhập khi người dùng được chuyển hướng về frontend do yêu cầu xác thực
+                setIsLoginModalOpen(true);
             }
         };
 

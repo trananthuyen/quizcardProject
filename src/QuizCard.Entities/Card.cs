@@ -1,33 +1,35 @@
-﻿namespace QuizCard.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace QuizCard.Entities;
 
 /// <summary>
-/// Đại diện cho một thẻ nhớ Flashcard đơn lẻ.
-/// Mỗi thẻ bao gồm 3 thông tin cốt lõi: Thuật ngữ (Mặt trước), Định nghĩa (Mặt sau), và Ví dụ minh họa.
+/// Đại diện cho một thẻ Flashcard đơn lẻ nằm trong một bộ thẻ (Deck).
+/// Mỗi thẻ gồm Thuật ngữ (Term) và Định nghĩa (Definition) phục vụ việc ghi nhớ.
 /// </summary>
 public class Card
 {
     /// <summary>
-    /// Khóa chính định danh duy nhất cho từng thẻ Flashcard.
+    /// Khóa chính định danh thẻ Flashcard.
     /// </summary>
     public Guid Id { get; set; } = Guid.NewGuid();
 
     /// <summary>
-    /// Khóa ngoại (Foreign Key) liên kết thẻ này với Bộ thẻ (Deck) sở hữu nó.
+    /// Khóa ngoại liên kết tới bộ thẻ chứa thẻ này (DeckId).
     /// </summary>
     public Guid DeckId { get; set; }
 
     /// <summary>
-    /// Navigation property: Đối tượng Bộ thẻ cha chứa thẻ này.
+    /// Navigation property: Bộ thẻ (Deck) sở hữu thẻ này.
     /// </summary>
     public Deck? Deck { get; set; }
 
     /// <summary>
-    /// Thuật ngữ, từ vựng hoặc câu hỏi cần ghi nhớ (Hiển thị ở mặt trước của Flashcard).
+    /// Thuật ngữ, từ vựng hoặc câu hỏi ở mặt trước của thẻ.
     /// </summary>
     public string Term { get; set; } = string.Empty;
 
     /// <summary>
-    /// Định nghĩa, giải nghĩa hoặc đáp án trả lời (Hiển thị ở mặt sau của Flashcard).
+    /// Định nghĩa, giải nghĩa, dịch nghĩa hoặc câu trả lời ở mặt sau của thẻ.
     /// </summary>
     public string Definition { get; set; } = string.Empty;
 
@@ -47,9 +49,28 @@ public class Card
     public DateTime? UpdatedAt { get; set; }
 
     /// <summary>
-    /// Navigation property: Dữ liệu theo dõi tiến trình học tập, trí nhớ và lịch ôn tập của riêng thẻ này.
-    /// Quan hệ 1 - 1 với thực thể StudyProgress.
+    /// Navigation property: Danh sách dữ liệu theo dõi tiến trình học tập của thẻ theo từng người dùng (Quan hệ 1 - Nhiều).
     /// </summary>
-    public StudyProgress? StudyProgress { get; set; }
-}
+    public ICollection<StudyProgress> StudyProgresses { get; set; } = new List<StudyProgress>();
 
+    /// <summary>
+    /// Thuộc tính tiện ích không map vào DB (NotMapped):
+    /// Trả về bản ghi tiến độ học đang được ngữ cảnh hiện tại chọn hoặc bản ghi đầu tiên trong StudyProgresses.
+    /// </summary>
+    [NotMapped]
+    private StudyProgress? _studyProgress;
+
+    [NotMapped]
+    public StudyProgress? StudyProgress
+    {
+        get => _studyProgress ?? StudyProgresses.FirstOrDefault();
+        set
+        {
+            _studyProgress = value;
+            if (value != null && !StudyProgresses.Contains(value))
+            {
+                StudyProgresses.Add(value);
+            }
+        }
+    }
+}

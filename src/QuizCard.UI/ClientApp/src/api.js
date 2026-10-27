@@ -33,16 +33,29 @@ export const api = {
             throw new Error('Không thể lấy thông tin tài khoản');
         return res.json();
     },
+    /**
+     * Gọi POST /api/auth/logout để xóa cookie phiên đăng nhập phía máy chủ
+     */
+    async logout() {
+        try {
+            await fetch(`${API_BASE}/auth/logout`, {
+                method: 'POST',
+            });
+        } catch (err) {
+            console.error('Lỗi khi gọi API đăng xuất:', err);
+        }
+    },
     // ==========================================================================
     // NHÓM 1: CÁC HÀM QUẢN LÝ BỘ THẺ (DECK MANAGEMENT)
     // ==========================================================================
     /**
      * 1. Gọi GET /api/decks/community để lấy tất cả bộ thẻ hiển thị ở Community.
-     * Hỗ trợ lọc theo thể loại: /api/decks/community?category=...
+     * Hỗ trợ lọc theo thư mục (folder) và thẻ tag: /api/decks/community?folder=...&tag=...
      */
-    async getCommunityDecks(category) {
+    async getCommunityDecks(folder, tag) {
         const params = new URLSearchParams();
-        if (category) params.append('category', category);
+        if (folder) params.append('folder', folder);
+        if (tag) params.append('tag', tag);
         const url = params.toString() ? `${API_BASE}/decks/community?${params.toString()}` : `${API_BASE}/decks/community`;
         const res = await fetch(url);
         if (!res.ok)
@@ -51,13 +64,14 @@ export const api = {
     },
     /**
      * 2. Gọi GET /api/decks/my-resources để lấy tất cả bộ thẻ của người dùng tại My Resources.
-     * Hỗ trợ lọc theo userId và thể loại: /api/decks/my-resources?userId=...&category=...
+     * Hỗ trợ lọc theo userId, thư mục (folder) và thẻ tag: /api/decks/my-resources?userId=...&folder=...&tag=...
      */
-    async getMyResourcesDecks(userId, category) {
+    async getMyResourcesDecks(userId, folder, tag) {
         if (!userId) return [];
         const params = new URLSearchParams();
         params.append('userId', userId);
-        if (category) params.append('category', category);
+        if (folder) params.append('folder', folder);
+        if (tag) params.append('tag', tag);
         const res = await fetch(`${API_BASE}/decks/my-resources?${params.toString()}`);
         if (!res.ok)
             throw new Error('Không thể tải danh sách bộ thẻ của bạn');
@@ -65,12 +79,13 @@ export const api = {
     },
     /**
      * Gọi GET /api/decks để lấy danh sách toàn bộ bộ thẻ kèm số lượng thẻ theo trạng thái.
-     * Hỗ trợ lọc theo thể loại: /api/decks?category=...
+     * Hỗ trợ lọc theo thư mục (folder), userId và tag.
      */
-    async getDecks(category, userId) {
+    async getDecks(folder, userId, tag) {
         const params = new URLSearchParams();
-        if (category) params.append('category', category);
+        if (folder) params.append('folder', folder);
         if (userId) params.append('userId', userId);
+        if (tag) params.append('tag', tag);
         const url = params.toString() ? `${API_BASE}/decks?${params.toString()}` : `${API_BASE}/decks`;
         const res = await fetch(url);
         if (!res.ok)
@@ -87,7 +102,7 @@ export const api = {
         return res.json();
     },
     /**
-     * Gọi POST /api/decks để tạo bộ thẻ mới kèm phân loại category.
+     * Gọi POST /api/decks để tạo bộ thẻ mới kèm thư mục folder và thẻ tag.
      */
     async createDeck(data) {
         const res = await fetch(`${API_BASE}/decks`, {
@@ -104,25 +119,31 @@ export const api = {
     /**
      * Gọi PUT /api/decks/{id} để cập nhật tên, mô tả hoặc phân loại bộ thẻ.
      */
-    async updateDeck(id, data) {
-        const res = await fetch(`${API_BASE}/decks/${id}`, {
+    async updateDeck(id, data, userId) {
+        const url = userId ? `${API_BASE}/decks/${id}?userId=${userId}` : `${API_BASE}/decks/${id}`;
+        const res = await fetch(url, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
         });
-        if (!res.ok)
-            throw new Error('Không thể cập nhật bộ thẻ');
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Không thể cập nhật bộ thẻ');
+        }
         return res.json();
     },
     /**
      * Gọi DELETE /api/decks/{id} để xóa vĩnh viễn một bộ thẻ.
      */
-    async deleteDeck(id) {
-        const res = await fetch(`${API_BASE}/decks/${id}`, {
+    async deleteDeck(id, userId) {
+        const url = userId ? `${API_BASE}/decks/${id}?userId=${userId}` : `${API_BASE}/decks/${id}`;
+        const res = await fetch(url, {
             method: 'DELETE',
         });
-        if (!res.ok)
-            throw new Error('Không thể xóa bộ thẻ');
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Không thể xóa bộ thẻ');
+        }
     },
     // ==========================================================================
     // NHÓM 2: CÁC HÀM QUẢN LÝ THẺ FLASHCARD (CARD MANAGEMENT)
@@ -207,8 +228,12 @@ export const api = {
      * Gọi GET /api/study/{deckId}/cards để lấy danh sách thẻ cho phiên học hoặc bài thi trắc nghiệm.
      * @param dueOnly Nếu true chỉ lấy thẻ đến hạn ôn; nếu false lấy toàn bộ thẻ trong bộ.
      */
-    async getStudySessionCards(deckId, dueOnly = false) {
-        const res = await fetch(`${API_BASE}/study/${deckId}/cards?dueOnly=${dueOnly}`);
+    async getStudySessionCards(deckId, dueOnly = false, userId = null) {
+        const params = new URLSearchParams();
+        if (dueOnly) params.append('dueOnly', 'true');
+        if (userId) params.append('userId', userId);
+        const url = params.toString() ? `${API_BASE}/study/${deckId}/cards?${params.toString()}` : `${API_BASE}/study/${deckId}/cards`;
+        const res = await fetch(url);
         if (!res.ok)
             throw new Error('Không thể tải danh sách thẻ cần học');
         return res.json();
@@ -216,28 +241,29 @@ export const api = {
     /**
      * Alias tương thích getStudyCards
      */
-    async getStudyCards(deckId, dueOnly = false) {
-        return this.getStudySessionCards(deckId, dueOnly);
+    async getStudyCards(deckId, dueOnly = false, userId = null) {
+        return this.getStudySessionCards(deckId, dueOnly, userId);
     },
     /**
      * Gọi GET /api/study/{deckId}/quiz để lấy danh sách câu hỏi trắc nghiệm ngẫu nhiên.
      * Mỗi câu hỏi có 4 lựa chọn và đáp án đúng.
      */
-    async getQuizCards(deckId) {
-        const res = await fetch(`${API_BASE}/study/${deckId}/quiz`);
+    async getQuizCards(deckId, userId = null) {
+        const url = userId ? `${API_BASE}/study/${deckId}/quiz?userId=${encodeURIComponent(userId)}` : `${API_BASE}/study/${deckId}/quiz`;
+        const res = await fetch(url);
         if (!res.ok)
             throw new Error('Không thể tải câu hỏi trắc nghiệm');
         return res.json();
     },
     /**
      * Gọi POST /api/study/cards/{cardId}/answer để gửi kết quả người dùng trả lời (Đúng hoặc Sai).
-     * Backend sẽ chạy thuật toán Spaced Repetition và cập nhật trạng thái thẻ.
+     * Backend sẽ chạy thuật toán Spaced Repetition và cập nhật trạng thái thẻ theo UserId.
      */
-    async answerCard(cardId, isCorrect) {
+    async answerCard(cardId, isCorrect, userId = null) {
         const res = await fetch(`${API_BASE}/study/cards/${cardId}/answer`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ isCorrect }),
+            body: JSON.stringify({ isCorrect, userId }),
         });
         if (!res.ok)
             throw new Error('Không thể gửi kết quả học tập');
@@ -246,65 +272,66 @@ export const api = {
     /**
      * Gọi POST /api/study/{deckId}/reset để đặt lại tiến độ học tập của bộ thẻ về 0.
      */
-    async resetDeckProgress(deckId) {
-        const res = await fetch(`${API_BASE}/study/${deckId}/reset`, {
+    async resetDeckProgress(deckId, userId = null) {
+        const url = userId ? `${API_BASE}/study/${deckId}/reset?userId=${encodeURIComponent(userId)}` : `${API_BASE}/study/${deckId}/reset`;
+        const res = await fetch(url, {
             method: 'POST',
         });
         if (!res.ok)
             throw new Error('Không thể đặt lại tiến độ');
     },
     // ==========================================================================
-    // NHÓM 4: CÁC HÀM QUẢN LÝ PHÂN LOẠI (CATEGORY MANAGEMENT)
+    // NHÓM 4: CÁC HÀM QUẢN LÝ THƯ MỤC (FOLDER MANAGEMENT)
     // ==========================================================================
     /**
-     * Gọi GET /api/categories?userId=... để lấy danh sách các phân loại kèm số lượng bộ thẻ.
+     * Gọi GET /api/folders?userId=... để lấy danh sách các thư mục kèm số lượng bộ thẻ.
      */
-    async getCategories(userId) {
-        const url = userId ? `${API_BASE}/categories?userId=${encodeURIComponent(userId)}` : `${API_BASE}/categories`;
+    async getFolders(userId) {
+        const url = userId ? `${API_BASE}/folders?userId=${encodeURIComponent(userId)}` : `${API_BASE}/folders`;
         const res = await fetch(url);
         if (!res.ok)
-            throw new Error('Không thể tải danh sách phân loại');
+            throw new Error('Không thể tải danh sách thư mục');
         return res.json();
     },
     /**
-     * Gọi POST /api/categories để tạo mới một phân loại bộ thẻ.
+     * Gọi POST /api/folders để tạo mới một thư mục bộ thẻ.
      */
-    async createCategory(data) {
-        const res = await fetch(`${API_BASE}/categories`, {
+    async createFolder(data) {
+        const res = await fetch(`${API_BASE}/folders`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
         });
         if (!res.ok) {
             const err = await res.json().catch(() => ({}));
-            throw new Error(err.message || 'Không thể tạo phân loại mới');
+            throw new Error(err.message || 'Không thể tạo thư mục mới');
         }
         return res.json();
     },
     /**
-     * Gọi PUT /api/categories/{id} để chỉnh sửa thông tin phân loại.
+     * Gọi PUT /api/folders/{id} để chỉnh sửa thông tin thư mục.
      */
-    async updateCategory(id, data) {
-        const res = await fetch(`${API_BASE}/categories/${id}`, {
+    async updateFolder(id, data) {
+        const res = await fetch(`${API_BASE}/folders/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
         });
         if (!res.ok) {
             const err = await res.json().catch(() => ({}));
-            throw new Error(err.message || 'Không thể cập nhật phân loại');
+            throw new Error(err.message || 'Không thể cập nhật thư mục');
         }
         return res.json();
     },
     /**
-     * Gọi DELETE /api/categories/{id} để xóa một phân loại bộ thẻ.
+     * Gọi DELETE /api/folders/{id} để xóa một thư mục bộ thẻ.
      */
-    async deleteCategory(id) {
-        const res = await fetch(`${API_BASE}/categories/${id}`, {
+    async deleteFolder(id) {
+        const res = await fetch(`${API_BASE}/folders/${id}`, {
             method: 'DELETE',
         });
         if (!res.ok)
-            throw new Error('Không thể xóa phân loại');
+            throw new Error('Không thể xóa thư mục');
     },
 
     // ==========================================================================
@@ -382,6 +409,89 @@ export const api = {
             const err = new Error(errData.message || 'Điểm danh không thành công');
             err.status = res.status;
             throw err;
+        }
+        return res.json();
+    },
+
+    // ==========================================================================
+    // NHÓM 5: QUẢN LÝ THÙNG RÁC (TRASH MANAGEMENT)
+    // ==========================================================================
+    /**
+     * Lấy danh sách các bộ thẻ và thẻ trong thùng rác
+     */
+    async getTrash(userId) {
+        const url = userId ? `${API_BASE}/trash?userId=${userId}` : `${API_BASE}/trash`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Không thể tải dữ liệu thùng rác');
+        return res.json();
+    },
+
+    /**
+     * Xem chi tiết một bộ thẻ trong thùng rác kèm danh sách các thẻ con
+     */
+    async getTrashDeck(id) {
+        const res = await fetch(`${API_BASE}/trash/decks/${id}`);
+        if (!res.ok) throw new Error('Không tìm thấy bộ thẻ trong thùng rác');
+        return res.json();
+    },
+
+    /**
+     * Khôi phục bộ thẻ từ thùng rác trở về danh sách hoạt động
+     */
+    async restoreDeckFromTrash(id) {
+        const res = await fetch(`${API_BASE}/trash/decks/${id}/restore`, { method: 'POST' });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Không thể khôi phục bộ thẻ');
+        }
+        return res.json();
+    },
+
+    /**
+     * Xóa vĩnh viễn một bộ thẻ khỏi thùng rác
+     */
+    async permanentDeleteDeck(id) {
+        const res = await fetch(`${API_BASE}/trash/decks/${id}/permanent`, { method: 'DELETE' });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Không thể xóa vĩnh viễn bộ thẻ');
+        }
+        return res.json();
+    },
+
+    /**
+     * Dọn sạch toàn bộ thùng rác
+     */
+    async emptyTrash(userId) {
+        const url = userId ? `${API_BASE}/trash/empty?userId=${userId}` : `${API_BASE}/trash/empty`;
+        const res = await fetch(url, { method: 'DELETE' });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Không thể dọn sạch thùng rác');
+        }
+        return res.json();
+    },
+
+    /**
+     * Khôi phục thẻ flashcard đơn lẻ
+     */
+    async restoreCardFromTrash(id) {
+        const res = await fetch(`${API_BASE}/trash/cards/${id}/restore`, { method: 'POST' });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Không thể khôi phục thẻ');
+        }
+        return res.json();
+    },
+
+    /**
+     * Xóa vĩnh viễn một thẻ flashcard
+     */
+    async permanentDeleteCard(id) {
+        const res = await fetch(`${API_BASE}/trash/cards/${id}/permanent`, { method: 'DELETE' });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Không thể xóa vĩnh viễn thẻ');
         }
         return res.json();
     },

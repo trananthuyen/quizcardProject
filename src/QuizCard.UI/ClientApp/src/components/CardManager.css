@@ -23,10 +23,17 @@
   margin-bottom: 28px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   gap: 20px;
+}
+
+/* Phần trên của khung deck: thông tin bên trái, chia sẻ bên phải */
+.cm-deck-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  width: 100%;
 }
 
 /* Dòng tiêu đề nhỏ bên trên tên bộ thẻ */
@@ -75,6 +82,9 @@
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  width: 100%;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
 }
 
 /* Nút Tạo từ chuỗi văn bản */
@@ -658,4 +668,173 @@
   display: flex;
   flex-direction: column;
 }
+
+/* ------------------------------------------------------------------ */
+/* Nút gạt chia sẻ tới Community (Community Share Toggle Switch)      */
+/* ------------------------------------------------------------------ */
+.cm-deck-header-left {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cm-deck-folder-badge {
+  background-color: rgba(59, 130, 246, 0.08);
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 6px;
+}
+
+.cm-share-panel {
+  flex: 0 0 340px;
+  max-width: 100%;
+  margin-top: 0;
+  padding: 12px 16px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.cm-share-toggle-control {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Switch Container */
+.cm-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.cm-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Slider Track */
+.cm-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #cbd5e1;
+  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 24px;
+}
+
+.cm-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.cm-switch input:checked + .cm-slider {
+  background-color: #0d99ff;
+}
+
+.cm-switch input:checked + .cm-slider:before {
+  transform: translateX(20px);
+}
+
+.cm-switch input:disabled + .cm-slider {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cm-share-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cm-share-title-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cm-icon-globe {
+  color: #0d99ff;
+}
+
+.cm-icon-lock {
+  color: #64748b;
+}
+
+.cm-share-text {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.cm-share-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.cm-share-badge.badge-public {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.cm-share-badge.badge-private {
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+.cm-share-caption {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.cm-share-toast {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #059669;
+  background-color: #ecfdf5;
+  padding: 4px 10px;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+@media (max-width: 860px) {
+  .cm-deck-header-top {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .cm-share-panel {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+}
+
 

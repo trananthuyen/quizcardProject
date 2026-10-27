@@ -10,11 +10,65 @@
 * 6. Lọc thẻ theo trạng thái ghi nhớ: Tất cả, Chưa học, Đang học, Đã thuộc.
 * 7. Điều hướng trực tiếp sang "Bắt Đầu Học Thẻ" (Study Mode) hoặc "Luyện Trắc Nghiệm" (Quiz Mode).
 */
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { StudyStatus } from '../types';
-import { Plus, Search, Edit2, Trash2, Play, CheckCircle2, Clock, AlertCircle, FileText, Sparkles, Check, HelpCircle } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, Play, CheckCircle2, Clock, AlertCircle, FileText, Sparkles, Check, HelpCircle, Globe, Lock } from 'lucide-react';
 import "./CardManager.css";
-export const CardManager = ({ deck, cards, loading, onStartStudy, onStartQuiz, onCreateCard, onBatchCreateCards, onUpdateCard, onDeleteCard, }) => {
+export const CardManager = ({
+    deck,
+    cards,
+    loading,
+    currentUser = null,
+    onStartStudy,
+    onStartQuiz,
+    onCreateCard,
+    onBatchCreateCards,
+    onUpdateCard,
+    onDeleteCard,
+    onUpdateDeck,
+}) => {
+    // Kiểm tra xem người dùng hiện tại có phải là người sở hữu bộ thẻ không
+    const deckUserId = deck?.userId || deck?.UserId;
+    const currentUserId = currentUser?.id || currentUser?.Id;
+    const isOwner = Boolean(
+        currentUserId &&
+        deckUserId &&
+        String(currentUserId).toLowerCase() === String(deckUserId).toLowerCase()
+    );
+
+    // Trạng thái chia sẻ công khai bộ thẻ lên Community
+    const [isPublic, setIsPublic] = useState(deck.isPublic !== false);
+    const [togglingShare, setTogglingShare] = useState(false);
+    const [shareMessage, setShareMessage] = useState(null);
+
+    // Đồng bộ lại khi props deck thay đổi
+    useEffect(() => {
+        setIsPublic(deck.isPublic !== false);
+    }, [deck.isPublic]);
+
+    // Xử lý bật/tắt nút gạt chia sẻ tới Community
+    const handleToggleShare = async () => {
+        if (!onUpdateDeck) return;
+        const newIsPublic = !isPublic;
+        try {
+            setTogglingShare(true);
+            setIsPublic(newIsPublic);
+            await onUpdateDeck(deck.id, {
+                title: deck.title,
+                description: deck.description,
+                folder: deck.folder,
+                tag: deck.tag,
+                isPublic: newIsPublic,
+            });
+            setShareMessage(newIsPublic ? 'Đã chia sẻ bộ thẻ lên Community (ai cũng có thể học)!' : 'Đã chuyển sang chế độ Riêng tư.');
+            setTimeout(() => setShareMessage(null), 3500);
+        } catch (err) {
+            setIsPublic(!newIsPublic); // Hoàn tác nếu lỗi
+            alert(err.message || 'Không thể cập nhật trạng thái chia sẻ');
+        } finally {
+            setTogglingShare(false);
+        }
+    };
     // ==========================================================================
     // STATE CHO MODAL THÊM / SỬA THẺ LẺ
     // ==========================================================================
@@ -235,30 +289,72 @@ Docker - Nền tảng ảo hóa mức hệ điều hành thông qua các contain
 
       {/* Khung thông tin tổng quan của Bộ thẻ */}
       <div className="cm-deck-info">
-        <div>
-          <div className="cm-deck-meta">
-            <span className="cm-deck-label">Bộ thẻ</span>
-            <span className="cm-deck-count">{cards.length} thẻ tổng cộng</span>
+        <div className="cm-deck-header-top">
+          {/* Thông tin bộ thẻ (bên trái) */}
+          <div className="cm-deck-header-left">
+            <div className="cm-deck-meta">
+              <span className="cm-deck-label">Bộ thẻ</span>
+              <span className="cm-deck-count">{cards.length} thẻ tổng cộng</span>
+              <span className="cm-deck-folder-badge">📁 {deck.folder || 'Chung'}</span>
+            </div>
+            <h1 className="cm-deck-title">{deck.title}</h1>
+            <p className="cm-deck-description">
+              {deck.description || 'Chưa có mô tả cho bộ thẻ này.'}
+            </p>
           </div>
-          <h1 className="cm-deck-title">{deck.title}</h1>
-          <p className="cm-deck-description">
-            {deck.description || 'Chưa có mô tả cho bộ thẻ này.'}
-          </p>
+
+          {/* Nút gạt chia sẻ tới Community (nằm bên phải, cạnh thông tin deck) */}
+          <div className="cm-share-panel">
+            <label className="cm-share-toggle-control" title={!isOwner ? 'Chỉ người sở hữu bộ thẻ mới có quyền thay đổi trạng thái chia sẻ' : (isPublic ? 'Gạt để chuyển về chế độ Riêng tư' : 'Gạt để chia sẻ công khai lên Community cho mọi người cùng học')}>
+              <div className="cm-switch">
+                <input
+                  type="checkbox"
+                  checked={isPublic}
+                  onChange={handleToggleShare}
+                  disabled={togglingShare || !isOwner}
+                />
+                <span className="cm-slider"></span>
+              </div>
+              <div className="cm-share-details">
+                <div className="cm-share-title-line">
+                  {isPublic ? <Globe size={15} className="cm-icon-globe"/> : <Lock size={15} className="cm-icon-lock"/>}
+                  <span className="cm-share-text">Chia sẻ tới Community</span>
+                  <span className={`cm-share-badge ${isPublic ? 'badge-public' : 'badge-private'}`}>
+                    {isPublic ? 'Công khai' : 'Riêng tư'}
+                  </span>
+                </div>
+                <span className="cm-share-caption">
+                  {isPublic
+                    ? 'Bộ thẻ đang được công khai trên Community để ai cũng có thể nhìn thấy và cùng học.'
+                    : 'Chỉ mình bạn nhìn thấy và học bộ thẻ này trong kho tài nguyên cá nhân.'}
+                </span>
+              </div>
+            </label>
+            {shareMessage && (
+              <div className="cm-share-toast">
+                <Check size={14} color="#10b981"/>
+                <span>{shareMessage}</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Thanh công cụ hành động: Tạo từ chuỗi, Thêm lẻ, Học thẻ, Thi trắc nghiệm */}
         <div className="cm-action-bar">
-          {/* Nút Tạo thẻ từ chuỗi văn bản */}
-          <button onClick={openBatchModal} title="Tạo nhanh nhiều thẻ bằng cách dán chuỗi văn bản" className="cm-btn-batch">
-            <FileText size={18}/>
-            <span>Tạo Từ Chuỗi Văn Bản</span>
-          </button>
+          {/* Nút Tạo thẻ từ chuỗi văn bản & Thêm thẻ lẻ chỉ hiển thị cho người sở hữu */}
+          {isOwner && (
+            <>
+              <button onClick={openBatchModal} title="Tạo nhanh nhiều thẻ bằng cách dán chuỗi văn bản" className="cm-btn-batch">
+                <FileText size={18}/>
+                <span>Tạo Từ Chuỗi Văn Bản</span>
+              </button>
 
-          {/* Nút Thêm thẻ lẻ */}
-          <button onClick={openCreateModal} className="cm-btn-add">
-            <Plus size={18}/>
-            <span>Thêm Thẻ Lẻ</span>
-          </button>
+              <button onClick={openCreateModal} className="cm-btn-add">
+                <Plus size={18}/>
+                <span>Thêm Thẻ Lẻ</span>
+              </button>
+            </>
+          )}
 
           {/* Nút Bắt Đầu Học Thẻ (Lật thẻ) */}
           <button onClick={onStartStudy} disabled={cards.length === 0} className="cm-btn-study">
@@ -344,14 +440,16 @@ Docker - Nền tảng ảo hóa mức hệ điều hành thông qua các contain
                   </div>
                 </div>
 
-                <div className="cm-card-btns">
-                  <button title="Chỉnh sửa thẻ" onClick={() => openEditModal(card)} className="cm-btn-edit">
-                    <Edit2 size={16}/>
-                  </button>
-                  <button title="Xóa thẻ" onClick={() => handleDelete(card)} className="cm-btn-delete">
-                    <Trash2 size={16}/>
-                  </button>
-                </div>
+                {isOwner && (
+                  <div className="cm-card-btns">
+                    <button title="Chỉnh sửa thẻ" onClick={() => openEditModal(card)} className="cm-btn-edit">
+                      <Edit2 size={16}/>
+                    </button>
+                    <button title="Xóa thẻ" onClick={() => handleDelete(card)} className="cm-btn-delete">
+                      <Trash2 size={16}/>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>))}
         </div>)}

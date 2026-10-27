@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using QuizCard.Entities;
@@ -32,6 +33,38 @@ public static class ConfigureServicesExtension
         .AddDefaultTokenProviders()
         .AddUserStore<UserStore<ApplicationUser, ApplicationRole, ApplicationDbContext, Guid>>()
         .AddRoleStore<RoleStore<ApplicationRole, ApplicationDbContext, Guid>>();
+
+        // Cấu hình Cookie chuyển hướng về đúng trang Frontend (SPA) thay vì mặc định /Account/Login và /Account/AccessDenied của MVC
+        services.ConfigureApplicationCookie(options =>
+        {
+            // Đường dẫn chuyển hướng về trang Frontend khi người dùng chưa đăng nhập
+            options.LoginPath = "/";
+            // Đường dẫn chuyển hướng về trang Frontend khi người dùng bị từ chối truy cập
+            options.AccessDeniedPath = "/";
+
+            // Xử lý đặc thù cho SPA: Đối với các request gọi API (/api/...), trả về mã trạng thái 401/403 thay vì redirect HTML
+            options.Events.OnRedirectToLogin = context =>
+            {
+                if (context.Request.Path.StartsWithSegments("/api"))
+                {
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    return Task.CompletedTask;
+                }
+                context.Response.Redirect(context.RedirectUri);
+                return Task.CompletedTask;
+            };
+
+            options.Events.OnRedirectToAccessDenied = context =>
+            {
+                if (context.Request.Path.StartsWithSegments("/api"))
+                {
+                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                    return Task.CompletedTask;
+                }
+                context.Response.Redirect(context.RedirectUri);
+                return Task.CompletedTask;
+            };
+        });
 
         // 2. Cấu hình External Authentication (Google & Facebook) từ cấu hình AppSettings / UserSecrets
         var googleClientId = configuration["GoogleKeys:ClientId"] ?? configuration["Authentication:Google:ClientId"];
@@ -113,18 +146,23 @@ public static class ConfigureServicesExtension
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<ICardsRespository, CardsRespository>();
         services.AddScoped<IDecksRespository, DecksRespository>();
-        services.AddScoped<ICategoriesRespository, CategoriesRespository>();
+        services.AddScoped<IFoldersRepository, FoldersRepository>();
         services.AddScoped<IStudyProgressesRespository, StudyProgressesRespository>();
         services.AddScoped<IAttendanceRepository, AttendanceRepository>();
+        services.AddScoped<ITrashRepository, TrashRepository>();
 
         // 4. Đăng ký các tầng nghiệp vụ (Business Services) theo vòng đời Scoped:
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IDeckService, DeckService>();
         services.AddScoped<ICardService, CardService>();
         services.AddScoped<IStudyService, StudyService>();
-        services.AddScoped<ICategoryService, CategoryService>();
+        services.AddScoped<IFolderService, FolderService>();
         services.AddScoped<IAttendanceService, AttendanceService>();
+        services.AddScoped<ITrashService, TrashService>();
         services.AddSingleton<ITtsService, TtsService>();
+
+        // 5. Đăng ký Background Service tự động dọn dẹp Thùng rác sau 5 ngày
+        services.AddHostedService<QuizCard.UI.BackgroundServices.TrashCleanupBackgroundService>();
 
         return services;
     }

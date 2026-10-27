@@ -1,7 +1,7 @@
-﻿namespace QuizCard.Entities;
+namespace QuizCard.Entities;
 
 /// <summary>
-/// Đại diện cho tiến trình học tập của một thẻ Flashcard cụ thể.
+/// Đại diện cho tiến trình học tập của một thẻ Flashcard cụ thể theo từng người dùng.
 /// Lưu trữ lịch sử ghi nhớ, chuỗi đúng/sai và tính toán thời điểm cần ôn tập tiếp theo
 /// theo nguyên lý lặp lại ngắt quãng (Spaced Repetition System - SRS).
 /// </summary>
@@ -16,6 +16,13 @@ public class StudyProgress
     /// Khóa ngoại liên kết duy nhất tới một thẻ Flashcard (CardId).
     /// </summary>
     public Guid CardId { get; set; }
+
+    /// <summary>
+    /// Khóa ngoại liên kết tới người dùng (UserId).
+    /// Quản lý tiến độ học tập riêng biệt cho mỗi người dùng.
+    /// Có thể null đối với bản ghi mẫu hệ thống hoặc khách chưa đăng nhập.
+    /// </summary>
+    public Guid? UserId { get; set; }
 
     /// <summary>
     /// Navigation property: Thẻ Flashcard tương ứng.

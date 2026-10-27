@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, HelpCircle, BookOpen, Edit2, Trash2, Heart } from 'lucide-react';
+import { Play, HelpCircle, BookOpen, Edit2, Trash2, Heart, Globe, Lock } from 'lucide-react';
 import './DeckCard.css';
 // Preset authors and initial like counts matching the screenshot aesthetic
 const CREATOR_PROFILES = [
@@ -10,10 +10,29 @@ const CREATOR_PROFILES = [
     { name: 'Elena Rostova', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=60&auto=format&fit=crop&q=80', initialLikes: 512 },
     { name: 'David Kim', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&auto=format&fit=crop&q=80', initialLikes: 340 },
 ];
-export const DeckCard = ({ deck, index, onSelectStudy, onSelectQuiz, onSelectCards, onEditDeck, onDeleteDeck, }) => {
+export const DeckCard = ({
+    deck,
+    index,
+    onSelectStudy,
+    onSelectQuiz,
+    onSelectCards,
+    onEditDeck,
+    onDeleteDeck,
+    isCommunity = false,
+    currentUser = null,
+}) => {
     const profile = CREATOR_PROFILES[index % CREATOR_PROFILES.length];
     const [likes, setLikes] = useState(profile.initialLikes);
     const [isLiked, setIsLiked] = useState(false);
+
+    // Kiểm tra xem người dùng hiện tại có phải là người tạo / sở hữu bộ thẻ này không
+    const deckUserId = deck?.userId || deck?.UserId;
+    const currentUserId = currentUser?.id || currentUser?.Id;
+    const isOwner = Boolean(
+        currentUserId &&
+        deckUserId &&
+        String(currentUserId).toLowerCase() === String(deckUserId).toLowerCase()
+    );
     const handleToggleLike = (e) => {
         e.stopPropagation();
         if (isLiked) {
@@ -25,6 +44,7 @@ export const DeckCard = ({ deck, index, onSelectStudy, onSelectQuiz, onSelectCar
             setIsLiked(true);
         }
     };
+    const tags = deck.tag ? deck.tag.split(',').map((t) => t.trim()).filter(Boolean) : [];
     const masteryPercent = deck.totalCards > 0
         ? Math.round((deck.masteredCards / deck.totalCards) * 100)
         : 0;
@@ -48,7 +68,7 @@ export const DeckCard = ({ deck, index, onSelectStudy, onSelectQuiz, onSelectCar
             </div>
             <div className="qc-gauge-light">
               <div className="dc-gauge-light-title">
-                {deck.category || 'COLLOCATIONS'}
+                📁 {deck.folder || 'Chung'}
               </div>
               <div className="qc-gauge-number dc-gauge-number-light">
                 {deck.totalCards || 58}
@@ -71,7 +91,7 @@ export const DeckCard = ({ deck, index, onSelectStudy, onSelectQuiz, onSelectCar
               <span>{deck.title.length > 18 ? deck.title.slice(0, 18) + '...' : deck.title}</span>
             </div>
             <div className="dc-mindmap-subtitle">
-              {deck.totalCards} Flashcards • {deck.category || 'General'}
+              {deck.totalCards} Flashcards • 📁 {deck.folder || 'Chung'}
             </div>
           </div>)}
 
@@ -94,7 +114,7 @@ export const DeckCard = ({ deck, index, onSelectStudy, onSelectQuiz, onSelectCar
         {themeIndex === 3 && (<div className="dc-aurora-content">
             <div className="dc-aurora-header">
               <span className="dc-aurora-badge">
-                {deck.category || 'Chung'}
+                📁 {deck.folder || 'Chung'}
               </span>
               <span className="dc-aurora-count">
                 {deck.totalCards} thẻ
@@ -130,20 +150,65 @@ export const DeckCard = ({ deck, index, onSelectStudy, onSelectQuiz, onSelectCar
             <span>Thi trắc nghiệm</span>
           </button>
 
-          <button className="qc-overlay-btn qc-overlay-btn-secondary" onClick={() => onSelectCards(deck)}>
-            <BookOpen size={13}/>
-            <span>Quản lý thẻ</span>
-          </button>
+          {/* Quản lý thẻ: Ở Community thì loại bỏ; ở My Resources thì hiển thị */}
+          {!isCommunity && onSelectCards && (
+            <button className="qc-overlay-btn qc-overlay-btn-secondary" onClick={() => onSelectCards(deck)}>
+              <BookOpen size={13}/>
+              <span>Quản lý thẻ</span>
+            </button>
+          )}
 
-          <div className="dc-overlay-btn-group">
-            <button onClick={(e) => onEditDeck(deck, e)} className="dc-btn-edit" title="Chỉnh sửa bộ thẻ">
-              <Edit2 size={11}/> Sửa
-            </button>
-            <button onClick={(e) => onDeleteDeck(deck, e)} className="dc-btn-delete" title="Xóa bộ thẻ">
-              <Trash2 size={11}/> Xóa
-            </button>
-          </div>
+          {/* Nhóm nút Chỉnh sửa / Xóa: */}
+          {/* Ở Community: Loại bỏ Quản lý thẻ và Sửa; CHỈ người sở hữu (isOwner) mới có quyền XÓA */}
+          {/* Ở MyResources: Người sở hữu có cả nút Sửa và Xóa */}
+          {((!isCommunity && onEditDeck) || isOwner) && (
+            <div className="dc-overlay-btn-group">
+              {!isCommunity && onEditDeck && (
+                <button onClick={(e) => onEditDeck(deck, e)} className="dc-btn-edit" title="Chỉnh sửa bộ thẻ">
+                  <Edit2 size={11}/> Sửa
+                </button>
+              )}
+              {isOwner && onDeleteDeck && (
+                <button onClick={(e) => onDeleteDeck(deck, e)} className="dc-btn-delete" title="Xóa bộ thẻ của bạn">
+                  <Trash2 size={11}/> Xóa
+                </button>
+              )}
+            </div>
+          )}
         </div>
+      </div>
+
+      {/* Thẻ Tag phân loại deck & Huy hiệu trạng thái Công khai / Riêng tư */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px', padding: '6px 14px 2px 14px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+          {tags.slice(0, 3).map((t) => (
+            <span key={t} style={{ fontSize: '10px', background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', borderRadius: '4px', padding: '1px 6px', fontWeight: 500 }}>
+              #{t}
+            </span>
+          ))}
+          {tags.length > 3 && (
+            <span style={{ fontSize: '10px', color: '#94a3b8' }}>+{tags.length - 3}</span>
+          )}
+        </div>
+        <span
+          title={deck.isPublic !== false ? 'Công khai trên Community' : 'Riêng tư (chỉ người tạo xem được)'}
+          style={{
+            fontSize: '10px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '3px',
+            padding: '1px 6px',
+            borderRadius: '4px',
+            fontWeight: 600,
+            background: deck.isPublic !== false ? '#eff6ff' : '#f1f5f9',
+            color: deck.isPublic !== false ? '#2563eb' : '#64748b',
+            border: deck.isPublic !== false ? '1px solid #bfdbfe' : '1px solid #e2e8f0',
+            marginLeft: 'auto'
+          }}
+        >
+          {deck.isPublic !== false ? <Globe size={10} /> : <Lock size={10} />}
+          {deck.isPublic !== false ? 'Công khai' : 'Riêng tư'}
+        </span>
       </div>
 
       {/* Card Footer (Author & Like count) */}

@@ -64,24 +64,113 @@ public static class DbInitializer
         await AddIndexIfNotExistsAsync(context, "AspNetUsers", "IX_AspNetUsers_Provider_Key", "`Provider`, `ProviderKey`");
         await AddIndexIfNotExistsAsync(context, "AspNetUsers", "IX_AspNetUsers_Provider_Email", "`Provider`, `Email`");
 
-        // 1.3 Đảm bảo bảng Decks có cột UserId để liên kết người dùng tạo và sở hữu
+        // 1.3 Đảm bảo bảng Decks có cột UserId, Folder, Tag để liên kết người dùng và phân loại
         await AddColumnIfNotExistsAsync(context, "Decks", "UserId", "CHAR(36) NULL");
         await AddIndexIfNotExistsAsync(context, "Decks", "IX_Decks_UserId", "`UserId`");
+        await AddColumnIfNotExistsAsync(context, "Decks", "Folder", "VARCHAR(100) NOT NULL DEFAULT 'Chung'");
+        await AddColumnIfNotExistsAsync(context, "Decks", "Tag", "VARCHAR(500) NULL");
+        await AddIndexIfNotExistsAsync(context, "Decks", "IX_Decks_Folder", "`Folder`");
 
-        // 1.4 Đảm bảo bảng Categories có cột UserId để liên kết người dùng tạo
-        await AddColumnIfNotExistsAsync(context, "Categories", "UserId", "CHAR(36) NULL");
-        await AddIndexIfNotExistsAsync(context, "Categories", "IX_Categories_UserId", "`UserId`");
+        // 1.4 Đảm bảo bảng Folders tồn tại và hỗ trợ UserId
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(@"
+                CREATE TABLE IF NOT EXISTS `Folders` (
+                    `Id` CHAR(36) NOT NULL,
+                    `UserId` CHAR(36) NULL,
+                    `Name` VARCHAR(100) NOT NULL,
+                    `Description` VARCHAR(500) NULL,
+                    `Icon` VARCHAR(50) NOT NULL DEFAULT '📁',
+                    `Color` VARCHAR(20) NOT NULL DEFAULT '#3b82f6',
+                    `CreatedAt` DATETIME NOT NULL,
+                    PRIMARY KEY (`Id`),
+                    INDEX `IX_Folders_UserId` (`UserId`),
+                    UNIQUE INDEX `IX_Folders_Name` (`Name`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            ");
+        }
+        catch { }
 
-        // Tự động phân loại thông minh các bộ thẻ hiện có (nếu chưa được phân loại hoặc đang là Chung)
+        await AddColumnIfNotExistsAsync(context, "Folders", "UserId", "CHAR(36) NULL");
+        await AddIndexIfNotExistsAsync(context, "Folders", "IX_Folders_UserId", "`UserId`");
+
+        // Đảm bảo bảng Decks có cột IsPublic để quản lý quyền chia sẻ lên Community
+        await AddColumnIfNotExistsAsync(context, "Decks", "IsPublic", "TINYINT(1) NOT NULL DEFAULT 1");
+        await AddIndexIfNotExistsAsync(context, "Decks", "IX_Decks_IsPublic", "`IsPublic`");
+
+        // 1.4.1 Đảm bảo bảng StudyProgresses có cột UserId để quản lý tiến độ học độc lập của mỗi người
+        await AddColumnIfNotExistsAsync(context, "StudyProgresses", "UserId", "CHAR(36) NULL");
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(@"
+                ALTER TABLE `StudyProgresses` DROP INDEX `IX_StudyProgresses_CardId`;
+            ");
+        }
+        catch { }
+        await AddIndexIfNotExistsAsync(context, "StudyProgresses", "IX_StudyProgresses_CardId_UserId", "`CardId`, `UserId`");
+        await AddIndexIfNotExistsAsync(context, "StudyProgresses", "IX_StudyProgresses_UserId", "`UserId`");
+
+        // 1.5 Đảm bảo các bảng DeletedDecks và DeletedCards (Thùng rác - Trash) tồn tại trong MySQL
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(@"
+                CREATE TABLE IF NOT EXISTS `DeletedDecks` (
+                    `Id` CHAR(36) NOT NULL,
+                    `UserId` CHAR(36) NULL,
+                    `Title` VARCHAR(200) NOT NULL,
+                    `Description` VARCHAR(1000) NULL,
+                    `Folder` VARCHAR(100) NOT NULL DEFAULT 'Chung',
+                    `Tag` VARCHAR(500) NULL,
+                    `IsPublic` TINYINT(1) NOT NULL DEFAULT 1,
+                    `OriginalCreatedAt` DATETIME NOT NULL,
+                    `DeletedAt` DATETIME NOT NULL,
+                    PRIMARY KEY (`Id`),
+                    INDEX `IX_DeletedDecks_UserId` (`UserId`),
+                    INDEX `IX_DeletedDecks_DeletedAt` (`DeletedAt`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            ");
+        }
+        catch { }
+
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(@"
+                CREATE TABLE IF NOT EXISTS `DeletedCards` (
+                    `Id` CHAR(36) NOT NULL,
+                    `DeletedDeckId` CHAR(36) NULL,
+                    `ActiveDeckId` CHAR(36) NULL,
+                    `Term` VARCHAR(500) NOT NULL,
+                    `Definition` VARCHAR(2000) NOT NULL,
+                    `Example` VARCHAR(2000) NULL,
+                    `OriginalCreatedAt` DATETIME NOT NULL,
+                    `DeletedAt` DATETIME NOT NULL,
+                    `StudyStatus` INT NOT NULL DEFAULT 0,
+                    `CorrectCount` INT NOT NULL DEFAULT 0,
+                    `IncorrectCount` INT NOT NULL DEFAULT 0,
+                    `ConsecutiveCorrect` INT NOT NULL DEFAULT 0,
+                    `NextReviewAt` DATETIME NULL,
+                    `LastReviewedAt` DATETIME NULL,
+                    PRIMARY KEY (`Id`),
+                    INDEX `IX_DeletedCards_DeletedDeckId` (`DeletedDeckId`),
+                    INDEX `IX_DeletedCards_ActiveDeckId` (`ActiveDeckId`),
+                    INDEX `IX_DeletedCards_DeletedAt` (`DeletedAt`),
+                    CONSTRAINT `FK_DeletedCards_DeletedDecks` FOREIGN KEY (`DeletedDeckId`) 
+                        REFERENCES `DeletedDecks` (`Id`) ON DELETE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            ");
+        }
+        catch { }
+
+        // 1.5 Tự động phân loại và gán Folder, Tag thông minh cho các bộ thẻ hiện có
         var allExistingDecks = await context.Decks.ToListAsync();
         bool hasChanges = false;
         foreach (var d in allExistingDecks)
         {
-            if (string.IsNullOrEmpty(d.Category) || d.Category == "Chung")
+            if (string.IsNullOrEmpty(d.Folder) || d.Folder == "Chung")
             {
                 if (d.Title.Contains("Lập Trình", StringComparison.OrdinalIgnoreCase))
                 {
-                    d.Category = "Lập trình";
+                    d.Folder = "Lập trình";
                     hasChanges = true;
                 }
                 else if (d.Title.Contains("IDIOMS", StringComparison.OrdinalIgnoreCase)
@@ -102,7 +191,26 @@ public static class DbInitializer
                       || d.Title.Contains("English", StringComparison.OrdinalIgnoreCase)
                       || d.Title.Contains("Tiếng Anh", StringComparison.OrdinalIgnoreCase))
                 {
-                    d.Category = "Tiếng Anh";
+                    d.Folder = "Tiếng Anh";
+                    hasChanges = true;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(d.Tag))
+            {
+                if (d.Folder == "Lập trình" || d.Title.Contains("Lập Trình", StringComparison.OrdinalIgnoreCase))
+                {
+                    d.Tag = "programming, csharp, dotnet, coding";
+                    hasChanges = true;
+                }
+                else if (d.Folder == "Tiếng Anh" || d.Title.Contains("English", StringComparison.OrdinalIgnoreCase) || d.Title.Contains("Tiếng Anh", StringComparison.OrdinalIgnoreCase))
+                {
+                    d.Tag = "english, toeic, ielts, vocabulary";
+                    hasChanges = true;
+                }
+                else
+                {
+                    d.Tag = "general, flashcard";
                     hasChanges = true;
                 }
             }
@@ -112,12 +220,12 @@ public static class DbInitializer
             await context.SaveChangesAsync();
         }
 
-        // 3. Khởi tạo dữ liệu phân loại mẫu vào bảng Categories nếu chưa có
-        if (!context.Categories.Any())
+        // 3. Khởi tạo dữ liệu thư mục mẫu vào bảng Folders nếu chưa có
+        if (!context.Folders.Any())
         {
-            var defaultCategories = new List<Category>
+            var defaultFolders = new List<Folder>
             {
-                new Category
+                new Folder
                 {
                     Id = Guid.NewGuid(),
                     Name = "Lập trình",
@@ -126,7 +234,7 @@ public static class DbInitializer
                     Color = "#2563eb",
                     CreatedAt = DateTime.UtcNow
                 },
-                new Category
+                new Folder
                 {
                     Id = Guid.NewGuid(),
                     Name = "Tiếng Anh",
@@ -135,7 +243,7 @@ public static class DbInitializer
                     Color = "#7c3aed",
                     CreatedAt = DateTime.UtcNow
                 },
-                new Category
+                new Folder
                 {
                     Id = Guid.NewGuid(),
                     Name = "Khoa học",
@@ -144,18 +252,18 @@ public static class DbInitializer
                     Color = "#059669",
                     CreatedAt = DateTime.UtcNow
                 },
-                new Category
+                new Folder
                 {
                     Id = Guid.NewGuid(),
                     Name = "Chung",
-                    Description = "Phân loại chung cho các chủ đề khác",
+                    Description = "Thư mục chung cho các chủ đề khác",
                     Icon = "📁",
                     Color = "#64748b",
                     CreatedAt = DateTime.UtcNow
                 }
             };
 
-            context.Categories.AddRange(defaultCategories);
+            context.Folders.AddRange(defaultFolders);
             await context.SaveChangesAsync();
         }
 
@@ -173,7 +281,8 @@ public static class DbInitializer
                 Id = Guid.NewGuid(),
                 Title = "Thuật ngữ Lập Trình Cơ Bản",
                 Description = "Tổng hợp các khái niệm cốt lõi trong phát triển phần mềm và khoa học máy tính",
-                Category = "Lập trình",
+                Folder = "Lập trình",
+                Tag = "programming, csharp, dotnet, coding",
                 CreatedAt = DateTime.UtcNow.AddDays(-2)
             };
 
@@ -249,7 +358,8 @@ public static class DbInitializer
                 Id = Guid.NewGuid(),
                 Title = "Từ Vựng Tiếng Anh Công Sở (Business English)",
                 Description = "Các từ vựng tiếng Anh thông dụng và chuyên nghiệp trong môi trường làm việc",
-                Category = "Tiếng Anh",
+                Folder = "Tiếng Anh",
+                Tag = "english, toeic, ielts, communication",
                 CreatedAt = DateTime.UtcNow.AddDays(-1)
             };
 
@@ -326,7 +436,8 @@ public static class DbInitializer
                 Id = Guid.NewGuid(),
                 Title = "Clean Code & Quy Tắc Refactoring",
                 Description = "Bộ quy tắc viết mã nguồn sạch sẽ, dễ đọc, dễ bảo trì và mở rộng",
-                Category = "Lập trình",
+                Folder = "Lập trình",
+                Tag = "programming, csharp, dotnet, coding",
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -407,14 +518,15 @@ public static class DbInitializer
         {
             // Nếu mới chỉ có 1 bộ thẻ, thêm bộ thẻ Tiếng Anh để người dùng có đầy đủ các phân loại thử nghiệm
             var existingDeck = await context.Decks.FirstAsync();
-            existingDeck.Category = "Lập trình";
+            existingDeck.Folder = "Lập trình";
 
             var englishDeck = new Deck
             {
                 Id = Guid.NewGuid(),
                 Title = "Từ Vựng Tiếng Anh Công Sở (Business English)",
                 Description = "Các từ vựng tiếng Anh thông dụng và chuyên nghiệp trong môi trường làm việc",
-                Category = "Tiếng Anh",
+                Folder = "Tiếng Anh",
+                Tag = "english, toeic, ielts, communication",
                 CreatedAt = DateTime.UtcNow
             };
 

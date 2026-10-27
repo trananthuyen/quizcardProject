@@ -5,15 +5,18 @@ import { DeckCard } from './DeckCard';
 import './MyResources.css';
 import './DeckList.css';
 export const MyResources = ({
-    decks,
+    decks = [],
     currentUser = null,
+    folders,
     categories,
     loading,
-    searchQuery,
-    selectedFilter,
+    searchQuery = '',
+    onSearchChange,
+    selectedFilter = 'ALL',
     onSelectFilter,
     onOpenLoginModal,
     onOpenCreateDeck,
+    onOpenFolders,
     onOpenCategories,
     onSelectDeckForStudy,
     onSelectDeckForQuiz,
@@ -21,6 +24,10 @@ export const MyResources = ({
     onEditDeck,
     onDeleteDeck,
 }) => {
+    const handleOpenFolders = onOpenFolders || onOpenCategories;
+    const folderList = folders || categories || [];
+    const deckList = decks || [];
+
     // Xử lý khi click vào Tạo Thẻ: Nếu chưa đăng nhập thì mở modal đăng nhập
     const handleCreateClick = () => {
         if (!currentUser) {
@@ -34,37 +41,45 @@ export const MyResources = ({
         }
     };
     // Thống kê tổng hợp số liệu
-    const totalDecks = decks.length;
-    const totalCards = useMemo(() => decks.reduce((sum, d) => sum + (d.totalCards || 0), 0), [decks]);
-    const masteredCards = useMemo(() => decks.reduce((sum, d) => sum + (d.masteredCards || 0), 0), [decks]);
-    const learningCards = useMemo(() => decks.reduce((sum, d) => sum + (d.learningCards || 0), 0), [decks]);
-    // Danh sách tên phân loại
-    const allCategoryNames = useMemo(() => {
+    const totalDecks = deckList.length;
+    const totalCards = useMemo(() => deckList.reduce((sum, d) => sum + (d.totalCards || 0), 0), [deckList]);
+    const masteredCards = useMemo(() => deckList.reduce((sum, d) => sum + (d.masteredCards || 0), 0), [deckList]);
+    const learningCards = useMemo(() => deckList.reduce((sum, d) => sum + (d.learningCards || 0), 0), [deckList]);
+    // Danh sách tên thư mục
+    const allFolderNames = useMemo(() => {
+        if (!currentUser) {
+            return ['Chung'];
+        }
         const set = new Set();
-        categories.forEach((c) => set.add(c.name.trim()));
-        decks.forEach((d) => {
-            if (d.category && d.category.trim())
-                set.add(d.category.trim());
+        (folderList || []).forEach((c) => {
+            if (c?.name && typeof c.name === 'string') {
+                set.add(c.name.trim());
+            }
+        });
+        deckList.forEach((d) => {
+            const fName = d?.folder;
+            if (fName && typeof fName === 'string' && fName.trim())
+                set.add(fName.trim());
         });
         if (!set.has('Chung'))
             set.add('Chung');
         return Array.from(set);
-    }, [categories, decks]);
+    }, [currentUser, folderList, deckList]);
     // Đếm số lượng bộ thẻ theo từng bộ lọc
     const filterCounts = useMemo(() => {
-        const total = decks.length;
-        const studied = decks.filter((d) => (d.masteredCards + d.learningCards) > 0).length;
-        const notStarted = decks.filter((d) => (d.masteredCards + d.learningCards) === 0).length;
-        const categoryCounts = {};
-        decks.forEach((d) => {
-            const cat = d.category?.trim() || 'Chung';
-            categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+        const total = deckList.length;
+        const studied = deckList.filter((d) => (d.masteredCards + d.learningCards) > 0).length;
+        const notStarted = deckList.filter((d) => (d.masteredCards + d.learningCards) === 0).length;
+        const folderCounts = {};
+        deckList.forEach((d) => {
+            const cat = d.folder?.trim() || 'Chung';
+            folderCounts[cat] = (folderCounts[cat] || 0) + 1;
         });
-        return { total, studied, notStarted, categoryCounts };
-    }, [decks]);
+        return { total, studied, notStarted, folderCounts };
+    }, [deckList]);
     // Lọc danh sách bộ thẻ theo bộ lọc và tìm kiếm
     const filteredDecks = useMemo(() => {
-        return decks.filter((deck) => {
+        return deckList.filter((deck) => {
             if (selectedFilter === 'STUDIED') {
                 const isStudied = (deck.masteredCards + deck.learningCards) > 0;
                 if (!isStudied)
@@ -75,22 +90,26 @@ export const MyResources = ({
                 if (!isNotStarted)
                     return false;
             }
-            else if (selectedFilter !== 'ALL') {
-                if (deck.category?.toLowerCase() !== selectedFilter.toLowerCase()) {
+            else if (selectedFilter && selectedFilter !== 'ALL') {
+                const deckFolder = (deck.folder || '').toLowerCase();
+                const deckTag = (deck.tag || '').toLowerCase();
+                const filterLower = (selectedFilter || '').toLowerCase();
+                if (deckFolder !== filterLower && !deckTag.includes(filterLower)) {
                     return false;
                 }
             }
-            if (searchQuery.trim()) {
+            if (searchQuery && searchQuery.trim()) {
                 const q = searchQuery.toLowerCase().trim();
-                const matchTitle = deck.title.toLowerCase().includes(q);
+                const matchTitle = (deck.title || '').toLowerCase().includes(q);
                 const matchDesc = deck.description?.toLowerCase().includes(q) || false;
-                const matchCat = deck.category?.toLowerCase().includes(q) || false;
-                if (!matchTitle && !matchDesc && !matchCat)
+                const matchFolder = (deck.folder || '').toLowerCase().includes(q);
+                const matchTag = deck.tag?.toLowerCase().includes(q) || false;
+                if (!matchTitle && !matchDesc && !matchFolder && !matchTag)
                     return false;
             }
             return true;
         });
-    }, [decks, selectedFilter, searchQuery]);
+    }, [deckList, selectedFilter, searchQuery]);
     return (<div className="mr-container">
       {/* 1. Header khu vực My Resources */}
       <div className="mr-header">
@@ -104,9 +123,9 @@ export const MyResources = ({
           </p>
         </div>
         <div className="mr-header-actions">
-          <button type="button" className="mr-btn-categories" onClick={onOpenCategories} title="Quản lý các nhóm phân loại">
+          <button type="button" className="mr-btn-categories" onClick={handleOpenFolders} title="Quản lý các thư mục chứa bộ thẻ">
             <Folder size={15}/>
-            Quản lý phân loại
+            Quản lý thư mục
           </button>
           <button type="button" className="mr-btn-create" onClick={handleCreateClick} title="Tạo bộ thẻ flashcard mới">
             <Plus size={16}/>
@@ -159,7 +178,16 @@ export const MyResources = ({
       </div>
 
       {/* 3. Thanh bộ lọc FilterPills */}
-      <FilterPills selectedFilter={selectedFilter} onSelectFilter={onSelectFilter} categories={categories} onOpenCreateCategory={onOpenCategories} allCategoryNames={allCategoryNames} filterCounts={filterCounts}/>
+      <FilterPills
+        selectedFilter={selectedFilter}
+        onSelectFilter={onSelectFilter}
+        searchQuery={searchQuery}
+        onSearchChange={onSearchChange}
+        onOpenCreateFolder={handleOpenFolders}
+        allFolderNames={allFolderNames}
+        filterCounts={filterCounts}
+        mode="folder"
+      />
 
       {/* 4. Danh sách bộ thẻ */}
       {loading ? (<div className="dl-loading">
@@ -178,7 +206,20 @@ export const MyResources = ({
             {!currentUser ? 'Đăng Nhập Để Tạo Bộ Thẻ' : '+ Tạo Bộ Thẻ Mới'}
           </button>
         </div>) : (<div className="qc-card-grid">
-          {filteredDecks.map((deck, idx) => (<DeckCard key={deck.id} deck={deck} index={idx} onSelectStudy={onSelectDeckForStudy} onSelectQuiz={onSelectDeckForQuiz} onSelectCards={onSelectDeckForCards} onEditDeck={onEditDeck} onDeleteDeck={onDeleteDeck}/>))}
+          {filteredDecks.map((deck, idx) => (
+            <DeckCard
+              key={deck.id}
+              deck={deck}
+              index={idx}
+              isCommunity={false}
+              currentUser={currentUser}
+              onSelectStudy={onSelectDeckForStudy}
+              onSelectQuiz={onSelectDeckForQuiz}
+              onSelectCards={onSelectDeckForCards}
+              onEditDeck={onEditDeck}
+              onDeleteDeck={onDeleteDeck}
+            />
+          ))}
         </div>)}
     </div>);
 };

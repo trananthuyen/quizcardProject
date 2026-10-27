@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Clock, Compass, ChevronDown, ChevronRight, ChevronLeft, Star, Folder, ArrowUp, Package, LayoutGrid, BookOpen, Trash2, Search, Sparkles, Check, X, MonitorPlay, Bell } from 'lucide-react';
+import { Clock, Compass, ChevronDown, ChevronRight, ChevronLeft, Star, Folder, ArrowUp, Package, LayoutGrid, BookOpen, Trash2, Search, Sparkles, Check, X, MonitorPlay, Bell, Lock } from 'lucide-react';
 import { UserMenu } from './UserMenu';
 import './Sidebar.css';
 
@@ -17,6 +17,7 @@ export const Sidebar = ({
     searchQuery,
     onSearchChange,
     onOpenCreateDeck,
+    onOpenFolders,
     onOpenCategories,
     onSelectFilter,
     currentUser = null,
@@ -74,9 +75,7 @@ export const Sidebar = ({
               </div>
 
               <div className="qc-sidebar-header-actions">
-                <button type="button" className="qc-bell-btn" title="Thông báo" onClick={() => alert('Không có thông báo mới')} aria-label="Thông báo">
-                  <Bell size={16}/>
-                </button>
+                {/*vung ben canh ten nguoi dung*/}
               </div>
 
               {/* Menu Popover khi click vào tên người dùng */}
@@ -90,12 +89,6 @@ export const Sidebar = ({
                 onOpenLoginModal={onOpenLoginModal}
                 onLogout={onLogout}
               />
-            </div>
-
-            {/* Search input in sidebar */}
-            <div className="qc-sidebar-search">
-              <Search size={14} className="qc-sidebar-search-icon"/>
-              <input type="text" placeholder="Search" value={searchQuery} onChange={(e) => onSearchChange(e.target.value)}/>
             </div>
 
             {/* Primary Navigation items */}
@@ -167,22 +160,36 @@ export const Sidebar = ({
                 <span>Starred</span>
               </div>
               <div className="qc-nav-list sb-nav-sublist">
-                <button type="button" className="qc-nav-item" onClick={() => {
-            onSelectFilter('ALL');
-            onNavigateHome();
-        }}>
-                  <Folder size={14} color="#71717a"/>
-                  <span>Team project</span>
+                <button 
+                  type="button" 
+                  className="qc-nav-item sb-item-locked" 
+                  title="Tính năng chưa phát triển"
+                >
+                  <div className="sb-item-locked-left">
+                    <Folder size={14} color="#71717a"/>
+                    <span>Team project</span>
+                  </div>
+                  <span className="sb-lock-pill" title="Tính năng chưa phát triển">
+                    <Lock size={11} />
+                  </span>
                 </button>
               </div>
             </div>
 
             {/* Upgrade Button */}
-            <button type="button" className="qc-upgrade-btn" onClick={() => setIsPlanModalOpen(true)} title="Nâng cấp gói tài khoản">
+            <button 
+              type="button" 
+              className="qc-upgrade-btn" 
+              onClick={() => setIsPlanModalOpen(true)} 
+              title="Nâng cấp gói tài khoản (Tính năng đang phát triển)"
+            >
               <div className="sb-upgrade-icon-circle">
                 <ArrowUp size={11} strokeWidth={3}/>
               </div>
               <span>Upgrade</span>
+              <span className="sb-upgrade-lock-tag" title="Tính năng đang phát triển">
+                <Lock size={11} />
+              </span>
             </button>
           </div>
 
@@ -218,6 +225,11 @@ export const Sidebar = ({
               </button>
             </div>
 
+            <div className="sb-upgrade-notice">
+              <Lock size={15} style={{ flexShrink: 0 }} />
+              <span>Tính năng Nâng cấp gói Pro hiện đang được phát triển. Bạn đang được trải nghiệm toàn bộ tính năng hoàn toàn miễn phí!</span>
+            </div>
+
             <div className="sb-feature-box">
               <div className="sb-feature-title">
                 Tính năng không giới hạn:
@@ -239,12 +251,6 @@ export const Sidebar = ({
             </div>
 
             <div className="sb-modal-footer">
-              <button type="button" onClick={() => {
-                setIsPlanModalOpen(false);
-                onOpenCreateDeck();
-            }} className="sb-btn-create-deck">
-                + Tạo Bộ Thẻ Ngay
-              </button>
               <button type="button" onClick={() => setIsPlanModalOpen(false)} className="sb-btn-modal-close">
                 Đóng
               </button>

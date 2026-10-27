@@ -12,10 +12,12 @@ namespace QuizCard.Services;
 public class CardService : ICardService
 {
     private readonly ICardsRespository _cardsRespository;
+    private readonly ITrashRepository _trashRepository;
 
-    public CardService(ICardsRespository cardsRespository)
+    public CardService(ICardsRespository cardsRespository, ITrashRepository trashRepository)
     {
         _cardsRespository = cardsRespository;
+        _trashRepository = trashRepository;
     }
 
     /// <summary>
@@ -148,14 +150,15 @@ public class CardService : ICardService
     }
 
     /// <summary>
-    /// Xóa một thẻ khỏi bộ thẻ.
+    /// Chuyển một thẻ flashcard vào thùng rác.
     /// </summary>
     public async Task<bool> DeleteCardAsync(Guid id)
     {
         var card = await _cardsRespository.GetCardById(id);
         if (card is null) return false;
 
-        return await _cardsRespository.DeleteCard(card);
+        var deleted = await _trashRepository.MoveCardToTrashAsync(card);
+        return deleted != null;
     }
 
     /// <summary>
@@ -163,16 +166,17 @@ public class CardService : ICardService
     /// </summary>
     private static CardDto MapToCardDto(Card card)
     {
+        var progress = card.StudyProgresses?.FirstOrDefault() ?? card.StudyProgress;
         StudyProgressDto? progressDto = null;
-        if (card.StudyProgress != null)
+        if (progress != null)
         {
             progressDto = new StudyProgressDto(
-                card.StudyProgress.Status,
-                card.StudyProgress.CorrectCount,
-                card.StudyProgress.IncorrectCount,
-                card.StudyProgress.ConsecutiveCorrect,
-                card.StudyProgress.NextReviewAt,
-                card.StudyProgress.LastReviewedAt
+                progress.Status,
+                progress.CorrectCount,
+                progress.IncorrectCount,
+                progress.ConsecutiveCorrect,
+                progress.NextReviewAt,
+                progress.LastReviewedAt
             );
         }
 

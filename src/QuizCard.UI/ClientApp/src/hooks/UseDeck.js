@@ -31,8 +31,16 @@ export const useDeck = ({ currentUser = null, selectedDeck = null, setSelectedDe
     // Hợp nhất danh sách bộ thẻ (dùng cho tìm kiếm chi tiết, Folders, khôi phục URL hash)
     const decks = useMemo(() => {
         const map = new Map();
-        communityDecks.forEach((d) => map.set(d.id, d));
-        myResourcesDecks.forEach((d) => map.set(d.id, d));
+        if (Array.isArray(communityDecks)) {
+            communityDecks.forEach((d) => {
+                if (d?.id) map.set(d.id, d);
+            });
+        }
+        if (Array.isArray(myResourcesDecks)) {
+            myResourcesDecks.forEach((d) => {
+                if (d?.id) map.set(d.id, d);
+            });
+        }
         return Array.from(map.values());
     }, [communityDecks, myResourcesDecks]);
 
@@ -43,9 +51,10 @@ export const useDeck = ({ currentUser = null, selectedDeck = null, setSelectedDe
         try {
             setLoadingDecks(true);
             const data = await api.getCommunityDecks();
-            setCommunityDecks(data);
+            setCommunityDecks(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error('Lỗi khi tải danh sách bộ thẻ cộng đồng:', err);
+            setCommunityDecks([]);
         } finally {
             setLoadingDecks(false);
         }
@@ -62,9 +71,10 @@ export const useDeck = ({ currentUser = null, selectedDeck = null, setSelectedDe
         }
         try {
             const data = await api.getMyResourcesDecks(userId);
-            setMyResourcesDecks(data);
+            setMyResourcesDecks(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error('Lỗi khi tải danh sách bộ thẻ cá nhân:', err);
+            setMyResourcesDecks([]);
         }
     }, [currentUser]);
 
@@ -103,26 +113,34 @@ export const useDeck = ({ currentUser = null, selectedDeck = null, setSelectedDe
      * Cập nhật thông tin bộ thẻ
      */
     const handleUpdateDeck = useCallback(async (id, data) => {
-        const updated = await api.updateDeck(id, data);
+        const userId = currentUser?.id || currentUser?.Id;
+        const updated = await api.updateDeck(id, data, userId);
         await loadDecks();
         if (selectedDeck && selectedDeck.id === id && setSelectedDeck) {
-            setSelectedDeck({ ...selectedDeck, ...data, category: data.category || selectedDeck.category });
+            setSelectedDeck({
+                ...selectedDeck,
+                ...data,
+                folder: data.folder || selectedDeck.folder,
+                tag: data.tag !== undefined ? data.tag : selectedDeck.tag,
+                isPublic: data.isPublic !== undefined ? data.isPublic : selectedDeck.isPublic,
+            });
         }
         return updated;
-    }, [loadDecks, selectedDeck, setSelectedDeck]);
+    }, [currentUser, loadDecks, selectedDeck, setSelectedDeck]);
 
     /**
      * Xóa bộ thẻ
      */
     const handleDeleteDeck = useCallback(async (id) => {
-        const result = await api.deleteDeck(id);
+        const userId = currentUser?.id || currentUser?.Id;
+        const result = await api.deleteDeck(id, userId);
         await loadDecks();
         if (selectedDeck && selectedDeck.id === id) {
             if (setSelectedDeck) setSelectedDeck(null);
             if (onDeckDeleted) onDeckDeleted();
         }
         return result;
-    }, [loadDecks, selectedDeck, setSelectedDeck, onDeckDeleted]);
+    }, [currentUser, loadDecks, selectedDeck, setSelectedDeck, onDeckDeleted]);
 
     /**
      * Mở modal tạo mới bộ thẻ

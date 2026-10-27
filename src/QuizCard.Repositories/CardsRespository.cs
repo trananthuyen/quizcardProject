@@ -42,7 +42,7 @@ public class CardsRespository : ICardsRespository
     {
         return await _db.Cards
             .Where(c => c.DeckId == deckId)
-            .Include(c => c.StudyProgress)
+            .Include(c => c.StudyProgresses)
             .OrderBy(c => c.CreatedAt)
             .ToListAsync();
     }
@@ -50,7 +50,7 @@ public class CardsRespository : ICardsRespository
     public async Task<Card?> GetCardById(Guid id)
     {
         return await _db.Cards
-            .Include(c => c.StudyProgress)
+            .Include(c => c.StudyProgresses)
             .FirstOrDefaultAsync(c => c.Id == id);
     }
 
@@ -73,4 +73,3 @@ public class CardsRespository : ICardsRespository
         return await _db.Decks.AnyAsync(d => d.Id == deckId);
     }
 }
-

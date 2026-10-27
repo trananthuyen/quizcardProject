@@ -5,6 +5,7 @@ namespace QuizCard.RepositoryContracts;
 /// <summary>
 /// Giao diện định nghĩa các hợp đồng truy vấn và cập nhật dữ liệu cho Tiến độ học tập của Thẻ (StudyProgress).
 /// Phục vụ thuật toán học lặp lại ngắt quãng (Spaced Repetition SM-2) thuộc tầng RepositoryContracts.
+/// Hỗ trợ quản lý tiến độ độc lập theo từng UserId.
 /// </summary>
 public interface IStudyProgressesRespository
 {
@@ -16,11 +17,12 @@ public interface IStudyProgressesRespository
     Task<StudyProgress> CreateStudyProgress(StudyProgress progress);
 
     /// <summary>
-    /// Lấy tiến độ học tập của một thẻ flashcard dựa theo mã thẻ (CardId).
+    /// Lấy tiến độ học tập của một thẻ flashcard dựa theo mã thẻ (CardId) và người dùng (UserId).
     /// </summary>
     /// <param name="cardId">Định danh duy nhất của thẻ (CardId).</param>
+    /// <param name="userId">Định danh người dùng (tùy chọn).</param>
     /// <returns>Thực thể tiến độ học nếu có, ngược lại trả về null.</returns>
-    Task<StudyProgress?> GetStudyProgressByCardId(Guid cardId);
+    Task<StudyProgress?> GetStudyProgressByCardId(Guid cardId, Guid? userId = null);
 
     /// <summary>
     /// Cập nhật thông tin tiến độ học tập của thẻ (trạng thái, số lần đúng/sai, chuỗi đúng liên tiếp, thời gian ôn tiếp theo).
@@ -30,11 +32,12 @@ public interface IStudyProgressesRespository
     Task<StudyProgress?> UpdateStudyProgress(StudyProgress progress);
 
     /// <summary>
-    /// Lấy danh sách tất cả các bản ghi tiến độ học tập của các thẻ thuộc về một bộ thẻ chỉ định.
+    /// Lấy danh sách tất cả các bản ghi tiến độ học tập của các thẻ thuộc về một bộ thẻ chỉ định (theo UserId nếu có).
     /// </summary>
     /// <param name="deckId">Định danh duy nhất (Id) của bộ thẻ.</param>
+    /// <param name="userId">Định danh người dùng (tùy chọn).</param>
     /// <returns>Danh sách tiến độ học tập của các thẻ trong bộ.</returns>
-    Task<List<StudyProgress>> GetStudyProgressesByDeckId(Guid deckId);
+    Task<List<StudyProgress>> GetStudyProgressesByDeckId(Guid deckId, Guid? userId = null);
 
     /// <summary>
     /// Đặt lại toàn bộ tiến độ học tập của danh sách các bản ghi về trạng thái ban đầu (NotStarted, 0 đúng, 0 sai).

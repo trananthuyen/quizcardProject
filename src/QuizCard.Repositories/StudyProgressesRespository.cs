@@ -20,10 +20,15 @@ public class StudyProgressesRespository : IStudyProgressesRespository
         return progress;
     }
 
-    public async Task<StudyProgress?> GetStudyProgressByCardId(Guid cardId)
+    public async Task<StudyProgress?> GetStudyProgressByCardId(Guid cardId, Guid? userId = null)
     {
-        return await _db.StudyProgresses
-            .FirstOrDefaultAsync(sp => sp.CardId == cardId);
+        var query = _db.StudyProgresses.Where(sp => sp.CardId == cardId);
+        if (userId.HasValue && userId.Value != Guid.Empty)
+        {
+            var userProgress = await query.FirstOrDefaultAsync(sp => sp.UserId == userId.Value);
+            if (userProgress != null) return userProgress;
+        }
+        return await query.FirstOrDefaultAsync(sp => sp.UserId == null);
     }
 
     public async Task<StudyProgress?> UpdateStudyProgress(StudyProgress progress)
@@ -33,11 +38,17 @@ public class StudyProgressesRespository : IStudyProgressesRespository
         return progress;
     }
 
-    public async Task<List<StudyProgress>> GetStudyProgressesByDeckId(Guid deckId)
+    public async Task<List<StudyProgress>> GetStudyProgressesByDeckId(Guid deckId, Guid? userId = null)
     {
-        return await _db.StudyProgresses
-            .Where(sp => sp.Card != null && sp.Card.DeckId == deckId)
-            .ToListAsync();
+        var query = _db.StudyProgresses
+            .Where(sp => sp.Card != null && sp.Card.DeckId == deckId);
+
+        if (userId.HasValue && userId.Value != Guid.Empty)
+        {
+            query = query.Where(sp => sp.UserId == userId.Value);
+        }
+
+        return await query.ToListAsync();
     }
 
     public async Task<bool> ResetProgresses(List<StudyProgress> progresses)
@@ -55,4 +66,3 @@ public class StudyProgressesRespository : IStudyProgressesRespository
         return true;
     }
 }
-

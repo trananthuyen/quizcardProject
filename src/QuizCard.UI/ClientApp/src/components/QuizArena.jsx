@@ -20,7 +20,7 @@ import confetti from 'canvas-confetti';
 import { ArrowLeft, CheckCircle2, XCircle, RotateCcw, Trophy, HelpCircle, Volume2, Sparkles, BookOpen, ChevronRight } from 'lucide-react';
 import { playTts, stopTts } from '../utils/tts';
 import './QuizArena.css';
-export const QuizArena = ({ deck, onExit, onGoToStudy, onGoToCards }) => {
+export const QuizArena = ({ deck, onExit, onGoToStudy, onGoToCards, currentUser = null }) => {
     // Danh sách các thẻ flashcard tải về từ backend
     const [cards, setCards] = useState([]);
     // Trạng thái đang tải dữ liệu từ API
@@ -115,7 +115,7 @@ export const QuizArena = ({ deck, onExit, onGoToStudy, onGoToCards }) => {
     const loadCards = useCallback(async () => {
         try {
             setLoading(true);
-            const cardList = await api.getStudySessionCards(deck.id);
+            const cardList = await api.getStudySessionCards(deck.id, false, currentUser?.id);
             setCards(cardList);
             if (cardList.length >= 2) {
                 const initialQuestions = generateQuestions(cardList, questionMode);
@@ -181,7 +181,7 @@ export const QuizArena = ({ deck, onExit, onGoToStudy, onGoToCards }) => {
         }
         try {
             // Gọi API gửi kết quả trả lời lên máy chủ
-            const res = await api.answerCard(currentQ.cardId, isCorrect);
+            const res = await api.answerCard(currentQ.cardId, isCorrect, currentUser?.id);
             setFeedback(res);
         }
         catch (err) {

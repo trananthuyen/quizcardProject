@@ -22,6 +22,84 @@
   margin-top: 8px;
 }
 
+/* Kiểu dáng cho mục tính năng bị khóa / đang phát triển */
+.sb-item-locked {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  cursor: pointer;
+  opacity: 0.82;
+  transition: all 0.15s ease;
+}
+
+.sb-item-locked:hover {
+  opacity: 1;
+}
+
+.sb-item-locked-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sb-lock-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #71717a;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 2px 4px;
+  margin-left: auto;
+  transition: all 0.15s ease;
+}
+
+.sb-item-locked:hover .sb-lock-pill {
+  color: #0f172a;
+  background-color: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+[data-theme="dark"] .sb-lock-pill {
+  color: #a1a1aa;
+  background-color: #27272a;
+  border-color: #3f3f46;
+}
+
+[data-theme="dark"] .sb-item-locked:hover .sb-lock-pill {
+  color: #f4f4f5;
+  background-color: #3f3f46;
+  border-color: #52525b;
+}
+
+.sb-upgrade-lock-tag {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 2px;
+  opacity: 0.85;
+}
+
+.sb-upgrade-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  margin-bottom: 16px;
+}
+
+[data-theme="dark"] .sb-upgrade-notice {
+  background-color: #14532d2b;
+  border-color: #166534;
+  color: #86efac;
+}
+
 .sb-upgrade-icon-circle {
   width: 16px;
   height: 16px;

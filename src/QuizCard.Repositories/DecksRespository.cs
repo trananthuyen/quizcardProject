@@ -16,16 +16,23 @@ public class DecksRespository : IDecksRespository
     /// <summary>
     /// 1. Lấy tất cả các bộ thẻ hiển thị ở Community (Cộng đồng).
     /// </summary>
-    public async Task<List<Deck>> GetCommunityDecks(string? category = null)
+    public async Task<List<Deck>> GetCommunityDecks(string? folder = null, string? tag = null)
     {
         IQueryable<Deck> query = _db.Decks
             .Include(d => d.Cards)
-                .ThenInclude(c => c.StudyProgress);
+                .ThenInclude(c => c.StudyProgresses)
+            .Where(d => d.IsPublic || d.UserId == null);
 
-        if (!string.IsNullOrWhiteSpace(category))
+        if (!string.IsNullOrWhiteSpace(folder))
         {
-            var trimmedCategory = category.Trim().ToLower();
-            query = query.Where(d => d.Category.ToLower() == trimmedCategory);
+            var trimmedFolder = folder.Trim().ToLower();
+            query = query.Where(d => d.Folder.ToLower() == trimmedFolder);
+        }
+
+        if (!string.IsNullOrWhiteSpace(tag))
+        {
+            var trimmedTag = tag.Trim().ToLower();
+            query = query.Where(d => d.Tag != null && d.Tag.ToLower().Contains(trimmedTag));
         }
 
         return await query
@@ -36,7 +43,7 @@ public class DecksRespository : IDecksRespository
     /// <summary>
     /// 2. Lấy tất cả các bộ thẻ của người dùng cụ thể ở My Resources (Kho học liệu cá nhân).
     /// </summary>
-    public async Task<List<Deck>> GetUserDecks(Guid userId, string? category = null)
+    public async Task<List<Deck>> GetUserDecks(Guid userId, string? folder = null, string? tag = null)
     {
         if (userId == Guid.Empty)
         {
@@ -45,13 +52,19 @@ public class DecksRespository : IDecksRespository
 
         IQueryable<Deck> query = _db.Decks
             .Include(d => d.Cards)
-                .ThenInclude(c => c.StudyProgress)
+                .ThenInclude(c => c.StudyProgresses)
             .Where(d => d.UserId == userId);
 
-        if (!string.IsNullOrWhiteSpace(category))
+        if (!string.IsNullOrWhiteSpace(folder))
         {
-            var trimmedCategory = category.Trim().ToLower();
-            query = query.Where(d => d.Category.ToLower() == trimmedCategory);
+            var trimmedFolder = folder.Trim().ToLower();
+            query = query.Where(d => d.Folder.ToLower() == trimmedFolder);
+        }
+
+        if (!string.IsNullOrWhiteSpace(tag))
+        {
+            var trimmedTag = tag.Trim().ToLower();
+            query = query.Where(d => d.Tag != null && d.Tag.ToLower().Contains(trimmedTag));
         }
 
         return await query
@@ -59,16 +72,22 @@ public class DecksRespository : IDecksRespository
             .ToListAsync();
     }
 
-    public async Task<List<Deck>> GetAllDecks(string? category = null, Guid? userId = null)
+    public async Task<List<Deck>> GetAllDecks(string? folder = null, Guid? userId = null, string? tag = null)
     {
         IQueryable<Deck> query = _db.Decks
             .Include(d => d.Cards)
-                .ThenInclude(c => c.StudyProgress);
+                .ThenInclude(c => c.StudyProgresses);
 
-        if (!string.IsNullOrWhiteSpace(category))
+        if (!string.IsNullOrWhiteSpace(folder))
         {
-            var trimmedCategory = category.Trim().ToLower();
-            query = query.Where(d => d.Category.ToLower() == trimmedCategory);
+            var trimmedFolder = folder.Trim().ToLower();
+            query = query.Where(d => d.Folder.ToLower() == trimmedFolder);
+        }
+
+        if (!string.IsNullOrWhiteSpace(tag))
+        {
+            var trimmedTag = tag.Trim().ToLower();
+            query = query.Where(d => d.Tag != null && d.Tag.ToLower().Contains(trimmedTag));
         }
 
         if (userId.HasValue && userId.Value != Guid.Empty)
@@ -85,7 +104,7 @@ public class DecksRespository : IDecksRespository
     {
         return await _db.Decks
             .Include(d => d.Cards)
-                .ThenInclude(c => c.StudyProgress)
+                .ThenInclude(c => c.StudyProgresses)
             .FirstOrDefaultAsync(d => d.Id == id);
     }
 

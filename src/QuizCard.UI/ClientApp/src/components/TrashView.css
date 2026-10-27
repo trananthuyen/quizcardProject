@@ -1,15 +1,643 @@
 /* ============================================================
    TrashView.css
-   Styles cho khu vực Thùng rác (Trash)
+   Giao diện Thùng rác (Trash Management)
+   Đầy đủ tính năng Khôi phục, Xóa vĩnh viễn, Tự hủy 5 ngày & Dark Mode
    ============================================================ */
 
-.tv-container {
-  padding: 40px 28px 60px 28px;
-  max-width: 900px;
+.tv-wrapper {
+  padding: 24px 28px 60px 28px;
+  max-width: 1200px;
   margin: 0 auto;
-  text-align: center;
 }
 
+/* 1. Header Banner */
+.tv-header-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.04);
+}
+
+.tv-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  max-width: 680px;
+}
+
+.tv-header-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background-color: #fee2e2;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tv-header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.tv-header-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.tv-header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #b45309;
+  background-color: #fef3c7;
+  border: 1px solid #fde68a;
+  padding: 3px 10px;
+  border-radius: 9999px;
+}
+
+.tv-header-desc {
+  font-size: 13.5px;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.tv-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tv-btn-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background-color: #f8fafc;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tv-btn-refresh:hover:not(:disabled) {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.tv-spinning {
+  animation: tv-spin 1s linear infinite;
+}
+
+@keyframes tv-spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.tv-btn-empty-trash {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background-color: #ef4444;
+  color: #ffffff;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.tv-btn-empty-trash:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+.tv-btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background-color: #f1f5f9;
+  color: #334155;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.tv-btn-back:hover {
+  background-color: #e2e8f0;
+}
+
+/* 2. Toolbar & Search */
+.tv-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.tv-tabs-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tv-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  background-color: #ffffff;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tv-tab-btn:hover {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+.tv-tab-btn.active {
+  background-color: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+}
+
+.tv-search-input-wrap {
+  position: relative;
+  width: 280px;
+}
+
+.tv-search-input {
+  width: 100%;
+  padding: 8px 32px 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #0f172a;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.tv-search-input:focus {
+  border-color: #0284c7;
+}
+
+.tv-search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 2px;
+}
+
+/* 3. Lưới các bộ thẻ đã xóa (Deck Grid) */
+.tv-deck-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 20px;
+}
+
+.tv-deck-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.tv-deck-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.tv-deck-header {
+  padding: 14px 16px 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid #f8fafc;
+}
+
+.tv-deck-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tv-pill-folder {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0284c7;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.tv-pill-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #059669;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.tv-expiry-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #b45309;
+  background-color: #fef3c7;
+  border: 1px solid #fde68a;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.tv-expiry-badge.urgent {
+  color: #b91c1c;
+  background-color: #fee2e2;
+  border-color: #fecaca;
+  animation: tv-pulse 1.8s infinite;
+}
+
+@keyframes tv-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.tv-deck-body {
+  padding: 12px 16px;
+  flex: 1;
+}
+
+.tv-deck-title {
+  font-size: 16.5px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+
+.tv-deck-desc {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.5;
+  margin-bottom: 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tv-deck-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  color: #94a3b8;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.tv-meta-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.tv-deck-actions {
+  padding: 12px 16px;
+  background-color: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tv-btn-restore {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  background-color: #0284c7;
+  color: #ffffff;
+  border: none;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.tv-btn-restore:hover:not(:disabled) {
+  background-color: #0369a1;
+}
+
+.tv-btn-preview-card {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tv-btn-preview-card:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.tv-btn-perm-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tv-btn-perm-delete:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+/* 4. Tab thẻ đơn lẻ */
+.tv-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tv-card-row {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.tv-card-row-content {
+  flex: 1;
+}
+
+.tv-card-row-term {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.tv-card-row-def {
+  font-size: 13.5px;
+  color: #475569;
+  line-height: 1.45;
+  margin-bottom: 4px;
+}
+
+.tv-card-row-ex {
+  font-size: 12px;
+  color: #059669;
+  font-style: italic;
+  margin-bottom: 6px;
+}
+
+.tv-card-row-expiry {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #b45309;
+}
+
+.tv-card-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* 5. Modal Xem chi tiết thẻ */
+.tv-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.tv-modal-content {
+  background: #ffffff;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 640px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25);
+}
+
+.tv-modal-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.tv-modal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0284c7;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.tv-modal-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 2px 0;
+}
+
+.tv-modal-subtitle {
+  font-size: 12.5px;
+  color: #64748b;
+}
+
+.tv-modal-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #64748b;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.tv-modal-close:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.tv-modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.tv-preview-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tv-preview-card-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.tv-preview-card-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.tv-preview-card-term {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.tv-preview-card-def {
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.45;
+}
+
+.tv-preview-card-ex {
+  font-size: 12px;
+  color: #059669;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.tv-modal-footer {
+  padding: 14px 24px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  background-color: #f8fafc;
+}
+
+.tv-modal-btn-cancel {
+  padding: 7px 14px;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tv-modal-btn-cancel:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+/* 6. Empty & Loading State */
 .tv-empty-box {
   background: #ffffff;
   border: 1px dashed #cbd5e1;
@@ -18,7 +646,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
+  text-align: center;
 }
 
 .tv-icon-circle {
@@ -42,16 +671,16 @@
 .tv-desc {
   font-size: 14px;
   color: #64748b;
-  max-width: 440px;
+  max-width: 480px;
   line-height: 1.5;
   margin: 0;
 }
 
 .tv-btn-home {
   margin-top: 8px;
-  padding: 8px 20px;
+  padding: 8px 22px;
   border-radius: 20px;
-  background-color: #0d99ff;
+  background-color: #0284c7;
   color: #ffffff;
   font-size: 13px;
   font-weight: 600;
@@ -64,3 +693,256 @@
   opacity: 0.9;
 }
 
+.tv-loading-box {
+  padding: 80px 20px;
+  text-align: center;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ============================================================
+   CHẾ ĐỘ TỐI TOÀN DIỆN CHO TRASH (DARK THEME SUPPORT)
+   Tự động kích hoạt khi [data-theme="dark"]
+   ============================================================ */
+
+[data-theme="dark"] .tv-header-card {
+  background: #18181b !important;
+  border-color: #27272a !important;
+}
+
+[data-theme="dark"] .tv-header-icon-box {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+  color: #f87171 !important;
+}
+
+[data-theme="dark"] .tv-header-title {
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .tv-header-badge {
+  color: #f59e0b !important;
+  background-color: rgba(245, 158, 11, 0.12) !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+[data-theme="dark"] .tv-header-desc {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .tv-btn-refresh {
+  background-color: #202023 !important;
+  border-color: #27272a !important;
+  color: #e4e4e7 !important;
+}
+
+[data-theme="dark"] .tv-btn-refresh:hover:not(:disabled) {
+  background-color: #27272a !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .tv-btn-back {
+  background-color: #202023 !important;
+  color: #e4e4e7 !important;
+}
+
+[data-theme="dark"] .tv-btn-back:hover {
+  background-color: #27272a !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .tv-tab-btn {
+  background-color: #18181b !important;
+  border-color: #27272a !important;
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .tv-tab-btn:hover {
+  background-color: #202023 !important;
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .tv-tab-btn.active {
+  background-color: #0284c7 !important;
+  color: #ffffff !important;
+  border-color: #0284c7 !important;
+}
+
+[data-theme="dark"] .tv-search-input {
+  background-color: #18181b !important;
+  border-color: #27272a !important;
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .tv-search-input:focus {
+  border-color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .tv-deck-card {
+  background: #18181b !important;
+  border-color: #27272a !important;
+}
+
+[data-theme="dark"] .tv-deck-card:hover {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .tv-deck-header {
+  border-bottom-color: #202023 !important;
+}
+
+[data-theme="dark"] .tv-pill-folder {
+  color: #38bdf8 !important;
+  background: rgba(14, 165, 233, 0.12) !important;
+  border-color: rgba(14, 165, 233, 0.3) !important;
+}
+
+[data-theme="dark"] .tv-pill-tag {
+  color: #34d399 !important;
+  background: rgba(16, 185, 129, 0.12) !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
+}
+
+[data-theme="dark"] .tv-expiry-badge {
+  color: #fbbf24 !important;
+  background-color: rgba(245, 158, 11, 0.12) !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+[data-theme="dark"] .tv-expiry-badge.urgent {
+  color: #f87171 !important;
+  background-color: rgba(239, 68, 68, 0.18) !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+}
+
+[data-theme="dark"] .tv-deck-title {
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .tv-deck-desc {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .tv-deck-meta {
+  border-top-color: #202023 !important;
+  color: #71717a !important;
+}
+
+[data-theme="dark"] .tv-meta-count {
+  color: #60a5fa !important;
+}
+
+[data-theme="dark"] .tv-deck-actions {
+  background-color: #141416 !important;
+  border-top-color: #202023 !important;
+}
+
+[data-theme="dark"] .tv-btn-preview-card {
+  background-color: #202023 !important;
+  border-color: #27272a !important;
+  color: #e4e4e7 !important;
+}
+
+[data-theme="dark"] .tv-btn-preview-card:hover {
+  background-color: #27272a !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .tv-btn-perm-delete {
+  background-color: rgba(239, 68, 68, 0.12) !important;
+  color: #f87171 !important;
+  border-color: rgba(239, 68, 68, 0.25) !important;
+}
+
+[data-theme="dark"] .tv-btn-perm-delete:hover:not(:disabled) {
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .tv-card-row {
+  background: #18181b !important;
+  border-color: #27272a !important;
+}
+
+[data-theme="dark"] .tv-card-row-term {
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .tv-card-row-def {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .tv-modal-overlay {
+  background: rgba(0, 0, 0, 0.75) !important;
+}
+
+[data-theme="dark"] .tv-modal-content {
+  background: #18181b !important;
+  border: 1px solid #27272a !important;
+}
+
+[data-theme="dark"] .tv-modal-header {
+  border-bottom-color: #27272a !important;
+}
+
+[data-theme="dark"] .tv-modal-title {
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .tv-modal-subtitle {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .tv-modal-close:hover {
+  background-color: #27272a !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .tv-preview-card-item {
+  background: #202023 !important;
+  border-color: #27272a !important;
+}
+
+[data-theme="dark"] .tv-preview-card-term {
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .tv-preview-card-def {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .tv-modal-footer {
+  background-color: #141416 !important;
+  border-top-color: #27272a !important;
+}
+
+[data-theme="dark"] .tv-modal-btn-cancel {
+  border-color: #27272a !important;
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .tv-modal-btn-cancel:hover {
+  background-color: #27272a !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .tv-empty-box {
+  background: #18181b !important;
+  border-color: #27272a !important;
+}
+
+[data-theme="dark"] .tv-icon-circle {
+  background-color: #202023 !important;
+  color: #71717a !important;
+}
+
+[data-theme="dark"] .tv-title {
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .tv-desc {
+  color: #a1a1aa !important;
+}

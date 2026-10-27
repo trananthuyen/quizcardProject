@@ -19,7 +19,7 @@ import confetti from 'canvas-confetti';
 import { ArrowLeft, RotateCw, Check, X, Volume2, Trophy, RotateCcw, Sparkles, CheckCircle2, Clock, AlertCircle, HelpCircle, ExternalLink } from 'lucide-react';
 import { playTts, stopTts } from '../utils/tts';
 import './StudyArena.css';
-export const StudyArena = ({ deck, onExit, onGoToCards, onGoToQuiz }) => {
+export const StudyArena = ({ deck, onExit, onGoToCards, onGoToQuiz, currentUser = null }) => {
     // Hàng đợi các thẻ cần học trong phiên này (sẽ giảm dần khi trả lời đúng, hoặc nhận thêm thẻ bị sai vào cuối)
     const [queue, setQueue] = useState([]);
     // Tổng số thẻ ban đầu khi bắt đầu phiên (dùng để tính tỷ lệ thanh tiến trình)
@@ -45,7 +45,7 @@ export const StudyArena = ({ deck, onExit, onGoToCards, onGoToQuiz }) => {
     const loadCards = useCallback(async () => {
         try {
             setLoading(true);
-            const cards = await api.getStudySessionCards(deck.id);
+            const cards = await api.getStudySessionCards(deck.id, false, currentUser?.id);
             setQueue(cards);
             setInitialCount(cards.length);
             setSessionCompleted(false);
@@ -72,14 +72,15 @@ export const StudyArena = ({ deck, onExit, onGoToCards, onGoToQuiz }) => {
     const currentCard = queue[0];
     /**
      * Kiểm tra xem bộ thẻ hiện tại có phải là bộ thẻ học tiếng Anh hay không
-     * (Dựa vào phân loại Category hoặc tiêu đề Title có chứa 'tiếng anh', 'english', 'ielts', 'toeic'...).
+     * (Dựa vào Folder, Tag hoặc tiêu đề Title có chứa 'tiếng anh', 'english', 'ielts', 'toeic'...).
      */
     const isEnglishDeck = useMemo(() => {
-        const cat = (deck.category || '').toLowerCase().trim();
+        const folder = (deck.folder || '').toLowerCase().trim();
+        const tag = (deck.tag || '').toLowerCase().trim();
         const title = (deck.title || '').toLowerCase().trim();
         const englishKeywords = ['tiếng anh', 'tieng anh', 'english', 'ielts', 'toeic', 'toefl'];
-        return englishKeywords.some((kw) => cat.includes(kw) || title.includes(kw));
-    }, [deck.category, deck.title]);
+        return englishKeywords.some((kw) => folder.includes(kw) || tag.includes(kw) || title.includes(kw));
+    }, [deck.folder, deck.tag, deck.title]);
     /**
      * Đảo trạng thái lật mặt thẻ (Trước <-> Sau)
      */
@@ -125,7 +126,7 @@ export const StudyArena = ({ deck, onExit, onGoToCards, onGoToQuiz }) => {
             return;
         try {
             setIsAnswering(true);
-            const res = await api.answerCard(currentCard.cardId, isCorrect);
+            const res = await api.answerCard(currentCard.cardId, isCorrect, currentUser?.id);
             setFeedback(res);
             if (isCorrect) {
                 setCorrectInSession((prev) => prev + 1);
