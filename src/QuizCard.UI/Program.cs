@@ -34,6 +34,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // ================= SERVICES =================
 builder.Services.ConfigureService(builder.Configuration);
 
+// Cấu hình Rate Limiting hạn chế request liên tục (chống spam, chống brute-force)
+builder.Services.ConfigureRateLimiting(builder.Configuration);
+
 // Cấu hình chính sách CORS để cho phép máy chủ phát triển React Vite (port 5173) gọi API dễ dàng
 builder.Services.AddCors(options =>
 {
@@ -70,6 +73,12 @@ app.UseRouting();
 // Xác thực & Phân quyền Identity Middleware
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Middleware tự động ghi nhận nhật ký (Request Logs) theo dõi request từ người dùng
+app.UseMiddleware<QuizCard.UI.Middlewares.RequestLoggingMiddleware>();
+
+// Kích hoạt Rate Limiter hạn chế request liên tục trong một khoảng thời gian
+app.UseRateLimiter();
 
 // Định tuyến các yêu cầu API tới các Controller tương ứng (/api/decks, /api/cards, /api/study)
 app.MapControllers();

@@ -123,9 +123,9 @@ export const Sidebar = ({
 
             {/* Team sub-items */}
             <div className="qc-nav-list sb-nav-sublist">
-              <button type="button" className={`qc-nav-item ${activeTab === 'drafts' && currentView === 'DECKS' ? 'active' : ''}`} onClick={() => handleTabClick('drafts')}>
+              <button type="button" className={`qc-nav-item ${activeTab === 'progress' && currentView === 'DECKS' ? 'active' : ''}`} onClick={() => handleTabClick('progress')}>
                 <BookOpen size={15} color="#71717a"/>
-                <span>Drafts</span>
+                <span>Progress</span>
               </button>
 
               <button type="button" className={`qc-nav-item ${activeTab === 'folders' && currentView === 'DECKS' ? 'active' : ''}`} onClick={() => handleTabClick('folders')}>

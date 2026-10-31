@@ -190,3 +190,14 @@
   background: rgba(239, 68, 68, 0.4);
 }
 
+.dc-btn-unsave {
+  background: rgba(2, 132, 199, 0.3);
+  color: #bae6fd;
+}
+
+.dc-btn-unsave:hover {
+  background: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+

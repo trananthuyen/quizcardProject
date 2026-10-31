@@ -57,9 +57,11 @@ export const MyResources = ({
             }
         });
         deckList.forEach((d) => {
-            const fName = d?.folder;
-            if (fName && typeof fName === 'string' && fName.trim())
-                set.add(fName.trim());
+            if (!d?.isSaved) {
+                const fName = d?.folder;
+                if (fName && typeof fName === 'string' && fName.trim())
+                    set.add(fName.trim());
+            }
         });
         if (!set.has('Chung'))
             set.add('Chung');
@@ -68,31 +70,38 @@ export const MyResources = ({
     // Đếm số lượng bộ thẻ theo từng bộ lọc
     const filterCounts = useMemo(() => {
         const total = deckList.length;
-        const studied = deckList.filter((d) => (d.masteredCards + d.learningCards) > 0).length;
-        const notStarted = deckList.filter((d) => (d.masteredCards + d.learningCards) === 0).length;
+        const studied = deckList.filter((d) => !d?.isSaved && ((d?.masteredCards || 0) + (d?.learningCards || 0)) > 0).length;
+        const notStarted = deckList.filter((d) => !d?.isSaved && ((d?.masteredCards || 0) + (d?.learningCards || 0)) === 0).length;
         const folderCounts = {};
         deckList.forEach((d) => {
-            const cat = d.folder?.trim() || 'Chung';
-            folderCounts[cat] = (folderCounts[cat] || 0) + 1;
+            if (!d?.isSaved) {
+                const cat = (d?.folder || d?.Folder || '').trim() || 'Chung';
+                folderCounts[cat] = (folderCounts[cat] || 0) + 1;
+            }
         });
         return { total, studied, notStarted, folderCounts };
     }, [deckList]);
     // Lọc danh sách bộ thẻ theo bộ lọc và tìm kiếm
     const filteredDecks = useMemo(() => {
         return deckList.filter((deck) => {
+            if (!deck) return false;
+            // Bộ thẻ lưu từ cộng đồng: chỉ hiển thị ở mục 'Tất cả' (ALL)
+            if (deck.isSaved && selectedFilter !== 'ALL') {
+                return false;
+            }
             if (selectedFilter === 'STUDIED') {
-                const isStudied = (deck.masteredCards + deck.learningCards) > 0;
+                const isStudied = ((deck.masteredCards || 0) + (deck.learningCards || 0)) > 0;
                 if (!isStudied)
                     return false;
             }
             else if (selectedFilter === 'NOT_STARTED') {
-                const isNotStarted = (deck.masteredCards + deck.learningCards) === 0;
+                const isNotStarted = ((deck.masteredCards || 0) + (deck.learningCards || 0)) === 0;
                 if (!isNotStarted)
                     return false;
             }
             else if (selectedFilter && selectedFilter !== 'ALL') {
-                const deckFolder = (deck.folder || '').toLowerCase();
-                const deckTag = (deck.tag || '').toLowerCase();
+                const deckFolder = (deck.folder || deck.Folder || '').toLowerCase();
+                const deckTag = (deck.tag || deck.Tag || '').toLowerCase();
                 const filterLower = (selectedFilter || '').toLowerCase();
                 if (deckFolder !== filterLower && !deckTag.includes(filterLower)) {
                     return false;
@@ -100,10 +109,10 @@ export const MyResources = ({
             }
             if (searchQuery && searchQuery.trim()) {
                 const q = searchQuery.toLowerCase().trim();
-                const matchTitle = (deck.title || '').toLowerCase().includes(q);
-                const matchDesc = deck.description?.toLowerCase().includes(q) || false;
-                const matchFolder = (deck.folder || '').toLowerCase().includes(q);
-                const matchTag = deck.tag?.toLowerCase().includes(q) || false;
+                const matchTitle = (deck.title || deck.Title || '').toLowerCase().includes(q);
+                const matchDesc = (deck.description || deck.Description || '').toLowerCase().includes(q);
+                const matchFolder = (deck.folder || deck.Folder || '').toLowerCase().includes(q);
+                const matchTag = (deck.tag || deck.Tag || '').toLowerCase().includes(q);
                 if (!matchTitle && !matchDesc && !matchFolder && !matchTag)
                     return false;
             }

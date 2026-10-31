@@ -13,6 +13,15 @@
   margin-bottom: 24px;
 }
 
+.vt-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
 .vt-title {
   font-size: 24px;
   font-weight: 800;
@@ -21,11 +30,131 @@
   align-items: center;
   gap: 10px;
   margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.vt-random-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  vertical-align: middle;
 }
 
 .vt-subtitle {
   font-size: 14px;
   color: #71717a;
+  margin: 0;
+}
+
+.vt-shuffle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.vt-shuffle-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0284c7;
+  transform: translateY(-1px);
+}
+
+/* Thanh lọc theo chủ đề (không có ô tìm kiếm) */
+.vt-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.vt-filter-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.vt-tags-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.vt-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 600;
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.vt-tag-chip:hover {
+  background-color: #e2e8f0;
+  color: #0f172a;
+}
+
+.vt-tag-chip.active {
+  background-color: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+}
+
+.vt-tag-chip-count {
+  font-size: 10.5px;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.vt-tag-chip.active .vt-tag-chip-count {
+  background-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.vt-btn-reset {
+  display: inline-block;
+  padding: 8px 18px;
+  background-color: #0284c7;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.vt-btn-reset:hover {
+  background-color: #0369a1;
 }
 
 .vt-grid {
@@ -129,6 +258,14 @@
   flex: 1;
 }
 
+.vt-tags-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
 .vt-card-tag {
   display: inline-block;
   font-size: 11px;
@@ -137,8 +274,12 @@
   background: #e0f2fe;
   padding: 2px 8px;
   border-radius: 4px;
-  align-self: flex-start;
-  margin-bottom: 8px;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.vt-card-tag:hover {
+  background: #bae6fd;
+  color: #0369a1;
 }
 
 .vt-card-title {
@@ -236,3 +377,97 @@
   background: rgba(255, 255, 255, 0.3);
 }
 
+/* ------------------------------------------------------------- */
+/* Hỗ trợ Giao diện Tối (Dark Theme)                              */
+/* ------------------------------------------------------------- */
+[data-theme="dark"] .vt-title {
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .vt-subtitle {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .vt-random-badge {
+  background: rgba(22, 163, 74, 0.15) !important;
+  color: #4ade80 !important;
+  border-color: rgba(74, 222, 128, 0.3) !important;
+}
+
+[data-theme="dark"] .vt-shuffle-btn {
+  background: #202023 !important;
+  border-color: #27272a !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .vt-shuffle-btn:hover {
+  background: #27272a !important;
+  border-color: #3f3f46 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .vt-filter-bar {
+  border-color: #27272a !important;
+}
+
+[data-theme="dark"] .vt-filter-label {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .vt-tag-chip {
+  background-color: #202023 !important;
+  color: #a1a1aa !important;
+  border: 1px solid #27272a !important;
+}
+
+[data-theme="dark"] .vt-tag-chip:hover {
+  background-color: #27272a !important;
+  color: #f4f4f5 !important;
+  border-color: #3f3f46 !important;
+}
+
+[data-theme="dark"] .vt-tag-chip.active {
+  background-color: #0284c7 !important;
+  color: #ffffff !important;
+  border-color: #0284c7 !important;
+}
+
+[data-theme="dark"] .vt-tag-chip-count {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .vt-tag-chip.active .vt-tag-chip-count {
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .vt-card {
+  background: #18181b !important;
+  border-color: #27272a !important;
+}
+
+[data-theme="dark"] .vt-card:hover {
+  border-color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .vt-card-title {
+  color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .vt-card-desc {
+  color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .vt-card-tag {
+  background: rgba(2, 132, 199, 0.2) !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .vt-card-footer {
+  border-color: #27272a !important;
+}
+
+[data-theme="dark"] .vt-author {
+  color: #cbd5e1 !important;
+}

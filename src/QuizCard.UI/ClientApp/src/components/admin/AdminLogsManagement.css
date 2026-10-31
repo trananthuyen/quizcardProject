@@ -1,0 +1,518 @@
+/* ============================================================
+   AdminLogsManagement.css - Giám sát nhật ký yêu cầu người dùng
+   ============================================================ */
+
+.alm-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+/* 1. KPI Cards */
+.alm-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.alm-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.alm-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.alm-icon-blue {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.alm-icon-emerald {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.alm-icon-amber {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.alm-icon-red {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.alm-stat-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.alm-stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.alm-stat-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.alm-stat-hint {
+  font-size: 11.5px;
+  color: #94a3b8;
+}
+
+/* 2. Toolbar & Filters */
+.alm-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: #ffffff;
+  padding: 14px 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+}
+
+.alm-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 7px 12px;
+  flex: 1;
+  min-width: 240px;
+  max-width: 360px;
+}
+
+.alm-search-box:focus-within {
+  background: #ffffff;
+  border-color: #0d99ff;
+  box-shadow: 0 0 0 2px rgba(13, 153, 255, 0.12);
+}
+
+.alm-search-input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  font-size: 13px;
+  color: #0f172a;
+  outline: none;
+}
+
+.alm-filters-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.alm-select {
+  padding: 7px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #334155;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+}
+
+.alm-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.alm-filter-chip.active-error {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+.alm-btn-clear-logs {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 7px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.alm-btn-clear-logs:hover {
+  background: #fee2e2;
+}
+
+/* 3. Logs Table */
+.alm-table-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.alm-table-head {
+  padding: 14px 18px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.alm-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.alm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  text-align: left;
+}
+
+.alm-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 700;
+  padding: 11px 16px;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.alm-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.alm-table tr:hover td {
+  background-color: #f8fafc;
+}
+
+/* Badges */
+.alm-badge-method {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 5px;
+  letter-spacing: 0.3px;
+  font-family: monospace;
+}
+
+.alm-method-get {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.alm-method-post {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.alm-method-put {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.alm-method-delete {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.alm-badge-status {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-family: monospace;
+}
+
+.alm-status-2xx {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.alm-status-3xx {
+  background: #e0e7ff;
+  color: #4f46e5;
+}
+
+.alm-status-4xx {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.alm-status-5xx {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.alm-duration-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.alm-duration-fast {
+  color: #16a34a;
+  background: #f0fdf4;
+}
+
+.alm-duration-mid {
+  color: #d97706;
+  background: #fffbeb;
+}
+
+.alm-duration-slow {
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+.alm-path-cell {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: monospace;
+  font-size: 12px;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.alm-btn-detail {
+  background: none;
+  border: 1px solid #e2e8f0;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: #0d99ff;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.alm-btn-detail:hover {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+/* Pagination */
+.alm-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-top: 1px solid #f1f5f9;
+  background: #ffffff;
+}
+
+.alm-pagination-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.alm-pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* 4. Modal Chi Tiết Log */
+.alm-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.alm-modal-card {
+  background: #ffffff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 760px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  border: 1px solid #e2e8f0;
+}
+
+.alm-modal-header {
+  padding: 16px 20px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.alm-modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.alm-detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alm-detail-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.alm-detail-value {
+  font-size: 13.5px;
+  color: #0f172a;
+  word-break: break-all;
+}
+
+.alm-code-box {
+  background: #0f172a;
+  color: #38bdf8;
+  padding: 12px;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+/* ============================================================
+   DARK THEME
+   ============================================================ */
+[data-theme="dark"] .alm-stat-card {
+  background: #18181b;
+  border-color: #27272a;
+}
+
+[data-theme="dark"] .alm-stat-value {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .alm-toolbar {
+  background: #18181b;
+  border-color: #27272a;
+}
+
+[data-theme="dark"] .alm-search-box {
+  background: #141416;
+  border-color: #27272a;
+}
+
+[data-theme="dark"] .alm-search-input {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .alm-select {
+  background: #18181b;
+  border-color: #27272a;
+  color: #f4f4f5;
+}
+
+[data-theme="dark"] .alm-table-card {
+  background: #18181b;
+  border-color: #27272a;
+}
+
+[data-theme="dark"] .alm-table th {
+  background: #141416;
+  border-bottom-color: #27272a;
+  color: #a1a1aa;
+}
+
+[data-theme="dark"] .alm-table td {
+  border-bottom-color: #27272a;
+  color: #d4d4d8;
+}
+
+[data-theme="dark"] .alm-table tr:hover td {
+  background-color: #27272a2e;
+}
+
+[data-theme="dark"] .alm-path-cell {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .alm-pagination {
+  background: #18181b;
+  border-top-color: #27272a;
+}
+
+[data-theme="dark"] .alm-modal-card {
+  background: #18181b;
+  border-color: #27272a;
+}
+
+[data-theme="dark"] .alm-modal-header {
+  background: #141416;
+  border-bottom-color: #27272a;
+}
+
+[data-theme="dark"] .alm-detail-value {
+  color: #ffffff;
+}
+

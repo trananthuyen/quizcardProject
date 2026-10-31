@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using QuizCard.Entities.IdentifyEntities;
@@ -8,6 +9,8 @@ using QuizCard.ServiceContracts;
 using QuizCard.ServiceContracts.DTOs.AuthDTOs;
 using System.Security.Claims;
 using System.Text.Json;
+using Microsoft.AspNetCore.RateLimiting;
+using QuizCard.UI.StartupExtensions;
 
 namespace QuizCard.UI.Controllers;
 
@@ -33,6 +36,7 @@ public class AuthController : ControllerBase
     /// Kích hoạt luồng xác thực đăng nhập Google OAuth.
     /// </summary>
     [HttpGet("login-google")]
+    [AllowAnonymous]
     public IActionResult LoginWithGoogle([FromQuery] string? returnUrl = null)
     {
         var redirectUrl = Url.Action(nameof(GoogleCallback), "Auth", new { returnUrl });
@@ -45,6 +49,7 @@ public class AuthController : ControllerBase
     /// </summary>
     [HttpGet("google-callback")]
     [HttpGet("google-response")]
+    [AllowAnonymous]
     public async Task<IActionResult> GoogleCallback([FromQuery] string? returnUrl = null)
     {
         var info = await _signInManager.GetExternalLoginInfoAsync();
@@ -114,6 +119,7 @@ public class AuthController : ControllerBase
     /// Kích hoạt luồng xác thực đăng nhập Facebook OAuth.
     /// </summary>
     [HttpGet("login-facebook")]
+    [AllowAnonymous]
     public IActionResult LoginWithFacebook([FromQuery] string? returnUrl = null)
     {
         var redirectUrl = Url.Action(nameof(FacebookCallback), "Auth", new { returnUrl });
@@ -126,6 +132,7 @@ public class AuthController : ControllerBase
     /// </summary>
     [HttpGet("facebook-callback")]
     [HttpGet("facebook-response")]
+    [AllowAnonymous]
     public async Task<IActionResult> FacebookCallback([FromQuery] string? returnUrl = null)
     {
         var info = await _signInManager.GetExternalLoginInfoAsync();
@@ -216,6 +223,8 @@ public class AuthController : ControllerBase
     /// API xử lý trực tiếp yêu cầu đăng nhập bên ngoài (External Auth) với xác nhận điều khoản.
     /// </summary>
     [HttpPost("external-login")]
+    [EnableRateLimiting(ConfigureRateLimitingExtension.PolicyAuth)]
+    [AllowAnonymous]
     public async Task<ActionResult<AuthResponse>> ExternalLogin([FromBody] ExternalAuthRequest request)
     {
         if (!request.TermsAccepted)
@@ -238,6 +247,7 @@ public class AuthController : ControllerBase
     /// Lấy thông tin tài khoản hiện tại theo userId.
     /// </summary>
     [HttpGet("me/{userId:guid}")]
+    [Authorize("AuthorizedForUser")]
     public async Task<ActionResult<CurrentUserDto>> GetCurrentUser(Guid userId)
     {
         var user = await _authService.GetCurrentUserAsync(userId);
@@ -253,6 +263,7 @@ public class AuthController : ControllerBase
     /// Đăng xuất khỏi hệ thống.
     /// </summary>
     [HttpPost("logout")]
+    [Authorize("AuthorizedForUser")]
     public async Task<IActionResult> Logout()
     {
         await _signInManager.SignOutAsync();

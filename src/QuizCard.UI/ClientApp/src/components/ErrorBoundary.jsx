@@ -16,7 +16,7 @@ export class ErrorBoundary extends React.Component {
   }
 
   handleReload = () => {
-    window.location.hash = '#/community';
+    window.history.replaceState(null, '', '/community');
     window.location.reload();
   };
 

@@ -5,6 +5,25 @@
 // Đường dẫn gốc của API (được Vite proxy sang http://localhost:5030 khi phát triển,
 // hoặc gọi trực tiếp cùng host khi chạy sản phẩm)
 const API_BASE = '/api';
+
+// Bọc hàm fetch trong phạm vi api.js để tự động nhận diện và xử lý mã lỗi 429 (Rate Limiting - Quá nhiều yêu cầu)
+const nativeFetch = typeof window !== 'undefined' ? window.fetch.bind(window) : globalThis.fetch;
+const fetch = async (url, options) => {
+    const res = await nativeFetch(url, options);
+    if (res.status === 429) {
+        let errMessage = 'Bạn đang gửi yêu cầu quá nhanh và liên tục. Vui lòng chờ vài giây rồi thử lại.';
+        try {
+            const data = await res.clone().json();
+            if (data?.message) errMessage = data.message;
+        } catch {}
+        console.warn('[Rate Limit 429]', errMessage);
+        const error = new Error(errMessage);
+        error.status = 429;
+        throw error;
+    }
+    return res;
+};
+
 export const api = {
     // ==========================================================================
     // NHÓM 0: XÁC THỰC NGƯỜI DÙNG (AUTHENTICATION)
@@ -165,25 +184,27 @@ export const api = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
+            credentials: 'include',
         });
         if (!res.ok) {
             const err = await res.json().catch(() => ({}));
-            throw new Error(err.message || 'Không thể thêm thẻ mới');
+            throw new Error(err.message || err.title || 'Không thể thêm thẻ mới');
         }
         return res.json();
     },
     /**
-     * Gọi POST /api/decks/{deckId}/cards/bulk để tạo hàng loạt thẻ từ chuỗi văn bản parse được.
+     * Gọi POST /api/decks/{deckId}/cards/batch (hoặc /bulk) để tạo hàng loạt thẻ từ chuỗi văn bản parse được.
      */
     async createCardsBatch(deckId, cards) {
-        const res = await fetch(`${API_BASE}/decks/${deckId}/cards/bulk`, {
+        const res = await fetch(`${API_BASE}/decks/${deckId}/cards/batch`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(cards),
+            credentials: 'include',
         });
         if (!res.ok) {
             const err = await res.json().catch(() => ({}));
-            throw new Error(err.message || 'Không thể nhập danh sách thẻ');
+            throw new Error(err.message || err.title || 'Không thể nhập danh sách thẻ');
         }
         return res.json();
     },
@@ -195,10 +216,11 @@ export const api = {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
+            credentials: 'include',
         });
         if (!res.ok) {
             const err = await res.json().catch(() => ({}));
-            throw new Error(err.message || 'Không thể cập nhật thẻ');
+            throw new Error(err.message || err.title || 'Không thể cập nhật thẻ');
         }
         return res.json();
     },
@@ -208,9 +230,12 @@ export const api = {
     async deleteCard(id) {
         const res = await fetch(`${API_BASE}/cards/${id}`, {
             method: 'DELETE',
+            credentials: 'include',
         });
-        if (!res.ok)
-            throw new Error('Không thể xóa thẻ');
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || err.title || 'Không thể xóa thẻ');
+        }
     },
     // ==========================================================================
     // NHÓM 3: CÁC HÀM PHỤC VỤ PHIÊN HỌC & TRẮC NGHIỆM (STUDY & QUIZ MODE)
@@ -494,5 +519,482 @@ export const api = {
             throw new Error(err.message || 'Không thể xóa vĩnh viễn thẻ');
         }
         return res.json();
+    },
+
+    // ==========================================================================
+    // NHÓM 8: CÁC HÀM QUẢN LÝ DANH SÁCH GẦN ĐÂY (RECENTS MANAGEMENT)
+    // ==========================================================================
+    /**
+     * Lấy danh sách các bộ thẻ gần đây của người dùng
+     */
+    async getRecents(userId) {
+        if (!userId) return [];
+        const res = await fetch(`${API_BASE}/recents?userId=${encodeURIComponent(userId)}`);
+        if (!res.ok) throw new Error('Không thể tải danh sách gần đây');
+        return res.json();
+    },
+
+    /**
+     * Ghi nhận xem hoặc học một bộ thẻ
+     */
+    async recordRecent(deckId, actionType = 'VIEW', userId = null) {
+        const res = await fetch(`${API_BASE}/recents`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ deckId, userId, actionType }),
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Không thể lưu lịch sử gần đây');
+        }
+        return res.json();
+    },
+
+    /**
+     * Xóa 1 mục khỏi danh sách gần đây theo ID
+     */
+    async deleteRecent(id, userId = null) {
+        const url = userId ? `${API_BASE}/recents/${id}?userId=${encodeURIComponent(userId)}` : `${API_BASE}/recents/${id}`;
+        const res = await fetch(url, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Không thể xóa mục khỏi danh sách gần đây');
+        return res.json();
+    },
+
+    /**
+     * Xóa bộ thẻ khỏi danh sách gần đây theo deckId
+     */
+    async deleteRecentByDeck(deckId, userId = null) {
+        const url = userId ? `${API_BASE}/recents/deck/${deckId}?userId=${encodeURIComponent(userId)}` : `${API_BASE}/recents/deck/${deckId}`;
+        const res = await fetch(url, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Không thể xóa bộ thẻ khỏi danh sách gần đây');
+        return res.json();
+    },
+
+    /**
+     * Xóa toàn bộ danh sách gần đây
+     */
+    async clearAllRecents(userId = null) {
+        const url = userId ? `${API_BASE}/recents/clear?userId=${encodeURIComponent(userId)}` : `${API_BASE}/recents/clear`;
+        const res = await fetch(url, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Không thể xóa toàn bộ danh sách gần đây');
+        return res.json();
+    },
+
+    // ==========================================================================
+    // NHÓM 9: QUẢN TRỊ VIÊN & CLOUDINARY (ADMIN AREA & CLOUDINARY MEDIA)
+    // ==========================================================================
+    /**
+     * Đăng nhập tài khoản Quản trị viên (Admin Area)
+     */
+    async adminLogin(usernameOrEmail, password, rememberMe = true) {
+        const res = await fetch(`${API_BASE}/admin/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ usernameOrEmail, password, rememberMe }),
+            credentials: 'include',
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            throw new Error(data.message || 'Tên đăng nhập hoặc mật khẩu quản trị viên không đúng.');
+        }
+        return data;
+    },
+
+    /**
+     * Đăng xuất khỏi tài khoản Quản trị viên
+     */
+    async adminLogout() {
+        const res = await fetch(`${API_BASE}/admin/auth/logout`, {
+            method: 'POST',
+            credentials: 'include',
+        });
+        return await res.json().catch(() => ({ success: true }));
+    },
+
+    /**
+     * Kiểm tra trạng thái phiên làm việc hiện tại của Quản trị viên
+     */
+    async getAdminStatus() {
+        try {
+            const res = await fetch(`${API_BASE}/admin/auth/status`, {
+                credentials: 'include',
+            });
+            if (!res.ok) return { isAuthenticated: false };
+            return await res.json();
+        } catch {
+            return { isAuthenticated: false };
+        }
+    },
+
+    /**
+     * Lấy danh sách toàn bộ các video đã lưu trữ trong database (Dành cho Admin)
+     */
+    async getAdminVideos() {
+        try {
+            const res = await fetch(`${API_BASE}/admin/videos`);
+            if (!res.ok) return [];
+            return await res.json();
+        } catch {
+            return [];
+        }
+    },
+
+    /**
+     * Lấy thống kê tổng quan hệ thống người dùng, decks, cards (Admin)
+     */
+    async getAdminUsersOverview() {
+        const res = await fetch(`${API_BASE}/admin/users/stats`, {
+            credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Không thể tải số liệu thống kê quản trị viên');
+        return await res.json();
+    },
+
+    /**
+     * Lấy danh sách toàn bộ người dùng và số lượng decks, cards đã tạo (Admin)
+     */
+    async getAdminUsersList({ search = '', sort = 'decks_desc' } = {}) {
+        const params = new URLSearchParams();
+        if (search) params.append('search', search);
+        if (sort) params.append('sort', sort);
+
+        const res = await fetch(`${API_BASE}/admin/users?${params.toString()}`, {
+            credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Không thể tải danh sách người dùng');
+        return await res.json();
+    },
+
+    /**
+     * Lấy danh sách các bộ thẻ của một người dùng cụ thể (Admin)
+     */
+    async getAdminUserDecks(userId) {
+        const res = await fetch(`${API_BASE}/admin/users/${userId}/decks`, {
+            credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Không thể tải danh sách bộ thẻ của người dùng');
+        return await res.json();
+    },
+
+    /**
+     * Lấy danh sách bộ thẻ hệ thống/mẫu (Admin)
+     */
+    async getAdminSystemDecks() {
+        const res = await fetch(`${API_BASE}/admin/users/system/decks`, {
+            credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Không thể tải danh sách bộ thẻ hệ thống');
+        return await res.json();
+    },
+
+    /**
+     * Quản trị viên xóa một bộ thẻ (Admin Moderation)
+     */
+    async deleteAdminUserDeck(deckId) {
+        const res = await fetch(`${API_BASE}/admin/users/decks/${deckId}`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Không thể xóa bộ thẻ');
+        }
+        return await res.json();
+    },
+
+    // ==========================================================================
+    // NHÓM 10: QUẢN TRỊ NHẬT KÝ YÊU CẦU (REQUEST LOGS MONITORING)
+    // ==========================================================================
+    /**
+     * Lấy số liệu phân tích và hiệu năng logs (Admin)
+     */
+    async getAdminLogStats() {
+        const res = await fetch(`${API_BASE}/admin/logs/stats`, {
+            credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Không thể tải thống kê nhật ký yêu cầu');
+        return await res.json();
+    },
+
+    /**
+     * Lấy danh sách Request Logs có lọc và phân trang (Admin)
+     */
+    async getAdminLogs({
+        page = 1,
+        pageSize = 25,
+        search = '',
+        method = '',
+        statusCode = '',
+        onlyErrors = false,
+        userId = null,
+        fromDate = null,
+        toDate = null,
+    } = {}) {
+        const params = new URLSearchParams();
+        params.append('page', page);
+        params.append('pageSize', pageSize);
+        if (search) params.append('search', search);
+        if (method && method !== 'ALL') params.append('method', method);
+        if (statusCode) params.append('statusCode', statusCode);
+        if (onlyErrors) params.append('onlyErrors', 'true');
+        if (userId) params.append('userId', userId);
+        if (fromDate) params.append('fromDate', fromDate);
+        if (toDate) params.append('toDate', toDate);
+
+        const res = await fetch(`${API_BASE}/admin/logs?${params.toString()}`, {
+            credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Không thể tải danh sách nhật ký yêu cầu');
+        return await res.json();
+    },
+
+    /**
+     * Lấy chi tiết một bản ghi log (Admin)
+     */
+    async getAdminLogDetail(id) {
+        const res = await fetch(`${API_BASE}/admin/logs/${id}`, {
+            credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Không thể tải chi tiết bản ghi nhật ký');
+        return await res.json();
+    },
+
+    /**
+     * Dọn dẹp nhật ký yêu cầu (Admin)
+     */
+    async clearAdminLogs(days = null) {
+        const url = days !== null && days !== undefined
+            ? `${API_BASE}/admin/logs/clear?days=${days}`
+            : `${API_BASE}/admin/logs/clear`;
+
+        const res = await fetch(url, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Không thể dọn dẹp nhật ký');
+        }
+        return await res.json();
+    },
+
+    /**
+     * Lấy danh sách các video bài học đang hoạt động (Dành cho học viên)
+     */
+    async getPublicVideos() {
+        try {
+            const res = await fetch(`${API_BASE}/videos`);
+            if (!res.ok) return [];
+            return await res.json();
+        } catch {
+            return [];
+        }
+    },
+
+    /**
+     * Lấy trạng thái cấu hình Cloudinary từ máy chủ
+     */
+    async getCloudinaryConfig() {
+        try {
+            const res = await fetch(`${API_BASE}/admin/videos/config`);
+            if (!res.ok) return { isConfigured: false, cloudName: '' };
+            return await res.json();
+        } catch {
+            return { isConfigured: false, cloudName: '' };
+        }
+    },
+
+    /**
+     * Tải file video lên Cloudinary (Chỉ dành cho Admin qua /api/admin/videos/upload)
+     * Hỗ trợ đính kèm phụ đề VTT tiếng Anh & tiếng Việt (file upload, nội dung text hoặc URL)
+     */
+    async uploadVideoToCloudinary(
+        file,
+        folder = null,
+        title = null,
+        description = null,
+        vttEnFile = null,
+        vttViFile = null,
+        vttEnUrl = null,
+        vttViUrl = null,
+        vttEnText = null,
+        vttViText = null
+    ) {
+        const formData = new FormData();
+        formData.append('file', file);
+        if (folder) formData.append('folder', folder);
+        if (title) formData.append('title', title);
+        if (description) formData.append('description', description);
+        if (vttEnFile) formData.append('vttEn', vttEnFile);
+        if (vttViFile) formData.append('vttVi', vttViFile);
+        if (vttEnUrl) formData.append('vttEnUrl', vttEnUrl);
+        if (vttViUrl) formData.append('vttViUrl', vttViUrl);
+        if (vttEnText) formData.append('vttEnText', vttEnText);
+        if (vttViText) formData.append('vttViText', vttViText);
+
+        // Ưu tiên gọi API của Admin Area
+        let res = await fetch(`${API_BASE}/admin/videos/upload`, {
+            method: 'POST',
+            body: formData,
+        });
+
+        // Fallback sang /api/videos/upload nếu có
+        if (res.status === 404) {
+            res = await fetch(`${API_BASE}/videos/upload`, {
+                method: 'POST',
+                body: formData,
+            });
+        }
+
+        if (res.status === 401 || res.status === 403) {
+            throw new Error('Tính năng quản lý và upload video chỉ dành riêng cho Quản trị viên (Admin). Vui lòng đăng nhập quyền Admin.');
+        }
+
+        if (!res.ok) {
+            let errorText = '';
+            try {
+                const err = await res.json();
+                errorText = err.errorMessage || err.message || err.title || (err.errors ? Object.values(err.errors).flat().join(', ') : '');
+            } catch {
+                errorText = await res.text().catch(() => '');
+            }
+            if (errorText.includes('File size too large') || errorText.includes('104857600')) {
+                throw new Error('Dung lượng video vượt quá giới hạn 100 MB của tài khoản Cloudinary Free (Tối đa: 104,857,600 bytes). Vui lòng nén video hoặc chọn file dưới 100 MB.');
+            }
+            throw new Error(errorText || `Lỗi máy chủ (${res.status}): Không thể tải video lên Cloudinary.`);
+        }
+
+        return await res.json();
+    },
+
+    /**
+     * Tải video từ một đường dẫn URL bên ngoài lên Cloudinary (Dành cho Admin)
+     */
+    async uploadVideoUrlToCloudinary(videoUrl, folder = null, title = null, description = null, vttEnUrl = null, vttViUrl = null, vttEnText = null, vttViText = null) {
+        let res = await fetch(`${API_BASE}/admin/videos/upload-url`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: videoUrl, folder, title, description, vttEnUrl, vttViUrl, vttEnText, vttViText }),
+        });
+
+        if (res.status === 404) {
+            res = await fetch(`${API_BASE}/videos/upload-url`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: videoUrl, folder, title, description, vttEnUrl, vttViUrl, vttEnText, vttViText }),
+            });
+        }
+
+        if (res.status === 401 || res.status === 403) {
+            throw new Error('Tính năng quản lý video chỉ dành cho Quản trị viên (Admin).');
+        }
+
+        if (!res.ok) {
+            let errorText = '';
+            try {
+                const err = await res.json();
+                errorText = err.errorMessage || err.message || err.title || (err.errors ? Object.values(err.errors).flat().join(', ') : '');
+            } catch {
+                errorText = await res.text().catch(() => '');
+            }
+            throw new Error(errorText || `Lỗi máy chủ (${res.status}): Không thể tải video từ URL.`);
+        }
+
+        return await res.json();
+    },
+
+    /**
+     * Đính kèm hoặc cập nhật phụ đề VTT tiếng Anh / tiếng Việt (File hoặc Text) cho video đã tồn tại (Admin)
+     */
+    async attachVideoSubtitles(publicId, { vttEnFile = null, vttViFile = null, vttEnText = null, vttViText = null, vttEnUrl = null, vttViUrl = null, folder = null } = {}) {
+        const formData = new FormData();
+        if (vttEnFile) formData.append('vttEn', vttEnFile);
+        if (vttViFile) formData.append('vttVi', vttViFile);
+        if (vttEnText !== null && vttEnText !== undefined) formData.append('vttEnText', vttEnText);
+        if (vttViText !== null && vttViText !== undefined) formData.append('vttViText', vttViText);
+        if (vttEnUrl !== null && vttEnUrl !== undefined) formData.append('vttEnUrl', vttEnUrl);
+        if (vttViUrl !== null && vttViUrl !== undefined) formData.append('vttViUrl', vttViUrl);
+        if (folder) formData.append('folder', folder);
+        formData.append('videoPublicId', publicId);
+
+        const res = await fetch(`${API_BASE}/admin/videos/subtitles`, {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (res.status === 401 || res.status === 403) {
+            throw new Error('Tính năng đính kèm phụ đề chỉ dành cho Quản trị viên (Admin).');
+        }
+
+        if (!res.ok) {
+            let errorText = '';
+            try {
+                const err = await res.json();
+                errorText = err.errorMessage || err.message || err.title;
+            } catch {
+                errorText = await res.text().catch(() => '');
+            }
+            throw new Error(errorText || `Không thể cập nhật phụ đề video (${res.status})`);
+        }
+
+        return await res.json();
+    },
+
+    /**
+     * Xóa video khỏi Cloudinary và Cơ sở dữ liệu theo publicId hoặc ID (Dành cho Admin)
+     */
+    async deleteCloudinaryVideo(publicId, id = null) {
+        // 1. Ưu tiên gọi POST /api/admin/videos/delete (gửi qua body JSON để tránh lỗi encoding slash / trên URL)
+        let res = await fetch(`${API_BASE}/admin/videos/delete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ publicId, id }),
+        });
+
+        // 2. Fallback sang DELETE với query param
+        if (res.status === 404 || res.status === 405) {
+            res = await fetch(`${API_BASE}/admin/videos?publicId=${encodeURIComponent(publicId)}`, {
+                method: 'DELETE',
+            });
+        }
+
+        // 3. Fallback sang DELETE đường dẫn path
+        if (res.status === 404) {
+            res = await fetch(`${API_BASE}/admin/videos/${encodeURIComponent(publicId)}`, {
+                method: 'DELETE',
+            });
+        }
+
+        // 4. Fallback sang /api/videos/delete nếu cần
+        if (res.status === 404) {
+            res = await fetch(`${API_BASE}/videos/delete`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ publicId, id }),
+            });
+        }
+
+        if (res.status === 401 || res.status === 403) {
+            throw new Error('Bạn không có quyền xóa video. Yêu cầu quyền Quản trị viên (Admin).');
+        }
+
+        if (!res.ok) {
+            let errorText = '';
+            try {
+                const err = await res.json();
+                errorText = err.errorMessage || err.message || err.title;
+            } catch {
+                errorText = await res.text().catch(() => '');
+            }
+            throw new Error(errorText || `Lỗi máy chủ (${res.status}): Không thể xóa video.`);
+        }
+
+        const data = await res.json();
+        if (data && data.success === false && !data.dbDeleted && !data.cloudinaryDeleted) {
+            throw new Error(data.message || data.errorMessage || 'Không thể xóa video khỏi cơ sở dữ liệu.');
+        }
+
+        return data;
     },
 };

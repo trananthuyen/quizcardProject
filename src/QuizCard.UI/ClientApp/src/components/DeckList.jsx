@@ -568,7 +568,7 @@ export const DeckList = ({
 
               <div className="dl-cat-list-container">
                 {folderList.map((f) => {
-                const count = filterCounts.folderCounts[f.name] || 0;
+                const count = filterCounts?.folderCounts?.[f.name] || 0;
                 return (<div key={f.id} className="dl-cat-item">
                       <div className="dl-cat-item-left">
                         <span>{f.icon || '📁'}</span>

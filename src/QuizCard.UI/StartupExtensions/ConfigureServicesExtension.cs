@@ -11,6 +11,8 @@ using QuizCard.RepositoryContracts;
 using QuizCard.ServiceContracts;
 using QuizCard.Services;
 using QuizCard.Services.Services;
+using QuizCard.Infrastructure.ExternalAPICalls.cloudinaryAPIs;
+using System.Security.Claims;
 
 namespace QuizCard.UI.StartupExtensions;
 
@@ -74,6 +76,36 @@ public static class ConfigureServicesExtension
 
         var authBuilder = services.AddAuthentication();
 
+        // 2.1 Cấu hình Cookie Scheme riêng biệt dành cho Quản trị viên (Admin Area)
+        authBuilder.AddCookie("AdminScheme", options =>
+        {
+            options.Cookie.Name = "QuizCard_Admin_Token";
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SameSite = SameSiteMode.Lax;
+            options.ExpireTimeSpan = TimeSpan.FromHours(24);
+            options.SlidingExpiration = true;
+            options.Events.OnRedirectToLogin = context =>
+            {
+                if (context.Request.Path.StartsWithSegments("/api"))
+                {
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    return Task.CompletedTask;
+                }
+                context.Response.Redirect("/");
+                return Task.CompletedTask;
+            };
+            options.Events.OnRedirectToAccessDenied = context =>
+            {
+                if (context.Request.Path.StartsWithSegments("/api"))
+                {
+                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                    return Task.CompletedTask;
+                }
+                context.Response.Redirect("/");
+                return Task.CompletedTask;
+            };
+        });
+
         if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
         {
             authBuilder.AddGoogle(options =>
@@ -119,25 +151,20 @@ public static class ConfigureServicesExtension
                 });
             });
 
-            options.AddPolicy("AuthorizedForAdmin", policy => {
-
-                policy.RequireAssertion(context =>
-                {
-                    var httpContext = context.Resource as HttpContext;
-                    if (httpContext?.Request.Cookies.ContainsKey("AdminScheme") == true)
-                    {
-                        return false; // Nếu không lấy được HttpContext, từ chối truy cập
-                    }
-
-                    return true;
-                });
-            });
-
-            options.AddPolicy("AllowAccessWithoutAuthorized", policy =>
+            options.AddPolicy("AuthorizedForAdmin", policy =>
             {
+                policy.AddAuthenticationSchemes("AdminScheme", IdentityConstants.ApplicationScheme);
                 policy.RequireAssertion(context =>
                 {
-                    return true;
+                    var user = context.User;
+                    if (user?.Identity?.IsAuthenticated == true)
+                    {
+                        if (user.IsInRole("Admin") || user.HasClaim(ClaimTypes.Role, "Admin") || user.HasClaim("IsAdmin", "true"))
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
                 });
             });
         });
@@ -150,6 +177,8 @@ public static class ConfigureServicesExtension
         services.AddScoped<IStudyProgressesRespository, StudyProgressesRespository>();
         services.AddScoped<IAttendanceRepository, AttendanceRepository>();
         services.AddScoped<ITrashRepository, TrashRepository>();
+        services.AddScoped<IRecentsRepository, RecentsRepository>();
+        services.AddScoped<ICloudinaryVideosRepository, CloudinaryVideosRepository>();
 
         // 4. Đăng ký các tầng nghiệp vụ (Business Services) theo vòng đời Scoped:
         services.AddScoped<IAuthService, AuthService>();
@@ -159,10 +188,19 @@ public static class ConfigureServicesExtension
         services.AddScoped<IFolderService, FolderService>();
         services.AddScoped<IAttendanceService, AttendanceService>();
         services.AddScoped<ITrashService, TrashService>();
+        services.AddScoped<IRecentsService, RecentsService>();
+        services.AddScoped<ICloudinaryVideosService, CloudinaryVideosService>();
         services.AddSingleton<ITtsService, TtsService>();
 
         // 5. Đăng ký Background Service tự động dọn dẹp Thùng rác sau 5 ngày
         services.AddHostedService<QuizCard.UI.BackgroundServices.TrashCleanupBackgroundService>();
+
+        // 6. Đăng ký Cloudinary Infrastructure (Lưu trữ và phân phối video bài giảng)
+        services.Configure<CloudinarySettings>(configuration.GetSection(CloudinarySettings.SectionName));
+        services.AddHttpClient<ICloudinaryService, CloudinaryService>(client =>
+        {
+            client.Timeout = TimeSpan.FromMinutes(30); // Cho phép tải lên video dung lượng lớn
+        });
 
         return services;
     }

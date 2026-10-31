@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using QuizCard.Entities;
+using QuizCard.Entities.IdentifyEntities;
 
 namespace QuizCard.UI.Data;
 /// <summary>
@@ -63,6 +65,20 @@ public static class DbInitializer
 
         await AddIndexIfNotExistsAsync(context, "AspNetUsers", "IX_AspNetUsers_Provider_Key", "`Provider`, `ProviderKey`");
         await AddIndexIfNotExistsAsync(context, "AspNetUsers", "IX_AspNetUsers_Provider_Email", "`Provider`, `Email`");
+
+        // 1.2.1 Đảm bảo Role "Admin" và "User" tồn tại trong bảng AspNetRoles
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(@"
+                INSERT IGNORE INTO `AspNetRoles` (`Id`, `Name`, `NormalizedName`, `ConcurrencyStamp`)
+                VALUES 
+                ('11111111-1111-1111-1111-111111111111', 'Admin', 'ADMIN', '11111111-1111-1111-1111-111111111111'),
+                ('22222222-2222-2222-2222-222222222222', 'User', 'USER', '22222222-2222-2222-2222-222222222222');
+            ");
+        }
+        catch { }
+
+       
 
         // 1.3 Đảm bảo bảng Decks có cột UserId, Folder, Tag để liên kết người dùng và phân loại
         await AddColumnIfNotExistsAsync(context, "Decks", "UserId", "CHAR(36) NULL");
@@ -161,7 +177,168 @@ public static class DbInitializer
         }
         catch { }
 
-        // 1.5 Tự động phân loại và gán Folder, Tag thông minh cho các bộ thẻ hiện có
+        // 1.6 Đảm bảo bảng Recents (Lịch sử các bộ thẻ đã xem/học gần đây) tồn tại trong MySQL
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(@"
+                CREATE TABLE IF NOT EXISTS `Recents` (
+                    `Id` CHAR(36) NOT NULL,
+                    `UserId` CHAR(36) NULL,
+                    `DeckId` CHAR(36) NOT NULL,
+                    `ActionType` VARCHAR(50) NOT NULL DEFAULT 'VIEW',
+                    `LastAccessedAt` DATETIME NOT NULL,
+                    PRIMARY KEY (`Id`),
+                    UNIQUE INDEX `IX_Recents_UserId_DeckId` (`UserId`, `DeckId`),
+                    INDEX `IX_Recents_UserId` (`UserId`),
+                    INDEX `IX_Recents_LastAccessedAt` (`LastAccessedAt`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            ");
+            await context.Database.ExecuteSqlRawAsync(@"
+                ALTER TABLE `Recents` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+            ");
+        }
+        catch { }
+
+        // 1.7 Đảm bảo bảng CloudinaryVideos (Lưu trữ đường dẫn và metadata video Cloudinary) tồn tại trong MySQL
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(@"
+                CREATE TABLE IF NOT EXISTS `CloudinaryVideos` (
+                    `Id` CHAR(36) NOT NULL,
+                    `PublicId` VARCHAR(255) NOT NULL,
+                    `Title` VARCHAR(255) NOT NULL,
+                    `Description` VARCHAR(2000) NULL,
+                    `SecureUrl` VARCHAR(1000) NOT NULL,
+                    `Url` VARCHAR(1000) NULL,
+                    `Format` VARCHAR(20) NULL,
+                    `Duration` DOUBLE NOT NULL DEFAULT 0,
+                    `Bytes` BIGINT NOT NULL DEFAULT 0,
+                    `Width` INT NULL,
+                    `Height` INT NULL,
+                    `Folder` VARCHAR(100) NULL DEFAULT 'quizcard_videos',
+                    `ThumbnailUrl` VARCHAR(1000) NULL,
+                    `VttEnText` LONGTEXT NULL,
+                    `VttEnUrl` VARCHAR(1000) NULL,
+                    `VttEnPublicId` VARCHAR(255) NULL,
+                    `VttViText` LONGTEXT NULL,
+                    `VttViUrl` VARCHAR(1000) NULL,
+                    `VttViPublicId` VARCHAR(255) NULL,
+                    `IsActive` TINYINT(1) NOT NULL DEFAULT 1,
+                    `CreatedAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `CreatedBy` VARCHAR(100) NULL,
+                    PRIMARY KEY (`Id`),
+                    UNIQUE INDEX `IX_CloudinaryVideos_PublicId` (`PublicId`),
+                    INDEX `IX_CloudinaryVideos_CreatedAt` (`CreatedAt`),
+                    INDEX `IX_CloudinaryVideos_IsActive` (`IsActive`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            ");
+        }
+        catch { }
+
+        // Đảm bảo các cột phụ đề VTT (text & link) luôn được bổ sung vào bảng CloudinaryVideos
+        await AddColumnIfNotExistsAsync(context, "CloudinaryVideos", "VttEnText", "LONGTEXT NULL");
+        await AddColumnIfNotExistsAsync(context, "CloudinaryVideos", "VttEnUrl", "VARCHAR(1000) NULL");
+        await AddColumnIfNotExistsAsync(context, "CloudinaryVideos", "VttEnPublicId", "VARCHAR(255) NULL");
+        await AddColumnIfNotExistsAsync(context, "CloudinaryVideos", "VttViText", "LONGTEXT NULL");
+        await AddColumnIfNotExistsAsync(context, "CloudinaryVideos", "VttViUrl", "VARCHAR(1000) NULL");
+        await AddColumnIfNotExistsAsync(context, "CloudinaryVideos", "VttViPublicId", "VARCHAR(255) NULL");
+
+        // 1.8 Đảm bảo bảng RequestLogs (Theo dõi request từ người dùng) tồn tại trong MySQL
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(@"
+                CREATE TABLE IF NOT EXISTS `RequestLogs` (
+                    `Id` CHAR(36) NOT NULL,
+                    `UserId` CHAR(36) NULL,
+                    `UserEmail` VARCHAR(255) NULL,
+                    `IpAddress` VARCHAR(100) NULL,
+                    `Method` VARCHAR(10) NOT NULL,
+                    `Path` VARCHAR(500) NOT NULL,
+                    `QueryString` VARCHAR(1000) NULL,
+                    `StatusCode` INT NOT NULL,
+                    `DurationMs` DOUBLE NOT NULL,
+                    `UserAgent` VARCHAR(1000) NULL,
+                    `ErrorMessage` TEXT NULL,
+                    `RequestBody` TEXT NULL,
+                    `CreatedAt` DATETIME NOT NULL,
+                    PRIMARY KEY (`Id`),
+                    INDEX `IX_RequestLogs_UserId` (`UserId`),
+                    INDEX `IX_RequestLogs_CreatedAt` (`CreatedAt`),
+                    INDEX `IX_RequestLogs_StatusCode` (`StatusCode`),
+                    INDEX `IX_RequestLogs_Path` (`Path`),
+                    INDEX `IX_RequestLogs_Method` (`Method`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            ");
+        }
+        catch { }
+
+        // 1.7.1 Khởi tạo dữ liệu video mẫu nếu bảng CloudinaryVideos chưa có dữ liệu
+        try
+        {
+            if (!await context.CloudinaryVideos.AnyAsync())
+            {
+                var sampleVideos = new List<CloudinaryVideo>
+                {
+                    new()
+                    {
+                        Id = Guid.NewGuid(),
+                        PublicId = "quizcard_videos/sample_ai_podcast",
+                        Title = "Podcast: AI & Thiết Kế Sản Phẩm Tương Lai",
+                        Description = "Học từ vựng và hội thoại tự nhiên về chủ đề Trí tuệ nhân tạo (AI) và Tư duy thiết kế sản phẩm công nghệ.",
+                        SecureUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+                        Format = "mp4",
+                        Duration = 15.0,
+                        Bytes = 3500000,
+                        Width = 1280,
+                        Height = 720,
+                        Folder = "quizcard_videos",
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow.AddDays(-2),
+                        CreatedBy = "Admin"
+                    },
+                    new()
+                    {
+                        Id = Guid.NewGuid(),
+                        PublicId = "quizcard_videos/sample_tech_interview",
+                        Title = "Phỏng Vấn Kỹ Thuật: Senior React & TypeScript",
+                        Description = "Tình huống phỏng vấn thực tế vị trí Senior Frontend với các câu hỏi về tối ưu render, DOM và hiệu năng 60fps.",
+                        SecureUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                        Format = "mp4",
+                        Duration = 60.0,
+                        Bytes = 8500000,
+                        Width = 1280,
+                        Height = 720,
+                        Folder = "quizcard_videos",
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow.AddDays(-1),
+                        CreatedBy = "Admin"
+                    },
+                    new()
+                    {
+                        Id = Guid.NewGuid(),
+                        PublicId = "quizcard_videos/sample_coffee_talk",
+                        Title = "Trò Chuyện Cuối Tuần Tại Quán Cà Phê",
+                        Description = "Luyện nghe nói tiếng Anh giao tiếp đời thường, phản xạ đặt câu và ngữ điệu tự nhiên qua cuộc hẹn cà phê.",
+                        SecureUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+                        Format = "mp4",
+                        Duration = 45.0,
+                        Bytes = 6200000,
+                        Width = 1280,
+                        Height = 720,
+                        Folder = "quizcard_videos",
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = "Admin"
+                    }
+                };
+
+                await context.CloudinaryVideos.AddRangeAsync(sampleVideos);
+                await context.SaveChangesAsync();
+            }
+        }
+        catch { }
+
+        // 1.7 Tự động phân loại và gán Folder, Tag thông minh cho các bộ thẻ hiện có
         var allExistingDecks = await context.Decks.ToListAsync();
         bool hasChanges = false;
         foreach (var d in allExistingDecks)
@@ -646,4 +823,6 @@ public static class DbInitializer
         }
         catch { }
     }
+
+   
 }

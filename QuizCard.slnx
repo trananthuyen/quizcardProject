@@ -2,6 +2,7 @@
   <Folder Name="/src/">
     <Project Path="QuizCard.RepositoryContracts/QuizCard.RepositoryContracts.csproj" Id="f8ac94fb-1a7c-4ec2-804b-3fde166858b4" />
     <Project Path="QuizCard.ServiceContracts/QuizCard.ServiceContracts.csproj" Id="b89629c4-0600-467d-a996-b61848fad31b" />
+    <Project Path="QuizCard.Infrastructure/QuizCard.Infrastructure.csproj" Id="e4a719c2-5509-4805-a6ef-02a82275e0bf" />
     <Project Path="src/QuizCard.Entities/QuizCard.Entities.csproj" Id="3a3b297c-cc57-41bc-a2a9-2cd85d21ea4d" />
     <Project Path="src/QuizCard.Repositories/QuizCard.Repositories.csproj" Id="3f019c2a-4508-4905-a6ef-02a82275e0be" />
     <Project Path="src/QuizCard.Services/QuizCard.Services.csproj" />

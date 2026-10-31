@@ -61,4 +61,11 @@ public class UsersRepository : IUsersRepository
         await _db.SaveChangesAsync();
         return user;
     }
+
+    public async Task<List<ApplicationUser>> GetUsersByIdsAsync(IEnumerable<Guid> ids)
+    {
+        var idList = ids.Where(id => id != Guid.Empty).Distinct().ToList();
+        if (idList.Count == 0) return new List<ApplicationUser>();
+        return await _db.Users.Where(u => idList.Contains(u.Id)).ToListAsync();
+    }
 }

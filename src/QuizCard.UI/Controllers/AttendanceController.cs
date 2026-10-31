@@ -20,7 +20,7 @@ public class AttendanceController : ControllerBase
     /// Lấy trạng thái điểm danh hiện tại, chuỗi ngày liên tục (streak) và danh sách các ngày đã điểm danh.
     /// Cho phép truy cập khi chưa đăng nhập để xem thông tin mặc định.
     /// </summary>
-    [Authorize("AllowAccessWithoutAuthorized")]
+    [AllowAnonymous]
     [HttpGet("status")]
     public async Task<ActionResult<AttendanceStatusDto>> GetStatus([FromQuery] Guid? userId)
     {

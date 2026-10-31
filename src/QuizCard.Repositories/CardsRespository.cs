@@ -16,7 +16,7 @@ public class CardsRespository : ICardsRespository
     public async Task<Card> CreateCard(Card card)
     {
         _db.Cards.Add(card);
-        if (card.StudyProgress != null)
+        if (card.StudyProgress != null && _db.Entry(card.StudyProgress).State == EntityState.Detached)
         {
             _db.StudyProgresses.Add(card.StudyProgress);
         }
@@ -29,7 +29,7 @@ public class CardsRespository : ICardsRespository
         foreach (var card in cards)
         {
             _db.Cards.Add(card);
-            if (card.StudyProgress != null)
+            if (card.StudyProgress != null && _db.Entry(card.StudyProgress).State == EntityState.Detached)
             {
                 _db.StudyProgresses.Add(card.StudyProgress);
             }

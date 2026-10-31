@@ -14,4 +14,5 @@ public interface IUsersRepository
     Task<ApplicationUser?> GetByProviderAndEmailAsync(string provider, string email);
     Task<ApplicationUser> CreateUserAsync(ApplicationUser user);
     Task<ApplicationUser> UpdateUserAsync(ApplicationUser user);
+    Task<List<ApplicationUser>> GetUsersByIdsAsync(IEnumerable<Guid> ids);
 }

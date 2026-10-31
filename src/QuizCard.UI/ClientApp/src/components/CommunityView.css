@@ -196,6 +196,52 @@
   color: #334155;
   text-transform: uppercase;
   letter-spacing: 0.4px;
+  flex-wrap: wrap;
+}
+
+.cv-filter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  text-transform: none;
+  letter-spacing: normal;
+  margin-left: 6px;
+}
+
+.cv-filter-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cv-shuffle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.cv-shuffle-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0284c7;
+  transform: translateY(-1px);
 }
 
 .cv-sort-group {
@@ -317,6 +363,54 @@
   border-radius: 9999px;
   letter-spacing: 0.3px;
   text-transform: uppercase;
+}
+
+.cv-card-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cv-save-button {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #475569;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3.5px 10px;
+  border-radius: 9999px;
+  transition: all 0.18s ease;
+  user-select: none;
+}
+
+.cv-save-button:hover {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  color: #0284c7;
+  transform: translateY(-1px);
+}
+
+.cv-save-button.saved {
+  background: #e0f2fe;
+  border-color: #7dd3fc;
+  color: #0284c7;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.12);
+}
+
+.cv-save-button.saved:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+.cv-preview-save-btn {
+  padding: 8px 16px;
+  font-size: 13px;
+  border-radius: 8px;
 }
 
 .cv-like-button {
@@ -827,6 +921,24 @@
   color: #f4f4f5 !important;
 }
 
+[data-theme="dark"] .cv-filter-badge {
+  background: rgba(22, 163, 74, 0.15) !important;
+  color: #4ade80 !important;
+  border-color: rgba(74, 222, 128, 0.3) !important;
+}
+
+[data-theme="dark"] .cv-shuffle-btn {
+  background: #202023 !important;
+  border-color: #27272a !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .cv-shuffle-btn:hover {
+  background: #27272a !important;
+  border-color: #3f3f46 !important;
+  color: #38bdf8 !important;
+}
+
 [data-theme="dark"] .cv-tag-header-icon {
   color: #38bdf8 !important;
 }
@@ -1072,5 +1184,29 @@
 [data-theme="dark"] .cv-loading-state {
   color: #a1a1aa !important;
 }
+
+[data-theme="dark"] .cv-save-button {
+  background: #27272a !important;
+  border-color: #3f3f46 !important;
+  color: #d4d4d8 !important;
+}
+
+[data-theme="dark"] .cv-save-button:hover {
+  background: #3f3f46 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .cv-save-button.saved {
+  background: rgba(2, 132, 199, 0.2) !important;
+  border-color: #0284c7 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .cv-save-button.saved:hover {
+  background: rgba(239, 68, 68, 0.2) !important;
+  border-color: #ef4444 !important;
+  color: #f87171 !important;
+}
+
 
 

@@ -1,8 +1,8 @@
 namespace QuizCard.ServiceContracts.DTOs.DeckDTOs;
 
 /// <summary>
-/// Data Transfer Object (DTO) chứa thông tin đầy đủ của một bộ thẻ kèm thư mục, thẻ tag và số liệu thống kê tiến độ học.
-/// Dùng để gửi dữ liệu từ backend trả về cho giao diện người dùng (Frontend).
+/// Data Transfer Object (DTO) chứa thông tin đầy đủ của một bộ thẻ kèm thư mục, thẻ tag, số liệu thống kê tiến độ học,
+/// và thông tin người sở hữu thực tế (AuthorName, AuthorAvatar) lấy từ cơ sở dữ liệu.
 /// </summary>
 public record DeckDto(
     Guid Id,
@@ -16,5 +16,7 @@ public record DeckDto(
     int NotStartedCards,
     Guid? UserId = null,
     string? Tag = null,
-    bool IsPublic = true
+    bool IsPublic = true,
+    string? AuthorName = null,
+    string? AuthorAvatar = null
 );

@@ -1,4 +1,5 @@
 using QuizCard.Entities;
+using QuizCard.Entities.IdentifyEntities;
 using QuizCard.RepositoryContracts;
 using QuizCard.ServiceContracts;
 using QuizCard.ServiceContracts.DTOs.DeckDTOs;
@@ -7,18 +8,25 @@ namespace QuizCard.Services.Services;
 
 /// <summary>
 /// Lớp cài đặt dịch vụ quản lý Bộ thẻ (DeckService) theo chuẩn Clean Architecture.
+/// Bổ sung lấy thông tin người sở hữu thực tế (AuthorName, AuthorAvatar) từ IUsersRepository.
 /// </summary>
 public class DeckService : IDeckService
 {
     private readonly IDecksRespository _decksRespository;
     private readonly ICardsRespository _cardsRespository;
     private readonly ITrashRepository _trashRepository;
+    private readonly IUsersRepository _usersRepository;
 
-    public DeckService(IDecksRespository decksRespository, ITrashRepository trashRepository, ICardsRespository cardsRespository)
+    public DeckService(
+        IDecksRespository decksRespository,
+        ITrashRepository trashRepository,
+        ICardsRespository cardsRespository,
+        IUsersRepository usersRepository)
     {
         _decksRespository = decksRespository;
         _trashRepository = trashRepository;
         _cardsRespository = cardsRespository;
+        _usersRepository = usersRepository;
     }
 
     /// <summary>
@@ -38,7 +46,7 @@ public class DeckService : IDeckService
             if (cards.Count > 0) temp.Add(ob);
         }
 
-        return temp.Select(d => MapToDeckDto(d));
+        return await MapDecksToDtosAsync(temp);
     }
 
     /// <summary>
@@ -47,7 +55,7 @@ public class DeckService : IDeckService
     public async Task<IEnumerable<DeckDto>> GetUserDecksAsync(Guid userId, string? folder = null, string? tag = null)
     {
         var decks = await _decksRespository.GetUserDecks(userId, folder, tag);
-        return decks.Select(d => MapToDeckDto(d, userId));
+        return await MapDecksToDtosAsync(decks, userId);
     }
 
     /// <summary>
@@ -57,17 +65,17 @@ public class DeckService : IDeckService
     public async Task<IEnumerable<DeckDto>> GetAllDecksAsync(string? folder = null, Guid? userId = null, string? tag = null)
     {
         var decks = await _decksRespository.GetAllDecks(folder, userId, tag);
-        return decks.Select(d => MapToDeckDto(d, userId));
+        return await MapDecksToDtosAsync(decks, userId);
     }
 
     /// <summary>
-    /// Lấy chi tiết một bộ thẻ theo Id.
+    /// Lấy chi tiết một bộ thẻ theo Id kèm thông tin tác giả thật.
     /// </summary>
     public async Task<DeckDto?> GetDeckByIdAsync(Guid id)
     {
         var deck = await _decksRespository.GetDeckById(id);
         if (deck is null) return null;
-        return MapToDeckDto(deck, deck.UserId);
+        return await MapToDeckDtoWithUserAsync(deck, deck.UserId);
     }
 
     /// <summary>
@@ -88,7 +96,7 @@ public class DeckService : IDeckService
         };
 
         await _decksRespository.CreateDeck(deck);
-        return MapToDeckDto(deck, deck.UserId);
+        return await MapToDeckDtoWithUserAsync(deck, deck.UserId);
     }
 
     /// <summary>
@@ -117,7 +125,7 @@ public class DeckService : IDeckService
         deck.UpdatedAt = DateTime.UtcNow;
 
         await _decksRespository.UpdateDeck(deck);
-        return MapToDeckDto(deck, currentUserId);
+        return await MapToDeckDtoWithUserAsync(deck, currentUserId);
     }
 
     /// <summary>
@@ -133,9 +141,86 @@ public class DeckService : IDeckService
     }
 
     /// <summary>
-    /// Hàm tiện ích: Ánh xạ thực thể Deck sang DeckDto (kèm UserId, Folder và Tag theo tiến độ người dùng).
+    /// Ánh xạ danh sách bộ thẻ sang DeckDto kèm truy vấn gom nhóm lấy thông tin người dùng thực tế từ Database.
     /// </summary>
-    private static DeckDto MapToDeckDto(Deck deck, Guid? currentUserId = null)
+    private async Task<List<DeckDto>> MapDecksToDtosAsync(IEnumerable<Deck> decks, Guid? currentUserId = null)
+    {
+        var deckList = decks.ToList();
+        var userIds = deckList
+            .Where(d => d.UserId.HasValue && d.UserId.Value != Guid.Empty)
+            .Select(d => d.UserId!.Value)
+            .Distinct()
+            .ToList();
+
+        var users = userIds.Count > 0
+            ? await _usersRepository.GetUsersByIdsAsync(userIds)
+            : new List<ApplicationUser>();
+
+        var userDict = users.ToDictionary(u => u.Id);
+
+        return deckList.Select(d =>
+        {
+            string authorName;
+            string? authorAvatar = null;
+
+            if (d.UserId.HasValue && d.UserId.Value != Guid.Empty)
+            {
+                if (userDict.TryGetValue(d.UserId.Value, out var user))
+                {
+                    authorName = !string.IsNullOrWhiteSpace(user.FullName)
+                        ? user.FullName
+                        : (!string.IsNullOrWhiteSpace(user.UserName) ? user.UserName : (user.Email?.Split('@')[0] ?? "Người dùng"));
+                    authorAvatar = user.AvatarUrl;
+                }
+                else
+                {
+                    authorName = "Thành viên QuizCard";
+                }
+            }
+            else
+            {
+                authorName = "QuizCard Team";
+            }
+
+            return MapToDeckDto(d, currentUserId, authorName, authorAvatar);
+        }).ToList();
+    }
+
+    /// <summary>
+    /// Ánh xạ một bộ thẻ đơn lẻ sang DeckDto kèm tra cứu tác giả thật từ IUsersRepository.
+    /// </summary>
+    private async Task<DeckDto> MapToDeckDtoWithUserAsync(Deck deck, Guid? currentUserId = null)
+    {
+        string authorName;
+        string? authorAvatar = null;
+
+        if (deck.UserId.HasValue && deck.UserId.Value != Guid.Empty)
+        {
+            var user = await _usersRepository.GetByIdAsync(deck.UserId.Value);
+            if (user != null)
+            {
+                authorName = !string.IsNullOrWhiteSpace(user.FullName)
+                    ? user.FullName
+                    : (!string.IsNullOrWhiteSpace(user.UserName) ? user.UserName : (user.Email?.Split('@')[0] ?? "Người dùng"));
+                authorAvatar = user.AvatarUrl;
+            }
+            else
+            {
+                authorName = "Thành viên QuizCard";
+            }
+        }
+        else
+        {
+            authorName = "QuizCard Team";
+        }
+
+        return MapToDeckDto(deck, currentUserId, authorName, authorAvatar);
+    }
+
+    /// <summary>
+    /// Hàm tiện ích: Ánh xạ thực thể Deck sang DeckDto (kèm UserId, Folder, Tag, AuthorName và AuthorAvatar).
+    /// </summary>
+    private static DeckDto MapToDeckDto(Deck deck, Guid? currentUserId = null, string? authorName = null, string? authorAvatar = null)
     {
         var totalCards = deck.Cards?.Count ?? 0;
         var masteredCards = deck.Cards?.Count(c => GetCardStatus(c, currentUserId) == StudyStatus.Mastered) ?? 0;
@@ -154,7 +239,9 @@ public class DeckService : IDeckService
             notStartedCards,
             deck.UserId,
             deck.Tag,
-            deck.IsPublic
+            deck.IsPublic,
+            authorName ?? (deck.UserId == null ? "QuizCard Team" : "Người dùng"),
+            authorAvatar
         );
     }
 

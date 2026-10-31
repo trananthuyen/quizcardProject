@@ -43,8 +43,8 @@ public class DecksController : ControllerBase
     /// GET /api/decks/my-resources?userId=...&folder=...&tag=...
     /// Nếu chưa đăng nhập hoặc không có userId, trả về mảng rỗng.
     /// </summary>
-    [AllowAnonymous]
     [HttpGet("my-resources")]
+    [Authorize("AuthorizedForUser")]
     public async Task<ActionResult<IEnumerable<DeckDto>>> GetMyResources([FromQuery] Guid? userId = null, [FromQuery] string? folder = null, [FromQuery] string? tag = null)
     {
         Guid targetUserId = userId ?? Guid.Empty;
@@ -95,6 +95,7 @@ public class DecksController : ControllerBase
     /// Trả về: HTTP 201 Created + header Location trỏ tới URL bộ thẻ vừa tạo.
     /// </summary>
     [HttpPost]
+    [Authorize("AuthorizedForUser")]
     public async Task<ActionResult<DeckDto>> Create([FromBody] CreateDeckRequest request)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -120,6 +121,7 @@ public class DecksController : ControllerBase
     /// Trả về: HTTP 200 OK kèm dữ liệu đã sửa, hoặc HTTP 404/403.
     /// </summary>
     [HttpPut("{id:guid}")]
+    [Authorize("AuthorizedForUser")]
     public async Task<ActionResult<DeckDto>> Update(Guid id, [FromBody] UpdateDeckRequest request, [FromQuery] Guid? userId = null)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -159,6 +161,7 @@ public class DecksController : ControllerBase
     /// Trả về: HTTP 204 No Content nếu xóa thành công, hoặc HTTP 404/403.
     /// </summary>
     [HttpDelete("{id:guid}")]
+    [Authorize("AuthorizedForUser")]
     public async Task<IActionResult> Delete(Guid id, [FromQuery] Guid? userId = null)
     {
         var deck = await _deckService.GetDeckByIdAsync(id);

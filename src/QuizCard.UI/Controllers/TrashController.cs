@@ -1,7 +1,8 @@
-using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuizCard.ServiceContracts;
 using QuizCard.ServiceContracts.DTOs.TrashDTOs;
+using System.Security.Claims;
 
 namespace QuizCard.UI.Controllers;
 
@@ -17,6 +18,7 @@ namespace QuizCard.UI.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/trash")]
+[Authorize("AuthorizedForUser")]
 public class TrashController : ControllerBase
 {
     private readonly ITrashService _trashService;

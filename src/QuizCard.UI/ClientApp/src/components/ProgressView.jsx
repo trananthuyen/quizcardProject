@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Flame, Zap, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Check, Trophy, Lock, Sparkles, Award } from 'lucide-react';
-import './DraftsView.css';
+import './ProgressView.css';
 
 // Danh sách các mốc thành tựu chuỗi ngày và phần thưởng tia sét (⚡) tương ứng
 const STREAK_ACHIEVEMENTS = [
@@ -96,7 +96,7 @@ const STREAK_ACHIEVEMENTS = [
     },
 ];
 
-export const DraftsView = ({
+export const ProgressView = ({
     currentUser,
     onOpenLoginModal,
     attendanceStatus,

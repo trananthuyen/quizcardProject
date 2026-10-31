@@ -30,8 +30,9 @@ public class FoldersController : ControllerBase
     /// Endpoint: Lấy danh sách thư mục bộ thẻ dựa theo userId (hoặc thư mục mặc định hệ thống).
     /// Trả về: HTTP 200 OK + mảng JSON các FolderDto.
     /// </summary>
-    [AllowAnonymous]
+    
     [HttpGet]
+    [Authorize("AuthorizedForUser")]
     public async Task<ActionResult<IEnumerable<FolderDto>>> GetAll([FromQuery] Guid? userId = null)
     {
         Guid? targetUserId = userId;
@@ -61,8 +62,9 @@ public class FoldersController : ControllerBase
     /// Endpoint: Lấy chi tiết một thư mục theo Id.
     /// Trả về: HTTP 200 OK nếu tìm thấy, hoặc HTTP 404 NotFound.
     /// </summary>
-    [AllowAnonymous]
+    
     [HttpGet("{id:guid}")]
+    [Authorize("AuthorizedForUser")]
     public async Task<ActionResult<FolderDto>> GetById(Guid id)
     {
         var folder = await _folderService.GetFolderByIdAsync(id);

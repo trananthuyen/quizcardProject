@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuizCard.ServiceContracts;
 using QuizCard.ServiceContracts.DTOs.CardDTOs;
@@ -11,6 +12,7 @@ namespace QuizCard.UI.Controllers;
 /// - GET    /api/cards/{id}                 : Lấy chi tiết một thẻ
 /// - POST   /api/decks/{deckId}/cards       : Thêm một thẻ đơn lẻ
 /// - POST   /api/decks/{deckId}/cards/batch : Thêm hàng loạt thẻ từ chuỗi văn bản
+/// - POST   /api/decks/{deckId}/cards/bulk  : Thêm hàng loạt thẻ từ chuỗi văn bản (alias)
 /// - PUT    /api/cards/{id}                 : Cập nhật thẻ
 /// - DELETE /api/cards/{id}                 : Xóa thẻ
 /// </summary>
@@ -29,6 +31,7 @@ public class CardsController : ControllerBase
     /// Endpoint: Lấy danh sách toàn bộ thẻ thuộc về một bộ thẻ (theo deckId).
     /// </summary>
     [HttpGet("decks/{deckId:guid}/cards")]
+    [AllowAnonymous]
     public async Task<ActionResult<IEnumerable<CardDto>>> GetCardsByDeck(Guid deckId)
     {
         var cards = await _cardService.GetCardsByDeckIdAsync(deckId);
@@ -39,6 +42,7 @@ public class CardsController : ControllerBase
     /// Endpoint: Lấy thông tin một thẻ theo Id.
     /// </summary>
     [HttpGet("cards/{id:guid}")]
+    [AllowAnonymous]
     public async Task<ActionResult<CardDto>> GetById(Guid id)
     {
         var card = await _cardService.GetCardByIdAsync(id);
@@ -50,6 +54,7 @@ public class CardsController : ControllerBase
     /// Endpoint: Thêm một thẻ đơn lẻ vào bộ thẻ.
     /// Tự động khởi tạo bản ghi tiến độ học NotStarted.
     /// </summary>
+    [Authorize("AuthorizedForUser")]
     [HttpPost("decks/{deckId:guid}/cards")]
     public async Task<ActionResult<CardDto>> Create(Guid deckId, [FromBody] CreateCardRequest request)
     {
@@ -64,8 +69,11 @@ public class CardsController : ControllerBase
     /// <summary>
     /// Endpoint: Thêm hàng loạt thẻ Flashcard (Bulk Import từ chuỗi văn bản).
     /// Nhận vào mảng các đối tượng CreateCardRequest và lưu trong một transaction.
+    /// Hỗ trợ cả 2 route /batch và /bulk để tương thích tuyệt đối giữa các client.
     /// </summary>
+    [Authorize("AuthorizedForUser")]
     [HttpPost("decks/{deckId:guid}/cards/batch")]
+    [HttpPost("decks/{deckId:guid}/cards/bulk")]
     public async Task<ActionResult<IEnumerable<CardDto>>> CreateBatch(Guid deckId, [FromBody] List<CreateCardRequest> requests)
     {
         if (requests == null || requests.Count == 0)
@@ -81,6 +89,7 @@ public class CardsController : ControllerBase
     /// Endpoint: Cập nhật nội dung Thuật ngữ, Định nghĩa hoặc Ví dụ của thẻ theo Id.
     /// </summary>
     [HttpPut("cards/{id:guid}")]
+    [Authorize("AuthorizedForUser")]
     public async Task<ActionResult<CardDto>> Update(Guid id, [FromBody] UpdateCardRequest request)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -95,6 +104,7 @@ public class CardsController : ControllerBase
     /// Endpoint: Xóa một thẻ Flashcard theo Id.
     /// </summary>
     [HttpDelete("cards/{id:guid}")]
+    [Authorize("AuthorizedForUser")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await _cardService.DeleteCardAsync(id);

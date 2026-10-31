@@ -1,7 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Globe,
-  Search,
   X,
   Play,
   HelpCircle,
@@ -10,20 +9,39 @@ import {
   Tag,
   BookOpen,
   Sparkles,
+  Shuffle,
   Users,
   Compass,
+  Bookmark,
+  BookmarkCheck,
 } from 'lucide-react';
 import { api } from '../api';
+import { recordRecentDeck } from '../utils/recentStorage';
+import { getSavedDeckIds, toggleSaveDeck } from '../utils/savedStorage';
 import './CommunityView.css';
 
-// Preset avatar và tên tác giả minh họa cho các bộ thẻ hệ thống/cộng đồng
-const CREATOR_PRESETS = [
-  { name: 'Nastaran Jamali', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&auto=format&fit=crop&q=80', likes: 933 },
-  { name: 'Hardik Gondhiya', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&auto=format&fit=crop&q=80', likes: 616 },
-  { name: 'Elena Rostova', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=60&auto=format&fit=crop&q=80', likes: 512 },
-  { name: 'David Kim', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&auto=format&fit=crop&q=80', likes: 340 },
-  { name: 'QuizCard Team', avatar: '', likes: 785 },
-];
+// Hàm tính số lượt thích ban đầu dựa trên mã bộ thẻ để duy trì tính nhất quán
+const getInitialDeckLikes = (deckId) => {
+  if (!deckId) return 120;
+  let hash = 0;
+  for (let i = 0; i < deckId.length; i++) {
+    hash = (hash * 31 + deckId.charCodeAt(i)) & 0xffffffff;
+  }
+  return (Math.abs(hash) % 700) + 65;
+};
+
+/**
+ * Thuật toán xáo trộn mảng ngẫu nhiên Fisher-Yates (Knuth Shuffle)
+ * Độ phức tạp O(n), đảm bảo tính ngẫu nhiên đồng đều tuyệt đối cho mọi hoán vị
+ */
+const shuffleArray = (array) => {
+  const copy = [...array];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+};
 
 export const CommunityView = ({
   decks = [],
@@ -32,15 +50,40 @@ export const CommunityView = ({
   onSelectDeckForStudy,
   onSelectDeckForQuiz,
 }) => {
-  // Trạng thái tìm kiếm từ khóa
-  const [searchQuery, setSearchQuery] = useState('');
-  // Tag chủ đề đang chọn
+  // Tag chủ đề đang chọn (Lọc danh sách, không dùng tìm kiếm)
   const [selectedTag, setSelectedTag] = useState('ALL');
-  // Thứ tự sắp xếp
-  const [sortBy, setSortBy] = useState('newest');
+
+  // Seed điều khiển xáo trộn ngẫu nhiên
+  const [shuffleSeed, setShuffleSeed] = useState(0);
+
+  const handleReshuffle = () => {
+    setShuffleSeed((prev) => prev + 1);
+  };
 
   // Trạng thái yêu thích (likes)
   const [likedDecks, setLikedDecks] = useState({});
+
+  // Trạng thái các bộ thẻ đã lưu (Bookmarks)
+  const [savedDeckIds, setSavedDeckIds] = useState(() => getSavedDeckIds(currentUser));
+
+  // Cập nhật danh sách ID đã lưu khi người dùng thay đổi hoặc có sự kiện lưu/bỏ lưu
+  useEffect(() => {
+    setSavedDeckIds(getSavedDeckIds(currentUser));
+  }, [currentUser]);
+
+  useEffect(() => {
+    const handleSavedChange = () => {
+      setSavedDeckIds(getSavedDeckIds(currentUser));
+    };
+    window.addEventListener('quizcard:saved-decks-changed', handleSavedChange);
+    return () => window.removeEventListener('quizcard:saved-decks-changed', handleSavedChange);
+  }, [currentUser]);
+
+  // Xử lý lưu / bỏ lưu bộ thẻ vào My Resources
+  const handleToggleSave = (deck, e) => {
+    if (e) e.stopPropagation();
+    toggleSaveDeck(deck, currentUser);
+  };
 
   // Trạng thái Modal xem trước nội dung bộ thẻ
   const [previewDeck, setPreviewDeck] = useState(null);
@@ -94,58 +137,49 @@ export const CommunityView = ({
       .slice(0, 20); // Nếu tổng số thẻ tag > 20 thì chỉ lấy 20 thẻ tag để hiển thị
   }, [allTags, tagCounts]);
 
-  // Lọc và sắp xếp danh sách bộ thẻ hiển thị
+  // 1. Lọc danh sách bộ thẻ theo Tag chủ đề (Lọc danh sách, không sử dụng tìm kiếm)
   const filteredDecks = useMemo(() => {
-    let list = safeDecks.filter((deck) => {
-      if (!deck) return false;
-
-      // 1. Lọc theo Tag chủ đề
-      if (selectedTag !== 'ALL') {
-        const filterLower = selectedTag.toLowerCase();
-        const deckTags = (deck.tag || '')
-          .split(',')
-          .map((t) => t.trim().toLowerCase())
-          .filter(Boolean);
-        const hasTag = deckTags.includes(filterLower) || deckTags.some((t) => t.includes(filterLower));
-        if (!hasTag) return false;
-      }
-
-      // 2. Lọc theo từ khóa tìm kiếm (Tiêu đề, Mô tả, Tag)
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase().trim();
-        const matchTitle = (deck.title || '').toLowerCase().includes(q);
-        const matchDesc = (deck.description || '').toLowerCase().includes(q);
-        const matchTag = (deck.tag || '').toLowerCase().includes(q);
-        if (!matchTitle && !matchDesc && !matchTag) return false;
-      }
-
-      return true;
-    });
-
-    // 3. Sắp xếp danh sách
-    if (sortBy === 'most_cards') {
-      list = [...list].sort((a, b) => (b?.totalCards || 0) - (a?.totalCards || 0));
-    } else if (sortBy === 'title') {
-      list = [...list].sort((a, b) => (a?.title || '').localeCompare(b?.title || ''));
-    } else {
-      // Mặc định: Mới nhất
-      list = [...list].sort((a, b) => new Date(b?.createdAt || 0) - new Date(a?.createdAt || 0));
+    if (selectedTag === 'ALL') {
+      return safeDecks;
     }
+    const filterLower = selectedTag.toLowerCase();
+    return safeDecks.filter((deck) => {
+      if (!deck) return false;
+      const deckTags = (deck.tag || '')
+        .split(',')
+        .map((t) => t.trim().toLowerCase())
+        .filter(Boolean);
+      return deckTags.includes(filterLower) || deckTags.some((t) => t.includes(filterLower));
+    });
+  }, [safeDecks, selectedTag]);
 
-    return list;
-  }, [safeDecks, selectedTag, searchQuery, sortBy]);
+  // 2. Tự động sắp xếp ngẫu nhiên danh sách bộ thẻ bằng thuật toán Fisher-Yates
+  const displayedDecks = useMemo(() => {
+    return shuffleArray(filteredDecks);
+  }, [filteredDecks, shuffleSeed]);
 
-  // Xử lý bật/tắt yêu thích (like)
-  const handleToggleLike = (deckId, initialCount, e) => {
+  // Xử lý bật/tắt yêu thích (like) và ghi nhận vào Recents khi thích
+  const handleToggleLike = (deck, initialCount, e) => {
     e.stopPropagation();
+    if (!deck) return;
+    const deckId = deck.id || deck.Id;
+    if (!deckId) return;
+
     setLikedDecks((prev) => {
       const isLiked = !!prev[deckId]?.liked;
       const count = prev[deckId]?.count !== undefined ? prev[deckId].count : initialCount;
+      const nextLiked = !isLiked;
+
+      // Khi người dùng bấm thích (tim) -> ghi nhận vào Recents với actionType 'LIKE'
+      if (nextLiked) {
+        recordRecentDeck({ deck, actionType: 'LIKE', currentUser });
+      }
+
       return {
         ...prev,
         [deckId]: {
-          liked: !isLiked,
-          count: !isLiked ? count + 1 : count - 1,
+          liked: nextLiked,
+          count: nextLiked ? count + 1 : count - 1,
         },
       };
     });
@@ -157,6 +191,8 @@ export const CommunityView = ({
     setPreviewDeck(deck);
     setPreviewLoading(true);
     setPreviewCards([]);
+    // Ghi nhận lịch sử xem trước (VIEW) vào Recents
+    recordRecentDeck({ deck, actionType: 'VIEW', currentUser });
     try {
       const cards = await api.getCards(deck.id);
       setPreviewCards(cards || []);
@@ -165,6 +201,18 @@ export const CommunityView = ({
     } finally {
       setPreviewLoading(false);
     }
+  };
+
+  // Bắt đầu học lật thẻ và ghi nhận vào Recents
+  const handleStartStudy = (deck) => {
+    recordRecentDeck({ deck, actionType: 'STUDY', currentUser });
+    if (onSelectDeckForStudy) onSelectDeckForStudy(deck);
+  };
+
+  // Bắt đầu thi trắc nghiệm và ghi nhận vào Recents
+  const handleStartQuiz = (deck) => {
+    recordRecentDeck({ deck, actionType: 'QUIZ', currentUser });
+    if (onSelectDeckForQuiz) onSelectDeckForQuiz(deck);
   };
 
   // Đóng modal xem trước
@@ -176,7 +224,7 @@ export const CommunityView = ({
   return (
     <div className="cv-container">
       {/* ------------------------------------------------------------- */}
-      {/* 1. Community Hero Header (Khu vực chào đón & Tìm kiếm)          */}
+      {/* 1. Community Hero Header (Khu vực chào đón)                     */}
       {/* ------------------------------------------------------------- */}
       <div className="cv-hero">
         <div className="cv-hero-badge">
@@ -189,48 +237,31 @@ export const CommunityView = ({
           Nơi tổng hợp các bộ thẻ công khai do cộng đồng người học và giáo viên chia sẻ.
           Chọn bất kỳ chủ đề nào để học lật thẻ ghi nhớ ngắt quãng (Spaced Repetition) và thi trắc nghiệm ngay!
         </p>
-
-
       </div>
 
       {/* ------------------------------------------------------------- */}
-      {/* 2. Dải lọc Tag theo chủ đề & Thanh sắp xếp                      */}
+      {/* 2. Dải lọc Tag theo chủ đề & Tự động sắp xếp ngẫu nhiên        */}
       {/* ------------------------------------------------------------- */}
       <div className="cv-filter-section">
         <div className="cv-filter-top-row">
           <div className="cv-filter-heading">
-            <Tag size={15} className="cv-tag-header-icon" />
-            <span>Chủ đề phổ biến</span>
-
-            {/* Thanh tìm kiếm lớn nổi bật */}
-            <div className="cv-search-bar">
-              <Search size={18} className="cv-search-icon" />
-              <input
-                type="text"
-                className="cv-search-input"
-                placeholder="Tìm kiếm bộ thẻ theo tên, từ khóa hoặc tag chủ đề (#english, #toeic, #programming...)"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  className="cv-search-clear"
-                  onClick={() => setSearchQuery('')}
-                  title="Xóa tìm kiếm"
-                >
-                  <X size={16} />
-                </button>
-              )}
-            </div>
+            <Tag size={16} className="cv-tag-header-icon" />
+            <span>Lọc bộ thẻ theo chủ đề</span>
           </div>
 
         </div>
 
-        {/* Dải các thẻ Tag tự động xuống dòng, sắp xếp từ cao đến thấp (tối đa 20 tag) */}
+        {/* Dải các thẻ Tag tự động xuống dòng (Tối đa 20 tag + Thẻ Tất cả) */}
         <div className="cv-tags-wrap">
+          <button
+            type="button"
+            className={`cv-tag-chip ${selectedTag === 'ALL' ? 'active' : ''}`}
+            onClick={() => setSelectedTag('ALL')}
+            title="Xem tất cả bộ thẻ"
+          >
+            <span>Tất cả</span>
+          </button>
           {topTags.map((tagName) => {
-            const count = tagCounts[tagName] || 0;
             const isSelected = selectedTag === tagName;
             return (
               <button
@@ -241,7 +272,6 @@ export const CommunityView = ({
                 title={isSelected ? `Bỏ lọc #${tagName}` : `Lọc theo chủ đề #${tagName}`}
               >
                 <span>#{tagName}</span>
-                <span className="cv-tag-chip-count">{count}</span>
               </button>
             );
           })}
@@ -256,25 +286,20 @@ export const CommunityView = ({
           <div className="dl-loading-spinner" style={{ margin: '0 auto 12px auto' }} />
           <span>Đang tải các bộ thẻ từ cộng đồng...</span>
         </div>
-      ) : filteredDecks.length === 0 ? (
+      ) : displayedDecks.length === 0 ? (
         <div className="cv-empty-state">
           <div className="cv-empty-icon">
-            <Search size={28} />
+            <Compass size={28} />
           </div>
           <div className="cv-empty-title">Không tìm thấy bộ thẻ cộng đồng phù hợp</div>
           <p className="cv-empty-desc">
-            {searchQuery
-              ? `Không có bộ thẻ nào khớp với từ khóa "${searchQuery}". Hãy thử tìm kiếm với từ khóa khác.`
-              : 'Chưa có bộ thẻ nào thuộc chủ đề này.'}
+            Chưa có bộ thẻ nào thuộc chủ đề này. Hãy chọn chủ đề khác để khám phá.
           </p>
-          {(searchQuery || selectedTag !== 'ALL') && (
+          {selectedTag !== 'ALL' && (
             <button
               type="button"
               className="cv-btn-reset"
-              onClick={() => {
-                setSearchQuery('');
-                setSelectedTag('ALL');
-              }}
+              onClick={() => setSelectedTag('ALL')}
             >
               Xem tất cả bộ thẻ
             </button>
@@ -282,20 +307,13 @@ export const CommunityView = ({
         </div>
       ) : (
         <div className="cv-decks-grid">
-          {filteredDecks.map((deck, idx) => {
-            const preset = CREATOR_PRESETS[idx % CREATOR_PRESETS.length];
-            const deckUserId = deck.userId || deck.UserId;
-            const currentUserId = currentUser?.id || currentUser?.Id;
-            const isOwner = Boolean(
-              currentUserId &&
-              deckUserId &&
-              String(currentUserId).toLowerCase() === String(deckUserId).toLowerCase()
-            );
+          {displayedDecks.map((deck) => {
+            const initialLikes = getInitialDeckLikes(deck.id);
 
             // Xử lý like
             const likeState = likedDecks[deck.id];
             const isLiked = likeState ? likeState.liked : false;
-            const likesCount = likeState ? likeState.count : preset.likes;
+            const likesCount = likeState ? likeState.count : initialLikes;
 
             // Xử lý tags
             const tags = deck.tag
@@ -305,28 +323,61 @@ export const CommunityView = ({
                 .filter(Boolean)
               : [];
 
+            const deckUserId = deck.userId || deck.UserId;
+            const currentUserId = currentUser?.id || currentUser?.Id;
+            const isOwner = Boolean(
+              currentUserId &&
+              deckUserId &&
+              String(currentUserId).toLowerCase() === String(deckUserId).toLowerCase()
+            );
+
+            // Lấy tên thật của người tạo từ Database (hoặc tài khoản hiện tại nếu là chủ sở hữu)
+            const rawAuthorName = deck.authorName || deck.AuthorName || (deckUserId ? 'Thành viên QuizCard' : 'QuizCard Team');
+            const authorDisplayName = isOwner
+              ? `${currentUser?.fullName || currentUser?.userName || rawAuthorName} (Tác giả)`
+              : rawAuthorName;
+
+            // Avatar thật của người tạo từ Database
+            const authorAvatar = isOwner
+              ? (currentUser?.avatarUrl || currentUser?.AvatarUrl || deck.authorAvatar || deck.AuthorAvatar || '')
+              : (deck.authorAvatar || deck.AuthorAvatar || '');
+            const authorInitial = authorDisplayName.replace(/[^a-zA-Z0-9À-ỹ]/g, '').charAt(0).toUpperCase() || 'Q';
+            const isSaved = savedDeckIds.has(String(deck.id));
+
             return (
               <div key={deck.id} className="cv-card">
-                {/* Phần trên cùng: Huy hiệu công khai & Nút Like */}
+                {/* Phần trên cùng: Huy hiệu công khai & Nút Lưu & Nút Like */}
                 <div className="cv-card-topbar">
                   <div className="cv-public-pill">
                     <Globe size={11} />
                     <span>Công khai</span>
                   </div>
 
-                  <button
-                    type="button"
-                    className={`cv-like-button ${isLiked ? 'liked' : ''}`}
-                    onClick={(e) => handleToggleLike(deck.id, preset.likes, e)}
-                    title={isLiked ? 'Bỏ thích' : 'Yêu thích bộ thẻ này'}
-                  >
-                    <Heart
-                      size={14}
-                      fill={isLiked ? '#ef4444' : 'none'}
-                      color={isLiked ? '#ef4444' : 'currentColor'}
-                    />
-                    <span>{likesCount}</span>
-                  </button>
+                  <div className="cv-card-topbar-actions">
+                    <button
+                      type="button"
+                      className={`cv-save-button ${isSaved ? 'saved' : ''}`}
+                      onClick={(e) => handleToggleSave(deck, e)}
+                      title={isSaved ? 'Bỏ lưu bộ thẻ này' : 'Lưu bộ thẻ vào My Resources (không thể sửa)'}
+                    >
+                      {isSaved ? <BookmarkCheck size={13} /> : <Bookmark size={13} />}
+                      <span>{isSaved ? 'Đã lưu' : 'Lưu'}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`cv-like-button ${isLiked ? 'liked' : ''}`}
+                      onClick={(e) => handleToggleLike(deck, initialLikes, e)}
+                      title={isLiked ? 'Bỏ thích' : 'Yêu thích bộ thẻ này'}
+                    >
+                      <Heart
+                        size={14}
+                        fill={isLiked ? '#ef4444' : 'none'}
+                        color={isLiked ? '#ef4444' : 'currentColor'}
+                      />
+                      <span>{likesCount}</span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Phần nội dung chính: Tiêu đề, Mô tả, Tags */}
@@ -334,10 +385,6 @@ export const CommunityView = ({
                   <h3 className="cv-card-title" title={deck.title}>
                     {deck.title}
                   </h3>
-
-                  <p className="cv-card-desc">
-                    {deck.description || 'Bộ thẻ kiến thức học tập phương pháp ngắt quãng do cộng đồng chia sẻ.'}
-                  </p>
 
                   {/* Dải tags */}
                   {tags.length > 0 && (
@@ -365,14 +412,14 @@ export const CommunityView = ({
                   <div className="cv-card-meta-row">
                     <div className="cv-author-info">
                       <div className="cv-author-avatar">
-                        {preset.avatar ? (
-                          <img src={preset.avatar} alt={preset.name} />
+                        {authorAvatar ? (
+                          <img src={authorAvatar} alt={authorDisplayName} />
                         ) : (
-                          <span>{preset.name.charAt(0)}</span>
+                          <span>{authorInitial}</span>
                         )}
                       </div>
-                      <span className="cv-author-name" title={isOwner ? 'Bạn là người tạo' : preset.name}>
-                        {isOwner ? '⭐ Bạn (Tác giả)' : preset.name}
+                      <span className="cv-author-name" title={authorDisplayName}>
+                        {isOwner ? `⭐ ${authorDisplayName}` : authorDisplayName}
                       </span>
                     </div>
 
@@ -389,7 +436,7 @@ export const CommunityView = ({
                     type="button"
                     className="cv-btn-study-main"
                     disabled={(deck.totalCards || 0) === 0}
-                    onClick={() => onSelectDeckForStudy && onSelectDeckForStudy(deck)}
+                    onClick={() => handleStartStudy(deck)}
                     title="Bắt đầu học lật thẻ Flashcard 3D"
                   >
                     <Play size={15} fill="#ffffff" />
@@ -401,7 +448,7 @@ export const CommunityView = ({
                       type="button"
                       className="cv-btn-quiz"
                       disabled={(deck.totalCards || 0) < 2}
-                      onClick={() => onSelectDeckForQuiz && onSelectDeckForQuiz(deck)}
+                      onClick={() => handleStartQuiz(deck)}
                       title={(deck.totalCards || 0) < 2 ? 'Cần tối thiểu 2 thẻ để thi trắc nghiệm' : 'Luyện thi trắc nghiệm 4 đáp án'}
                     >
                       <HelpCircle size={14} className="cv-btn-quiz-icon" />
@@ -478,11 +525,21 @@ export const CommunityView = ({
             <div className="cv-preview-footer">
               <button
                 type="button"
+                className={`cv-save-button cv-preview-save-btn ${previewDeck && savedDeckIds.has(String(previewDeck.id)) ? 'saved' : ''}`}
+                onClick={(e) => handleToggleSave(previewDeck, e)}
+                title={previewDeck && savedDeckIds.has(String(previewDeck.id)) ? 'Bỏ lưu bộ thẻ này' : 'Lưu bộ thẻ vào My Resources (không thể sửa)'}
+              >
+                {previewDeck && savedDeckIds.has(String(previewDeck.id)) ? <BookmarkCheck size={14} /> : <Bookmark size={14} />}
+                <span>{previewDeck && savedDeckIds.has(String(previewDeck.id)) ? 'Đã lưu' : 'Lưu bộ thẻ'}</span>
+              </button>
+
+              <button
+                type="button"
                 className="cv-btn-quiz"
                 disabled={previewCards.length < 2}
                 onClick={() => {
                   handleClosePreview();
-                  if (onSelectDeckForQuiz) onSelectDeckForQuiz(previewDeck);
+                  handleStartQuiz(previewDeck);
                 }}
               >
                 <HelpCircle size={14} className="cv-btn-quiz-icon" />
@@ -496,7 +553,7 @@ export const CommunityView = ({
                 disabled={previewCards.length === 0}
                 onClick={() => {
                   handleClosePreview();
-                  if (onSelectDeckForStudy) onSelectDeckForStudy(previewDeck);
+                  handleStartStudy(previewDeck);
                 }}
               >
                 <Play size={14} fill="#ffffff" />
@@ -509,4 +566,3 @@ export const CommunityView = ({
     </div>
   );
 };
-

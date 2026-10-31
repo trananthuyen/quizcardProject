@@ -46,6 +46,21 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<DeletedCard> DeletedCards => Set<DeletedCard>();
 
     /// <summary>
+    /// Bảng lưu trữ danh sách các Bộ thẻ người dùng đã xem hoặc học tập gần đây (Recents).
+    /// </summary>
+    public DbSet<Recent> Recents => Set<Recent>();
+
+    /// <summary>
+    /// Bảng lưu trữ danh sách và đường dẫn video được lưu trữ trên Cloudinary.
+    /// </summary>
+    public DbSet<CloudinaryVideo> CloudinaryVideos => Set<CloudinaryVideo>();
+
+    /// <summary>
+    /// Bảng lưu trữ toàn bộ nhật ký các yêu cầu (Request Logs) của người dùng gửi tới hệ thống.
+    /// </summary>
+    public DbSet<RequestLog> RequestLogs => Set<RequestLog>();
+
+    /// <summary>
     /// Cấu hình chi tiết các bảng, độ dài cột và quan hệ giữa các bảng (Fluent API).
     /// </summary>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -156,6 +171,67 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             entity.HasIndex(c => c.DeletedDeckId);
             entity.HasIndex(c => c.ActiveDeckId);
             entity.HasIndex(c => c.DeletedAt);
+        });
+
+        // 10. Cấu hình bảng Recent (Bộ thẻ đã xem hoặc học gần đây)
+        modelBuilder.Entity<Recent>(entity =>
+        {
+            entity.HasKey(r => r.Id);
+            entity.Property(r => r.ActionType).IsRequired().HasMaxLength(50).HasDefaultValue("VIEW");
+            entity.HasIndex(r => new { r.UserId, r.DeckId }).IsUnique();
+            entity.HasIndex(r => r.UserId);
+            entity.HasIndex(r => r.LastAccessedAt);
+
+            entity.HasOne(r => r.Deck)
+                  .WithMany()
+                  .HasForeignKey(r => r.DeckId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // 11. Cấu hình bảng CloudinaryVideo (Lưu trữ đường dẫn và thông tin video Cloudinary)
+        modelBuilder.Entity<CloudinaryVideo>(entity =>
+        {
+            entity.HasKey(v => v.Id);
+            entity.Property(v => v.PublicId).IsRequired().HasMaxLength(255);
+            entity.Property(v => v.Title).IsRequired().HasMaxLength(255);
+            entity.Property(v => v.Description).HasMaxLength(2000);
+            entity.Property(v => v.SecureUrl).IsRequired().HasMaxLength(1000);
+            entity.Property(v => v.Url).HasMaxLength(1000);
+            entity.Property(v => v.Format).HasMaxLength(20);
+            entity.Property(v => v.Folder).HasMaxLength(100).HasDefaultValue("quizcard_videos");
+            entity.Property(v => v.ThumbnailUrl).HasMaxLength(1000);
+            entity.Property(v => v.VttEnText).HasColumnType("longtext");
+            entity.Property(v => v.VttEnUrl).HasMaxLength(1000);
+            entity.Property(v => v.VttEnPublicId).HasMaxLength(255);
+            entity.Property(v => v.VttViText).HasColumnType("longtext");
+            entity.Property(v => v.VttViUrl).HasMaxLength(1000);
+            entity.Property(v => v.VttViPublicId).HasMaxLength(255);
+            entity.Property(v => v.CreatedBy).HasMaxLength(100);
+            entity.Property(v => v.IsActive).IsRequired().HasDefaultValue(true);
+
+            entity.HasIndex(v => v.PublicId).IsUnique();
+            entity.HasIndex(v => v.CreatedAt);
+            entity.HasIndex(v => v.IsActive);
+        });
+
+        // 8. Cấu hình bảng RequestLog (Nhật ký yêu cầu người dùng)
+        modelBuilder.Entity<RequestLog>(entity =>
+        {
+            entity.HasKey(l => l.Id);
+            entity.Property(l => l.Method).IsRequired().HasMaxLength(10);
+            entity.Property(l => l.Path).IsRequired().HasMaxLength(500);
+            entity.Property(l => l.QueryString).HasMaxLength(1000);
+            entity.Property(l => l.UserEmail).HasMaxLength(255);
+            entity.Property(l => l.IpAddress).HasMaxLength(100);
+            entity.Property(l => l.UserAgent).HasMaxLength(1000);
+            entity.Property(l => l.ErrorMessage).HasColumnType("text");
+            entity.Property(l => l.RequestBody).HasColumnType("text");
+
+            entity.HasIndex(l => l.UserId);
+            entity.HasIndex(l => l.CreatedAt);
+            entity.HasIndex(l => l.StatusCode);
+            entity.HasIndex(l => l.Path);
+            entity.HasIndex(l => l.Method);
         });
     }
 }

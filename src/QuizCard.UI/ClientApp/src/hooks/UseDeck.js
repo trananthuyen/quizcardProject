@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { api } from '../api';
+import { getSavedDecks, removeSavedDeck } from '../utils/savedStorage';
 
 /**
  * Custom Hook useDeck:
  * Quản lý toàn bộ trạng thái và các thao tác liên quan tới bộ thẻ (Decks):
  * - Danh sách bộ thẻ Community và My Resources
+ * - Danh sách bộ thẻ đã lưu từ Community (Saved / Bookmarked decks)
  * - Hợp nhất toàn bộ bộ thẻ (decks)
  * - Tải dữ liệu từ Backend (/api/decks/community, /api/decks/my-resources)
  * - Thao tác CRUD (Create, Update, Delete) bộ thẻ
@@ -21,28 +23,70 @@ export const useDeck = ({ currentUser = null, selectedDeck = null, setSelectedDe
     const [communityDecks, setCommunityDecks] = useState([]);
     // Danh sách các bộ thẻ thuộc quyền sở hữu của người dùng ở My Resources
     const [myResourcesDecks, setMyResourcesDecks] = useState([]);
+    // Danh sách các bộ thẻ đã lưu từ Community (Saved / Bookmarked)
+    const [savedDecks, setSavedDecks] = useState(() => getSavedDecks(currentUser));
     // Trạng thái loading khi tải danh sách bộ thẻ
     const [loadingDecks, setLoadingDecks] = useState(false);
+
+    // Đồng bộ danh sách bộ thẻ đã lưu khi tài khoản thay đổi
+    useEffect(() => {
+        setSavedDecks(getSavedDecks(currentUser));
+    }, [currentUser]);
+
+    // Lắng nghe sự kiện lưu / bỏ lưu từ Community hoặc MyResources
+    useEffect(() => {
+        const handleSavedChange = () => {
+            setSavedDecks(getSavedDecks(currentUser));
+        };
+        window.addEventListener('quizcard:saved-decks-changed', handleSavedChange);
+        return () => window.removeEventListener('quizcard:saved-decks-changed', handleSavedChange);
+    }, [currentUser]);
 
     // Modal tạo / sửa bộ thẻ tập trung
     const [isDeckModalOpen, setIsDeckModalOpen] = useState(false);
     const [editingDeck, setEditingDeck] = useState(null);
 
-    // Hợp nhất danh sách bộ thẻ (dùng cho tìm kiếm chi tiết, Folders, khôi phục URL hash)
+    // Hợp nhất danh sách My Resources bao gồm bộ thẻ sở hữu và bộ thẻ cộng đồng đã lưu
+    const allMyResourcesDecks = useMemo(() => {
+        const ownedMap = new Map();
+        (myResourcesDecks || []).forEach((d) => {
+            const dId = d?.id || d?.Id;
+            if (dId) ownedMap.set(String(dId), { ...d, id: dId, isSaved: false });
+        });
+
+        const savedList = (savedDecks || [])
+            .filter((d) => {
+                const sId = d?.id || d?.Id;
+                return sId && !ownedMap.has(String(sId));
+            })
+            .map((savedDeck) => {
+                const sId = savedDeck?.id || savedDeck?.Id;
+                const latestComm = communityDecks?.find((c) => String(c?.id || c?.Id) === String(sId));
+                return {
+                    ...(latestComm || savedDeck),
+                    id: sId,
+                    isSaved: true,
+                };
+            });
+
+        return [...ownedMap.values(), ...savedList];
+    }, [myResourcesDecks, savedDecks, communityDecks]);
+
+    // Hợp nhất danh sách bộ thẻ toàn cục (dùng cho tìm kiếm chi tiết, Folders, khôi phục URL hash)
     const decks = useMemo(() => {
         const map = new Map();
         if (Array.isArray(communityDecks)) {
             communityDecks.forEach((d) => {
-                if (d?.id) map.set(d.id, d);
+                if (d?.id) map.set(String(d.id), d);
             });
         }
-        if (Array.isArray(myResourcesDecks)) {
-            myResourcesDecks.forEach((d) => {
-                if (d?.id) map.set(d.id, d);
+        if (Array.isArray(allMyResourcesDecks)) {
+            allMyResourcesDecks.forEach((d) => {
+                if (d?.id) map.set(String(d.id), d);
             });
         }
         return Array.from(map.values());
-    }, [communityDecks, myResourcesDecks]);
+    }, [communityDecks, allMyResourcesDecks]);
 
     /**
      * 1. Tải danh sách bộ thẻ hiển thị ở Community (/api/decks/community)
@@ -169,7 +213,9 @@ export const useDeck = ({ currentUser = null, selectedDeck = null, setSelectedDe
     return {
         // Danh sách bộ thẻ
         communityDecks,
-        myResourcesDecks,
+        myResourcesDecks: allMyResourcesDecks,
+        rawMyResourcesDecks: myResourcesDecks,
+        savedDecks,
         decks,
         loadingDecks,
         setLoadingDecks,

@@ -98,3 +98,9 @@ desktop.ini
 scratch/
 *.tmp
 
+
+# Build & Diagnostic logs
+*.log
+*.binlog
+msbuild.log
+msbuild.binlog

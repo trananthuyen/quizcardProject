@@ -1,7 +1,7 @@
 /**
  * File App.tsx: Component gốc (Root Component) của ứng dụng Frontend.
  * Đóng vai trò điều phối chính:
- * 1. Điều phối màn hình theo Sidebar (Community, My Resources, Videos, Recents, Drafts, Folders, Trash)
+ * 1. Điều phối màn hình theo Sidebar (Community, My Resources, Videos, Recents, Progress, Folders, Trash)
  * 2. Điều phối các chế độ học: Quản lý thẻ (CARDS), Học lật thẻ 3D (STUDY), Luyện thi trắc nghiệm (QUIZ)
  * 3. Quản lý trạng thái dữ liệu tập trung (Decks, Cards, Folders) và đồng bộ URL Hash.
  */
@@ -20,7 +20,10 @@ import { QuizArena } from './components/QuizArena';
 import { DeckModal } from './components/DeckModal';
 import { FolderModal } from './components/FolderModal';
 import { LoginModal } from './components/LoginModal';
-import { DraftsView } from './components/DraftsView';
+import { ProgressView } from './components/ProgressView.jsx';
+import { RecentsView } from './components/RecentsView';
+import { AdminLogin } from './components/admin/AdminLogin';
+import { AdminDashboard } from './components/admin/AdminDashboard';
 import { Search, Flame, Zap, LogIn, Bell} from 'lucide-react';
 import './App.css';
 
@@ -28,17 +31,56 @@ import { useAuth } from './hooks/UseAuth.js';
 import { useAttendance } from './hooks/UseAttendance.js';
 import { useDeck } from './hooks/UseDeck.js';
 import { useSidebar } from './hooks/UseSidebar.js';
+import { removeSavedDeck } from './utils/savedStorage.js';
 import {
     parseRoute,
-    getInitialHash,
-    saveLastHash,
+    getInitialPath,
+    saveLastPath,
     getPageTitle,
     getTabFilter,
-    buildRouteHash,
+    buildRoutePath,
 } from './utils/navigation.js';
+
+const isAdminPath = () => {
+    if (typeof window === 'undefined') return false;
+    const path = (window.location.pathname || '').toLowerCase();
+    const hash = (window.location.hash || '').toLowerCase();
+    return path.startsWith('/admin') || hash.startsWith('#/admin');
+};
+
 export const App = () => {
-    // Đọc route hiện tại từ URL hash hoặc sessionStorage khi người dùng F5 / Refresh
-    const initialRoute = parseRoute(getInitialHash());
+    // Trạng thái kiểm tra và điều hướng vào Admin Portal
+    const [isAdminRoute, setIsAdminRoute] = useState(isAdminPath());
+    const [adminUser, setAdminUser] = useState(null);
+    const [checkingAdmin, setCheckingAdmin] = useState(isAdminPath());
+
+    useEffect(() => {
+        const checkRoute = () => {
+            const isAdm = isAdminPath();
+            setIsAdminRoute(isAdm);
+            if (isAdm) {
+                api.getAdminStatus().then((res) => {
+                    if (res?.isAuthenticated) {
+                        setAdminUser(res.admin || { username: 'admin' });
+                    } else {
+                        setAdminUser(null);
+                    }
+                }).catch(() => setAdminUser(null))
+                .finally(() => setCheckingAdmin(false));
+            }
+        };
+
+        checkRoute();
+        window.addEventListener('hashchange', checkRoute);
+        window.addEventListener('popstate', checkRoute);
+        return () => {
+            window.removeEventListener('hashchange', checkRoute);
+            window.removeEventListener('popstate', checkRoute);
+        };
+    }, []);
+
+    // Đọc route hiện tại từ URL pathname hoặc sessionStorage khi người dùng F5 / Refresh
+    const initialRoute = parseRoute(getInitialPath());
     // Trạng thái điều hướng màn hình: 'DECKS' | 'CARDS' | 'STUDY' | 'QUIZ'
     const [view, setView] = useState(initialRoute.view);
     // Tab Sidebar hiện đang hoạt động
@@ -60,6 +102,9 @@ export const App = () => {
     const [searchQuery, setSearchQuery] = useState('');
     // Bộ lọc thư mục/tag đang chọn (ALL, STUDIED, NOT_STARTED, hoặc tên Folder)
     const [selectedFilter, setSelectedFilter] = useState('ALL');
+    // Video bài giảng đang chọn để học tương tác trong CaptionStudio
+    const [selectedVideoLesson, setSelectedVideoLesson] = useState(null);
+    const [videoLessonTitle, setVideoLessonTitle] = useState('');
 
     // Quản lý xác thực người dùng (Google, Facebook OAuth, session) qua custom hook useAuth
     const {
@@ -203,10 +248,11 @@ export const App = () => {
     // ĐIỀU PHỐI GIAO DIỆN KHI TƯƠNG TÁC VỚI SIDEBAR VÀ ROUTING
     // ==========================================================================
     /**
-     * Chuyển tab Sidebar và điều phối giao diện tương ứng
+     * Chuyển tab Sidebar và điều phối giao diện tương ứng (Cập nhật đường dẫn sạch, không có /#)
      */
     const handleSelectTab = useCallback((tab) => {
         setActiveTab(tab);
+        setSelectedVideoLesson(null);
         if (view !== 'DECKS') {
             setView('DECKS');
             setSelectedDeck(null);
@@ -216,12 +262,14 @@ export const App = () => {
         if (defaultFilter) {
             setSelectedFilter(defaultFilter);
         }
-        const newHash = `#/${tab}`;
-        window.location.hash = newHash;
-        saveLastHash(newHash);
+        const newPath = `/${tab}`;
+        if (window.location.pathname !== newPath || window.location.hash) {
+            window.history.pushState(null, '', newPath);
+        }
+        saveLastPath(newPath);
     }, [view]);
     /**
-     * Điều hướng chuyển màn hình, đồng bộ URL Hash và lưu vào sessionStorage
+     * Điều hướng chuyển màn hình, đồng bộ URL Pathname chuẩn và lưu vào sessionStorage
      */
     const navigateTo = useCallback((newView, deck) => {
         if (newView === 'DECKS' || !deck) {
@@ -234,22 +282,33 @@ export const App = () => {
             selectedDeckRef.current = deck;
             setView(newView);
         }
-        const newHash = buildRouteHash(newView, activeTab, deck);
-        window.location.hash = newHash;
-        saveLastHash(newHash);
+        const newPath = buildRoutePath(newView, activeTab, deck);
+        if (window.location.pathname !== newPath || window.location.hash) {
+            window.history.pushState(null, '', newPath);
+        }
+        saveLastPath(newPath);
     }, [activeTab]);
     /**
-     * Theo dõi sự kiện hashchange của trình duyệt hoặc khi khởi chạy ứng dụng (F5 / Refresh)
+     * Theo dõi sự kiện popstate (Back/Forward trình duyệt) hoặc khi khởi chạy ứng dụng (F5 / Refresh)
+     * Tự động dọn sạch /# nếu người dùng nhập hoặc mở link cũ dạng http://localhost:5173/#/video
      */
     useEffect(() => {
-        const syncRouteWithHash = async () => {
-            let currentHash = window.location.hash;
-            if (!currentHash || currentHash === '#' || currentHash === '#/') {
-                currentHash = getInitialHash();
-                window.location.hash = currentHash;
+        const syncRouteWithPath = async () => {
+            // Tự động chuyển đổi mượt mà nếu link còn chứa hash cũ (ví dụ #/video -> /video)
+            if (window.location.hash && window.location.hash.startsWith('#/')) {
+                const clean = window.location.hash.replace(/^#/, '');
+                window.history.replaceState(null, '', clean);
             }
-            saveLastHash(currentHash);
-            const route = parseRoute(currentHash);
+
+            let currentPath = window.location.pathname;
+            if (!currentPath || currentPath === '/' || currentPath === '/index.html') {
+                currentPath = getInitialPath();
+                if (window.location.pathname !== currentPath) {
+                    window.history.replaceState(null, '', currentPath);
+                }
+            }
+            saveLastPath(currentPath);
+            const route = parseRoute(currentPath);
             setView(route.view);
             if (route.tab) {
                 setActiveTab(route.tab);
@@ -286,16 +345,20 @@ export const App = () => {
                 setRestoringDeck(false);
             }
         };
-        syncRouteWithHash();
-        window.addEventListener('hashchange', syncRouteWithHash);
+
+        syncRouteWithPath();
+        window.addEventListener('popstate', syncRouteWithPath);
+        window.addEventListener('hashchange', syncRouteWithPath);
         return () => {
-            window.removeEventListener('hashchange', syncRouteWithHash);
+            window.removeEventListener('popstate', syncRouteWithPath);
+            window.removeEventListener('hashchange', syncRouteWithPath);
         };
     }, [loadCards, navigateTo]);
     /**
      * Quay về trang chủ bộ thẻ
      */
     const handleGoHome = () => {
+        setSelectedVideoLesson(null);
         navigateTo('DECKS');
         loadDecks();
     };
@@ -320,6 +383,44 @@ export const App = () => {
     };
 
     const pageTitle = getPageTitle(activeTab);
+
+    // NẾU ĐANG TRUY CẬP ĐƯỜNG DẪN /admin HOẶC #/admin -> ĐIỀU HƯỚNG VÀO ADMIN AREA
+    if (isAdminRoute) {
+        if (checkingAdmin) {
+            return (
+                <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0f172a', color: '#fff', fontFamily: 'sans-serif' }}>
+                    Đang kiểm tra quyền Quản trị viên...
+                </div>
+            );
+        }
+
+        if (!adminUser) {
+            return (
+                <AdminLogin
+                    onLoginSuccess={(adm) => setAdminUser(adm)}
+                    onBackToApp={() => {
+                        window.history.pushState(null, '', '/community');
+                        setIsAdminRoute(false);
+                    }}
+                />
+            );
+        }
+
+        return (
+            <AdminDashboard
+                admin={adminUser}
+                onLogout={async () => {
+                    await api.adminLogout();
+                    setAdminUser(null);
+                }}
+                onBackToApp={() => {
+                    window.history.pushState(null, '', '/community');
+                    setIsAdminRoute(false);
+                }}
+            />
+        );
+    }
+
     return (<div className="qc-app-container">
         {/* 1. Thanh Sidebar điều phối chính bên trái */}
         <Sidebar
@@ -346,17 +447,36 @@ export const App = () => {
             {/* Topbar điều hướng trên cùng */}
             <header className="qc-topbar">
                 <div className="qc-topbar-left">
-                    {view === 'DECKS' ? (<span className="qc-page-title">{pageTitle}</span>) : (<div className="qc-breadcrumb">
-                        <button onClick={handleGoHome} className="qc-breadcrumb-back">
-                            ← {pageTitle}
-                        </button>
-                        <span className="qc-breadcrumb-sep">/</span>
-                        <span className="qc-breadcrumb-current">{selectedDeck?.title}</span>
-                        <span className="qc-breadcrumb-sep">/</span>
-                        <span className="qc-breadcrumb-sub">
-                            {view === 'STUDY' ? 'Học lật thẻ 3D' : view === 'QUIZ' ? 'Luyện thi trắc nghiệm' : 'Quản lý thẻ'}
-                        </span>
-                    </div>)}
+                    {activeTab === 'video' && selectedVideoLesson ? (
+                        <div className="qc-breadcrumb">
+                            <button
+                                type="button"
+                                onClick={() => setSelectedVideoLesson(null)}
+                                className="qc-breadcrumb-back"
+                                title="Quay lại danh sách Videos"
+                            >
+                                ← Videos
+                            </button>
+                            <span className="qc-breadcrumb-sep">/</span>
+                            <span className="qc-breadcrumb-current" title={videoLessonTitle || selectedVideoLesson?.title}>
+                                {videoLessonTitle || selectedVideoLesson?.title}
+                            </span>
+                        </div>
+                    ) : view === 'DECKS' ? (
+                        <span className="qc-page-title">{pageTitle}</span>
+                    ) : (
+                        <div className="qc-breadcrumb">
+                            <button onClick={handleGoHome} className="qc-breadcrumb-back">
+                                ← {pageTitle}
+                            </button>
+                            <span className="qc-breadcrumb-sep">/</span>
+                            <span className="qc-breadcrumb-current">{selectedDeck?.title}</span>
+                            <span className="qc-breadcrumb-sep">/</span>
+                            <span className="qc-breadcrumb-sub">
+                                {view === 'STUDY' ? 'Học lật thẻ 3D' : view === 'QUIZ' ? 'Luyện thi trắc nghiệm' : 'Quản lý thẻ'}
+                            </span>
+                        </div>
+                    )}
                 </div>
 
                 <div className="qc-topbar-center">
@@ -367,10 +487,10 @@ export const App = () => {
 
                     <div
                         className={`qc-stat-pill qc-stat-streak ${attendanceStatus?.hasCheckedInToday ? 'active-streak' : 'pending-streak'}`}
-                        title={attendanceStatus?.hasCheckedInToday ? `Chuỗi lửa: ${attendanceStatus?.currentStreak ?? 10} ngày (Đã điểm danh hôm nay! Bấm để xem lịch Drafts)` : `Chuỗi lửa: ${attendanceStatus?.currentStreak ?? 10} ngày (Chưa điểm danh! Bấm để vào Drafts điểm danh)`}
+                        title={attendanceStatus?.hasCheckedInToday ? `Chuỗi lửa: ${attendanceStatus?.currentStreak ?? 10} ngày (Đã điểm danh hôm nay! Bấm để xem lịch)` : `Chuỗi lửa: ${attendanceStatus?.currentStreak ?? 10} ngày (Chưa điểm danh! Bấm để vào Progress điểm danh)`}
                         onClick={() => {
-                            if (activeTab !== 'drafts') {
-                                handleSelectTab('drafts');
+                            if (activeTab !== 'progress') {
+                                handleSelectTab('progress');
                             }
                         }}
                     >
@@ -420,7 +540,10 @@ export const App = () => {
                         deck={selectedDeck}
                         currentUser={currentUser}
                         onExit={handleGoHome}
-                        onGoToCards={() => navigateTo('CARDS', selectedDeck)}
+                        onGoToCards={() => {
+                            if (selectedDeck?.isSaved) return;
+                            navigateTo('CARDS', selectedDeck);
+                        }}
                         onGoToQuiz={() => navigateTo('QUIZ', selectedDeck)}
                     />
                 </div>)}
@@ -432,7 +555,10 @@ export const App = () => {
                         currentUser={currentUser}
                         onExit={handleGoHome}
                         onGoToStudy={() => navigateTo('STUDY', selectedDeck)}
-                        onGoToCards={() => navigateTo('CARDS', selectedDeck)}
+                        onGoToCards={() => {
+                            if (selectedDeck?.isSaved) return;
+                            navigateTo('CARDS', selectedDeck);
+                        }}
                     />
                 </div>)}
 
@@ -463,10 +589,17 @@ export const App = () => {
                             onSelectDeckForCards={handleSelectDeckForCards}
                             onEditDeck={(deck, e) => {
                                 e.stopPropagation();
+                                if (deck?.isSaved) return;
                                 handleOpenEditDeck(deck);
                             }}
                             onDeleteDeck={async (deck, e) => {
                                 e.stopPropagation();
+                                if (deck?.isSaved) {
+                                    if (window.confirm(`Bạn có chắc muốn bỏ lưu bộ thẻ "${deck.title}" khỏi My Resources?`)) {
+                                        removeSavedDeck(deck.id, currentUser);
+                                    }
+                                    return;
+                                }
                                 if (window.confirm(`Bạn có chắc muốn xóa bộ thẻ "${deck.title}"?`)) {
                                     await handleDeleteDeck(deck.id);
                                 }
@@ -475,7 +608,16 @@ export const App = () => {
                     )}
 
                     {/* Tab 4.2: Videos (Video bài giảng & hướng dẫn kỹ thuật ghi nhớ) */}
-                    {activeTab === 'video' && <VideoTutorials />}
+                    {activeTab === 'video' && (
+                        <VideoTutorials
+                            selectedVideo={selectedVideoLesson}
+                            onSelectVideo={(v) => {
+                                setSelectedVideoLesson(v);
+                                if (v?.title) setVideoLessonTitle(v.title);
+                            }}
+                            onTitleChange={(title) => setVideoLessonTitle(title)}
+                        />
+                    )}
 
                     {/* Tab 4.3: All Folders (Toàn bộ thư mục chứa bộ thẻ) */}
                     {activeTab === 'folders' && (
@@ -517,36 +659,19 @@ export const App = () => {
                         />
                     )}
 
-                    {/* Tab 4.5: Recents (Các bộ thẻ đã bắt đầu học) */}
+                    {/* Tab 4.5: Recents (Các bộ thẻ đã xem hoặc học qua ở Community) */}
                     {activeTab === 'recents' && (
-                        <DeckList
-                            decks={decks}
-                            folders={folders}
-                            loading={loadingDecks}
+                        <RecentsView
                             currentUser={currentUser}
-                            isCommunity={false}
-                            onCreateDeck={handleCreateDeck}
-                            onUpdateDeck={handleUpdateDeck}
-                            onDeleteDeck={handleDeleteDeck}
-                            onCreateFolder={handleCreateFolder}
-                            onUpdateFolder={handleUpdateFolder}
-                            onDeleteFolder={handleDeleteFolder}
                             onSelectDeckForStudy={handleSelectDeckForStudy}
                             onSelectDeckForQuiz={handleSelectDeckForQuiz}
-                            onSelectDeckForCards={handleSelectDeckForCards}
-                            onOpenCreateDeck={handleOpenCreateDeck}
-                            onOpenEditDeck={handleOpenEditDeck}
-                            onOpenFolders={() => setIsFolderModalOpen(true)}
-                            searchQuery={searchQuery}
-                            onSearchChange={setSearchQuery}
-                            selectedFilter="STUDIED"
-                            onSelectFilter={setSelectedFilter}
+                            onNavigateToCommunity={() => handleSelectTab('community')}
                         />
                     )}
 
-                    {/* Tab 4.6: Drafts (Lịch điểm danh duy trì chuỗi lửa & Các bộ thẻ bản nháp) */}
-                    {activeTab === 'drafts' && (
-                        <DraftsView
+                    {/* Tab 4.6: Progress (Lịch điểm danh duy trì chuỗi lửa & Các bộ thẻ bản nháp) */}
+                    {activeTab === 'progress' && (
+                        <ProgressView
                             currentUser={currentUser}
                             onOpenLoginModal={() => setIsLoginModalOpen(true)}
                             attendanceStatus={attendanceStatus}

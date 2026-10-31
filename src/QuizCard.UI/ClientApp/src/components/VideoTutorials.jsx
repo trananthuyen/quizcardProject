@@ -1,104 +1,183 @@
-import React, { useState } from 'react';
-import { MonitorPlay, Play, X } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { MonitorPlay, Play, Sparkles, Shuffle, Tag } from 'lucide-react';
+import { CaptionStudio } from './CaptionStudio';
+import { api } from '../api';
 import './VideoTutorials.css';
-const VIDEOS = [
-    {
-        id: 'sm2-intro',
-        title: 'Lộ trình ghi nhớ 3000 từ vựng cốt lõi với Spaced Repetition (SM-2)',
-        description: 'Tìm hiểu cách não bộ lưu trữ ký ức và cơ chế lặp lại ngắt quãng SuperMemo SM-2 để tối ưu hóa thời gian ôn tập.',
-        duration: '12:45',
-        tag: 'Spaced Repetition',
-        author: 'Dr. Piotr Woźniak System',
-        thumbnail: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&auto=format&fit=crop&q=80',
-        videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    },
-    {
-        id: 'active-recall',
-        title: 'Active Recall & Chế độ Luyện Thi Trắc Nghiệm QuizArena',
-        description: 'Tại sao việc chủ động truy xuất thông tin (Active Recall) lại tăng hiệu quả ghi nhớ gấp 3 lần so với việc đọc sách thụ động thông thường.',
-        duration: '08:30',
-        tag: 'Active Recall',
-        author: 'QuizCard Academy',
-        thumbnail: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&auto=format&fit=crop&q=80',
-        videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    },
-    {
-        id: 'bulk-import',
-        title: 'Tạo Flashcard siêu tốc bằng AI & Tính năng Nhập hàng loạt',
-        description: 'Hướng dẫn chuẩn bị dữ liệu dạng bảng hoặc danh sách từ vựng và nhập hàng loạt vào bộ thẻ trong tích tắc.',
-        duration: '05:15',
-        tag: 'Productivity',
-        author: 'tran an thuyen',
-        thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&auto=format&fit=crop&q=80',
-        videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    },
-    {
-        id: 'flashcard-tips',
-        title: 'Mẹo thiết kế bộ thẻ: Nguyên tắc một thông tin (Minimum Information Principle)',
-        description: 'Bí quyết đặt câu hỏi ngắn gọn, định nghĩa rõ ràng, thêm ví dụ ngữ cảnh giúp việc học lật thẻ 3D trở nên nhẹ nhàng và bền vững.',
-        duration: '10:20',
-        tag: 'Tips & Tricks',
-        author: 'SuperMemo Research',
-        thumbnail: 'https://images.unsplash.com/photo-1513258496099-48168024aec0?w=600&auto=format&fit=crop&q=80',
-        videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    },
-];
-export const VideoTutorials = () => {
-    const [selectedVideo, setSelectedVideo] = useState(null);
-    return (<div className="vt-container">
-      <div className="vt-header">
-        <h1 className="vt-title">
-          <MonitorPlay size={26} color="#0d99ff"/>
-          Video Hướng Dẫn & Phương Pháp Học
-        </h1>
-        <p className="vt-subtitle">
-          Tổng hợp các video hướng dẫn kỹ thuật ghi nhớ đỉnh cao, phương pháp Active Recall và Spaced Repetition SM-2
-        </p>
-      </div>
 
-      <div className="vt-grid">
-        {VIDEOS.map((video) => (<div key={video.id} className="vt-card" onClick={() => setSelectedVideo(video)} style={{ cursor: 'pointer' }}>
-            <div className="vt-thumbnail-box">
-              <img src={video.thumbnail} alt={video.title} className="vt-thumbnail-img"/>
-              <div className="vt-play-overlay">
-                <div className="vt-play-btn">
-                  <Play size={22} fill="currentColor"/>
+/**
+ * Thuật toán xáo trộn mảng ngẫu nhiên Fisher-Yates (Knuth Shuffle)
+ * Độ phức tạp O(n), đảm bảo xác suất xuất hiện của mọi hoán vị đồng đều
+ */
+const shuffleArray = (array) => {
+    const copy = [...array];
+    for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+};
+
+export const VideoTutorials = ({
+    selectedVideo: externalSelectedVideo,
+    onSelectVideo: externalOnSelectVideo,
+    onTitleChange: externalOnTitleChange,
+}) => {
+    const [internalSelectedVideo, setInternalSelectedVideo] = useState(null);
+    const selectedVideo = externalSelectedVideo !== undefined ? externalSelectedVideo : internalSelectedVideo;
+    const setSelectedVideo = externalOnSelectVideo || setInternalSelectedVideo;
+    const [cloudVideos, setCloudVideos] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    // Lọc danh sách theo tag chủ đề (không thêm chức năng tìm kiếm)
+    const [selectedTag, setSelectedTag] = useState('ALL');
+
+    // Seed điều khiển xáo trộn ngẫu nhiên
+    const [shuffleSeed, setShuffleSeed] = useState(0);
+
+    const handleReshuffle = () => {
+        setShuffleSeed((prev) => prev + 1);
+    };
+
+    useEffect(() => {
+        let isMounted = true;
+        setLoading(true);
+        api.getPublicVideos()
+            .then((list) => {
+                if (!isMounted) return;
+                if (Array.isArray(list) && list.length > 0) {
+                    const mapped = list.map((v) => {
+                        return {
+                            ...v,
+                            id: v.publicId || v.id,
+                            title: v.title,
+                            description: v.description || 'Bài giảng video tương tác được lưu trữ trên Cloudinary.',
+                            duration: v.duration > 0 ? `${Math.floor(v.duration / 60)}:${Math.floor(v.duration % 60).toString().padStart(2, '0')}` : '05:00',
+                            thumbnail: v.thumbnailUrl || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&auto=format&fit=crop&q=80',
+                            videoUrl: v.secureUrl || v.url,
+                            secureUrl: v.secureUrl,
+                            vttEnText: v.vttEnText,
+                            vttEnUrl: v.vttEnUrl,
+                            vttViText: v.vttViText,
+                            vttViUrl: v.vttViUrl,
+                        };
+                    });
+                    setCloudVideos(mapped);
+                } else {
+                    setCloudVideos([]);
+                }
+            })
+            .catch((err) => {
+                console.warn('Lỗi tải video bài giảng:', err);
+                if (isMounted) setCloudVideos([]);
+            })
+            .finally(() => {
+                if (isMounted) setLoading(false);
+            });
+
+        return () => { isMounted = false; };
+    }, []);
+
+    // Lọc danh sách video theo tag chủ đề (lọc danh sách, không dùng tìm kiếm)
+    const filteredVideos = useMemo(() => {
+        if (selectedTag === 'ALL') {
+            return cloudVideos;
+        }
+        return cloudVideos.filter((video) => {
+            const tags = video.tags || [video.tag];
+            return tags.some((t) => t.toLowerCase() === selectedTag.toLowerCase());
+        });
+    }, [cloudVideos, selectedTag]);
+
+    // Tự động sắp xếp ngẫu nhiên danh sách video bằng thuật toán Fisher-Yates
+    const displayedVideos = useMemo(() => {
+        return shuffleArray(filteredVideos);
+    }, [filteredVideos, shuffleSeed]);
+
+    // Nếu người dùng chọn 1 bài học, hiển thị trang CaptionStudio tương tác đầy đủ
+    if (selectedVideo) {
+        return (
+            <CaptionStudio
+                lesson={selectedVideo}
+                onBack={() => setSelectedVideo(null)}
+                parentTitle="Videos"
+                hideHeader={true}
+                onTitleChange={externalOnTitleChange}
+            />
+        );
+    }
+
+    return (
+        <div className="vt-container">
+            {loading ? (
+                <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>
+                    <div style={{
+                        display: 'inline-block',
+                        width: '32px',
+                        height: '32px',
+                        border: '3px solid #e2e8f0',
+                        borderTopColor: '#0d99ff',
+                        borderRadius: '50%',
+                        animation: 'spin 0.8s linear infinite',
+                        marginBottom: '12px'
+                    }} />
+                    <p style={{ fontWeight: 600 }}>Đang tải danh sách video bài giảng...</p>
                 </div>
-              </div>
-              <span className="vt-duration">{video.duration}</span>
-            </div>
-
-            <div className="vt-card-body">
-              <span className="vt-card-tag">{video.tag}</span>
-              <h3 className="vt-card-title">{video.title}</h3>
-              <p className="vt-card-desc">{video.description}</p>
-
-              <div className="vt-card-footer">
-                <span className="vt-author">{video.author}</span>
-                <span>HD Video</span>
-              </div>
-            </div>
-          </div>))}
-      </div>
-
-      {/* Video Modal Player */}
-      {selectedVideo && (<div className="modal-overlay" onClick={() => setSelectedVideo(null)}>
-          <div className="vt-modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="vt-modal-iframe-box">
-              <iframe src={`${selectedVideo.videoUrl}?autoplay=1`} title={selectedVideo.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen/>
-            </div>
-            <div className="vt-modal-info">
-              <div>
-                <div className="vt-modal-title">{selectedVideo.title}</div>
-                <div className="vt-modal-author">
-                  Tác giả: {selectedVideo.author} • Thời lượng: {selectedVideo.duration}
+            ) : displayedVideos.length === 0 ? (
+                <div style={{
+                    textAlign: 'center',
+                    padding: '60px 20px',
+                    background: '#ffffff',
+                    borderRadius: '16px',
+                    border: '1px solid #e2e8f0',
+                    maxWidth: '560px',
+                    margin: '20px auto',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+                }}>
+                    <MonitorPlay size={44} color="#94a3b8" style={{ margin: '0 auto 14px', opacity: 0.7 }} />
+                    <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#1e293b', marginBottom: '8px' }}>
+                        {selectedTag !== 'ALL' ? `Không có video nào thuộc chủ đề #${selectedTag}` : 'Chưa có video bài giảng nào'}
+                    </h3>
+                    <p style={{ color: '#64748b', fontSize: '13.5px', lineHeight: 1.6, marginBottom: selectedTag !== 'ALL' ? '16px' : 0 }}>
+                        {selectedTag !== 'ALL'
+                            ? 'Vui lòng chọn chủ đề khác hoặc bấm nút bên dưới để xem toàn bộ danh sách.'
+                            : 'Hiện chưa có video nào trong cơ sở dữ liệu. Vui lòng đăng nhập trang Quản trị viên (Admin) để tải lên video và phụ đề bài học mới.'}
+                    </p>
+                    {selectedTag !== 'ALL' && (
+                        <button
+                            type="button"
+                            className="vt-btn-reset"
+                            onClick={() => setSelectedTag('ALL')}
+                        >
+                            Xem tất cả video
+                        </button>
+                    )}
                 </div>
-              </div>
-              <button type="button" className="vt-modal-close-btn" onClick={() => setSelectedVideo(null)} title="Đóng video">
-                <X size={18}/>
-              </button>
-            </div>
-          </div>
-        </div>)}
-    </div>);
+            ) : (
+                <div className="vt-grid">
+                    {displayedVideos.map((video) => (
+                        <div key={video.id} className="vt-card" onClick={() => setSelectedVideo(video)} style={{ cursor: 'pointer' }}>
+                            <div className="vt-thumbnail-box">
+                                <img src={video.thumbnail} alt={video.title} className="vt-thumbnail-img"/>
+                                <div className="vt-play-overlay">
+                                    <div className="vt-play-btn">
+                                        <Play size={22} fill="currentColor"/>
+                                    </div>
+                                </div>
+                                <span className="vt-duration">{video.duration}</span>
+                            </div>
+
+                            <div className="vt-card-body">
+                                <h3 className="vt-card-title">{video.title}</h3>
+
+                                <div className="vt-card-footer">
+                                    <span className="vt-author">{video.author}</span>
+                                    <span style={{ color: '#4f46e5', fontWeight: 600 }}>Interactive Studio ▶</span>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
 };
