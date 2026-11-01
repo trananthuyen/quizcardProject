@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using QuizCard.Entities;
 using QuizCard.UI.Data;
@@ -14,6 +15,25 @@ using QuizCard.UI.StartupExtensions;
 /// 3. Cấu hình chuỗi Middleware đường ống xử lý HTTP Request (Pipeline) và phục vụ SPA (React).
 /// </summary>
 var builder = WebApplication.CreateBuilder(args);
+
+// 1.0 Cấu hình cho phép tải lên file nặng (Video bài giảng dung lượng lên tới 1 GB)
+// Áp dụng cho Kestrel Web Server, FormOptions Multipart và IIS
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 1_073_741_824; // 1 GB
+});
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.ValueLengthLimit = int.MaxValue;
+    options.MultipartBodyLengthLimit = 1_073_741_824; // 1 GB
+    options.MultipartHeadersLengthLimit = int.MaxValue;
+});
+
+builder.Services.Configure<IISServerOptions>(options =>
+{
+    options.MaxRequestBodySize = 1_073_741_824; // 1 GB
+});
 
 // ============================================================================
 // 1. ĐĂNG KÝ CÁC DỊCH VỤ (DEPENDENCY INJECTION & CONFIGURATION)
