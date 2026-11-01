@@ -65,9 +65,13 @@ public class AuthController : ControllerBase
             principal = authResult.Principal;
         }
 
+        var targetBase = !string.IsNullOrWhiteSpace(returnUrl) && (returnUrl.StartsWith("http://localhost:5173") || returnUrl.StartsWith("https://localhost:5173"))
+            ? returnUrl.TrimEnd('/')
+            : "";
+
         if (principal == null)
         {
-            return Redirect("/#/?auth_error=google_failed");
+            return Redirect($"{targetBase}/#/?auth_error=google_failed");
         }
 
         var email = principal.FindFirstValue(ClaimTypes.Email);
@@ -76,15 +80,15 @@ public class AuthController : ControllerBase
                    ?? principal.FindFirst(ClaimTypes.GivenName)?.Value
                    ?? (!string.IsNullOrEmpty(email) ? email.Split('@')[0] : "Google User");
 
-        var providerKey = info?.ProviderKey 
-                          ?? principal.FindFirstValue(ClaimTypes.NameIdentifier) 
+        var providerKey = info?.ProviderKey
+                          ?? principal.FindFirstValue(ClaimTypes.NameIdentifier)
                           ?? email;
-        var avatar = principal.FindFirst("picture")?.Value 
+        var avatar = principal.FindFirst("picture")?.Value
                      ?? principal.FindFirst("urn:google:picture")?.Value;
 
         if (string.IsNullOrEmpty(email))
         {
-            return Redirect("/#/?auth_error=missing_email");
+            return Redirect($"{targetBase}/#/?auth_error=missing_email");
         }
 
         var authRequest = new ExternalAuthRequest(
@@ -112,7 +116,7 @@ public class AuthController : ControllerBase
         });
         var base64User = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(json));
 
-        return Redirect($"/#/auth-callback?user={Uri.EscapeDataString(base64User)}");
+        return Redirect($"{targetBase}/#/auth-callback?user={Uri.EscapeDataString(base64User)}");
     }
 
     /// <summary>
@@ -148,12 +152,16 @@ public class AuthController : ControllerBase
             principal = authResult.Principal;
         }
 
+        var targetBase = !string.IsNullOrWhiteSpace(returnUrl) && (returnUrl.StartsWith("http://localhost:5173") || returnUrl.StartsWith("https://localhost:5173"))
+            ? returnUrl.TrimEnd('/')
+            : "";
+
         if (principal == null)
         {
-            return Redirect("/#/?auth_error=facebook_failed");
+            return Redirect($"{targetBase}/#/?auth_error=facebook_failed");
         }
 
-        var providerKey = info?.ProviderKey 
+        var providerKey = info?.ProviderKey
                           ?? principal.FindFirstValue(ClaimTypes.NameIdentifier);
 
         var email = principal.FindFirstValue(ClaimTypes.Email)
@@ -184,12 +192,12 @@ public class AuthController : ControllerBase
                    : "Facebook User";
         }
 
-        var avatar = principal.FindFirst("picture")?.Value 
+        var avatar = principal.FindFirst("picture")?.Value
                      ?? (providerKey != null ? $"https://graph.facebook.com/{providerKey}/picture?type=large" : null);
 
         if (string.IsNullOrEmpty(email))
         {
-            return Redirect("/#/?auth_error=missing_email");
+            return Redirect($"{targetBase}/#/?auth_error=missing_email");
         }
 
         var authRequest = new ExternalAuthRequest(
@@ -216,7 +224,7 @@ public class AuthController : ControllerBase
         });
         var base64User = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(json));
 
-        return Redirect($"/#/auth-callback?user={Uri.EscapeDataString(base64User)}");
+        return Redirect($"{targetBase}/#/auth-callback?user={Uri.EscapeDataString(base64User)}");
     }
 
     /// <summary>
@@ -241,6 +249,32 @@ public class AuthController : ControllerBase
         {
             return StatusCode(500, new { message = "Đã xảy ra lỗi trong quá trình xác thực.", detail = ex.Message });
         }
+    }
+
+    /// <summary>
+    /// Lấy thông tin tài khoản hiện tại từ phiên đăng nhập (Cookie / Claims).
+    /// </summary>
+    [HttpGet("me")]
+    public async Task<ActionResult<CurrentUserDto>> GetCurrentSessionUser()
+    {
+        if (User.Identity?.IsAuthenticated != true)
+        {
+            return Unauthorized(new { message = "Chưa đăng nhập." });
+        }
+
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+        {
+            return Unauthorized(new { message = "Không xác định được danh tính người dùng trong phiên." });
+        }
+
+        var user = await _authService.GetCurrentUserAsync(userId);
+        if (user == null)
+        {
+            return NotFound(new { message = "Không tìm thấy người dùng." });
+        }
+
+        return Ok(user);
     }
 
     /// <summary>

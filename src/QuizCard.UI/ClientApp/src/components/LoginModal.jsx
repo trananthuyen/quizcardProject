@@ -20,8 +20,9 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
         setLoadingProvider(provider);
 
         try {
-            // Chuyển hướng tới Backend OAuth endpoint (/api/auth/login-google hoặc /api/auth/login-facebook)
-            window.location.href = `/api/auth/login-${provider}`;
+             // Chuyển hướng tới Backend OAuth endpoint kèm returnUrl để sau khi đăng nhập sẽ quay lại đúng cổng hiện tại (vd: 5173 khi dev)
+            const currentOrigin = window.location.origin;
+            window.location.href = `/api/auth/login-${provider}?returnUrl=${encodeURIComponent(currentOrigin)}`;
         }
         catch (err) {
             setErrorMessage(err.message || 'Đăng nhập không thành công, vui lòng thử lại.');

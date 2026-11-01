@@ -44,13 +44,17 @@ export const api = {
         return res.json();
     },
     /**
-     * Lấy thông tin tài khoản hiện tại theo userId
+     * Lấy thông tin tài khoản hiện tại từ phiên đăng nhập máy chủ (Cookie) hoặc theo userId
      */
-    async getCurrentUser(userId) {
-        const res = await fetch(`${API_BASE}/auth/me/${userId}`);
-        if (!res.ok)
-            throw new Error('Không thể lấy thông tin tài khoản');
-        return res.json();
+    async getCurrentUser(userId = null) {
+        try {
+            const url = userId ? `${API_BASE}/auth/me/${userId}` : `${API_BASE}/auth/me`;
+            const res = await fetch(url);
+            if (!res.ok) return null;
+            return await res.json();
+        } catch {
+            return null;
+        }
     },
     /**
      * Gọi POST /api/auth/logout để xóa cookie phiên đăng nhập phía máy chủ

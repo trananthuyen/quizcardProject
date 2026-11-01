@@ -2,10 +2,12 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using QuizCard.Entities;
 using QuizCard.UI.Data;
 using QuizCard.UI.StartupExtensions;
+using System.Net;
 
 /// <summary>
 /// File điểm nhập (Entry Point) của ứng dụng ASP.NET Core (.NET 10).
@@ -15,6 +17,16 @@ using QuizCard.UI.StartupExtensions;
 /// 3. Cấu hình chuỗi Middleware đường ống xử lý HTTP Request (Pipeline) và phục vụ SPA (React).
 /// </summary>
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedProto;
+
+    // Chỉ sử dụng nếu Nginx chạy cùng VPS và kết nối qua loopback.
+    options.KnownProxies.Add(IPAddress.Loopback);
+});
 
 // 1.0 Cấu hình cho phép tải lên file nặng (Video bài giảng dung lượng lên tới 1 GB)
 // Áp dụng cho Kestrel Web Server, FormOptions Multipart và IIS
@@ -69,6 +81,9 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// Nhận diện HTTPS từ Nginx
+app.UseForwardedHeaders();
 
 // ============ DATABASE INITIALIZATION ============================
 

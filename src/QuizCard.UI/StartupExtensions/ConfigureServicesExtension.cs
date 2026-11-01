@@ -113,6 +113,8 @@ public static class ConfigureServicesExtension
                 options.ClientId = googleClientId;
                 options.ClientSecret = googleClientSecret;
                 options.SignInScheme = IdentityConstants.ExternalScheme;
+
+                options.CallbackPath = "/signin-google";
             });
         }
 

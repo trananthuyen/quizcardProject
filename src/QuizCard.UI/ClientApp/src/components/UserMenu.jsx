@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { AppWindow, SlidersHorizontal, Download, Plus, LogOut, ChevronRight, Check, LogIn } from 'lucide-react';
+import { AppWindow, SlidersHorizontal, Download, Plus, LogOut, ChevronRight, Check, LogIn, Copy } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 export const UserMenu = ({
@@ -8,6 +8,7 @@ export const UserMenu = ({
   avatarUrl,
   userName,
   userEmail,
+  userId,
   isLoggedIn = false,
   onOpenLoginModal,
   onLogout,
@@ -108,6 +109,20 @@ export const UserMenu = ({
         <div className="qc-user-menu-email">
           {isLoggedIn && userEmail ? userEmail : (isLoggedIn ? userName : 'Chưa đăng nhập')}
         </div>
+        {isLoggedIn && userId && (
+          <div
+            className="qc-user-menu-id-badge"
+            title={`ID Người dùng: ${userId} (Bấm để sao chép)`}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigator.clipboard?.writeText(String(userId));
+              alert(`Đã sao chép ID tài khoản:\n${userId}`);
+            }}
+          >
+            <span>ID: {String(userId).slice(0, 8)}...{String(userId).slice(-4)}</span>
+            <Copy size={11} className="qc-copy-id-icon" />
+          </div>
+        )}
       </div>
 
       <div className="qc-user-menu-divider" />

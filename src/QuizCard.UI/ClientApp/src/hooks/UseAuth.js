@@ -27,6 +27,36 @@ export const getStoredUser = () => {
 export const handleCurrentUser = getStoredUser;
 
 /**
+ * Hàm giải mã chuỗi Base64 UTF-8 an toàn:
+ * - Hỗ trợ cả khi '+' bị biến thành ' ' bởi URLSearchParams
+ * - Tự động bổ sung padding '=' nếu bị thiếu
+ * - Dùng TextDecoder('utf-8') giải mã tiếng Việt chuẩn xác tuyệt đối, tránh lỗi URI malformed
+ */
+export const parseSafeBase64Json = (base64Str) => {
+    if (!base64Str) return null;
+    try {
+        let clean = decodeURIComponent(base64Str).trim();
+        clean = clean.replace(/ /g, '+');
+        while (clean.length % 4 !== 0) {
+            clean += '=';
+        }
+
+        try {
+            const binary = atob(clean);
+            const bytes = Uint8Array.from(binary, (m) => m.charCodeAt(0));
+            const jsonStr = new TextDecoder('utf-8').decode(bytes);
+            return JSON.parse(jsonStr);
+        } catch {
+            const jsonStr = decodeURIComponent(escape(atob(clean)));
+            return JSON.parse(jsonStr);
+        }
+    } catch (err) {
+        console.error('Lỗi khi giải mã Base64 JSON người dùng:', err);
+        return null;
+    }
+};
+
+/**
  * Custom Hook useAuth:
  * Quản lý trạng thái người dùng, đóng/mở LoginModal, đăng xuất và lắng nghe callback OAuth (Google / Facebook).
  */
@@ -74,36 +104,59 @@ export const useAuth = () => {
     }, []);
 
     /**
-     * Lắng nghe và xử lý kết quả đăng nhập OAuth từ Backend Callback (Google / Facebook)
+     * Lắng nghe và xử lý kết quả đăng nhập OAuth từ Backend Callback (Google / Facebook),
+     * đồng thời tự động khôi phục phiên làm việc từ Cookie máy chủ nếu cần.
      */
     useEffect(() => {
         const checkAuthCallback = () => {
             const hash = window.location.hash || '';
             const search = window.location.search || '';
-            if (hash.includes('auth-callback')) {
+            const fullUrl = window.location.href || '';
+
+            if (hash.includes('auth-callback') || search.includes('user=') || fullUrl.includes('auth-callback')) {
                 try {
-                    const queryPart = hash.includes('?') ? hash.split('?')[1] : '';
-                    const params = new URLSearchParams(queryPart);
-                    const userParam = params.get('user');
+                    let userParam = null;
+                    if (hash.includes('?')) {
+                        const hashParams = new URLSearchParams(hash.split('?')[1]);
+                        userParam = hashParams.get('user');
+                    }
+                    if (!userParam && search) {
+                        const searchParams = new URLSearchParams(search);
+                        userParam = searchParams.get('user');
+                    }
+
                     if (userParam) {
-                        const jsonStr = decodeURIComponent(escape(atob(userParam)));
-                        const user = JSON.parse(jsonStr);
-                        handleLoginSuccess(user);
-                        window.location.hash = '#/community';
+                        const user = parseSafeBase64Json(userParam);
+                        if (user) {
+                            handleLoginSuccess(user);
+                            if (window.history?.replaceState) {
+                                window.history.replaceState(null, '', window.location.pathname + '#/community');
+                            } else {
+                                window.location.hash = '#/community';
+                            }
+                            return;
+                        }
                     }
                 } catch (err) {
                     console.error('Không thể phân tích dữ liệu đăng nhập từ URL:', err);
                 }
-            } else if (hash.includes('auth_error')) {
+            } else if (hash.includes('auth_error') || search.includes('auth_error')) {
                 alert('Đăng nhập OAuth không thành công từ nhà cung cấp. Vui lòng thử lại.');
                 window.location.hash = '#/community';
             } else if (search.includes('ReturnUrl') || search.includes('login') || hash.includes('login')) {
-                // Tự động mở modal đăng nhập khi người dùng được chuyển hướng về frontend do yêu cầu xác thực
                 setIsLoginModalOpen(true);
             }
         };
 
         checkAuthCallback();
+
+        // Đồng bộ và khôi phục thông tin phiên người dùng từ máy chủ (Cookie Session)
+        api.getCurrentUser().then((serverUser) => {
+            if (serverUser && (serverUser.id || serverUser.Id)) {
+                handleLoginSuccess(serverUser);
+            }
+        }).catch(() => { });
+
         window.addEventListener('hashchange', checkAuthCallback);
         return () => window.removeEventListener('hashchange', checkAuthCallback);
     }, [handleLoginSuccess]);

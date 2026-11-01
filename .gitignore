@@ -104,3 +104,14 @@ scratch/
 *.binlog
 msbuild.log
 msbuild.binlog
+
+# ------------------------------------------------------------------------------
+# 8. Visual Studio Publish Profiles & .NET Tools & Zips
+# ------------------------------------------------------------------------------
+**/Properties/PublishProfiles/
+Properties/PublishProfiles/
+*.pubxml
+*.pubxml.user
+**/dotnet-tools.json
+dotnet-tools.json
+*.zip
