@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { MonitorPlay, Play, Sparkles, Shuffle, Tag } from 'lucide-react';
+import { MonitorPlay, Play } from 'lucide-react';
 import { CaptionStudio } from './CaptionStudio';
 import { api } from '../api';
 import './VideoTutorials.css';
@@ -30,13 +30,6 @@ export const VideoTutorials = ({
 
     // Lọc danh sách theo tag chủ đề (không thêm chức năng tìm kiếm)
     const [selectedTag, setSelectedTag] = useState('ALL');
-
-    // Seed điều khiển xáo trộn ngẫu nhiên
-    const [shuffleSeed, setShuffleSeed] = useState(0);
-
-    const handleReshuffle = () => {
-        setShuffleSeed((prev) => prev + 1);
-    };
 
     useEffect(() => {
         let isMounted = true;
@@ -91,7 +84,7 @@ export const VideoTutorials = ({
     // Tự động sắp xếp ngẫu nhiên danh sách video bằng thuật toán Fisher-Yates
     const displayedVideos = useMemo(() => {
         return shuffleArray(filteredVideos);
-    }, [filteredVideos, shuffleSeed]);
+    }, [filteredVideos]);
 
     // Nếu người dùng chọn 1 bài học, hiển thị trang CaptionStudio tương tác đầy đủ
     if (selectedVideo) {

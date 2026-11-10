@@ -9,8 +9,6 @@ import {
   RotateCw,
   Trash2,
   Eye,
-  Server,
-  Filter,
   ChevronLeft,
   ChevronRight,
   Terminal,
@@ -541,4 +539,3 @@ export const AdminLogsManagement = () => {
     </div>
   );
 };
-

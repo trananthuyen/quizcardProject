@@ -9,7 +9,6 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { api } from './api';
 import { Sidebar } from './components/Sidebar';
 import { CommunityView } from './components/CommunityView';
-import { DeckList } from './components/DeckList';
 import { MyResources } from './components/MyResources';
 import { VideoTutorials } from './components/VideoTutorials';
 import { FolderList } from './components/FolderList';
@@ -22,9 +21,11 @@ import { FolderModal } from './components/FolderModal';
 import { LoginModal } from './components/LoginModal';
 import { ProgressView } from './components/ProgressView.jsx';
 import { RecentsView } from './components/RecentsView';
+import { LandingPage } from './components/landing/LandingPage';
+import { CookieConsentBar } from './components/landing/CookieConsentBar';
 import { AdminLogin } from './components/admin/AdminLogin';
 import { AdminDashboard } from './components/admin/AdminDashboard';
-import { Search, Flame, Zap, LogIn, Bell} from 'lucide-react';
+import { Flame, Zap, Bell} from 'lucide-react';
 import './App.css';
 
 import { useAuth } from './hooks/UseAuth.js';
@@ -84,7 +85,7 @@ export const App = () => {
     // Trạng thái điều hướng màn hình: 'DECKS' | 'CARDS' | 'STUDY' | 'QUIZ'
     const [view, setView] = useState(initialRoute.view);
     // Tab Sidebar hiện đang hoạt động
-    const [activeTab, setActiveTab] = useState(initialRoute.tab || 'community');
+    const [activeTab, setActiveTab] = useState(initialRoute.tab || 'welcome');
     // Danh sách toàn bộ các thư mục bộ thẻ từ Backend
     const [folders, setFolders] = useState([]);
     // Bộ thẻ hiện đang được người dùng bấm chọn để xem/học/thi
@@ -208,11 +209,6 @@ export const App = () => {
         await loadFolders(currentUser.id);
         return created;
     };
-    const handleUpdateFolder = async (id, data) => {
-        const updated = await api.updateFolder(id, data);
-        await Promise.all([loadFolders(currentUser?.id), loadDecks()]);
-        return updated;
-    };
     const handleDeleteFolder = async (id) => {
         await api.deleteFolder(id);
         await Promise.all([loadFolders(currentUser?.id), loadDecks()]);
@@ -301,8 +297,9 @@ export const App = () => {
             }
 
             let currentPath = window.location.pathname;
+            // Nếu truy cập địa chỉ localhost mặc định (/, /index.html hoặc trống) -> luôn chuyển sang /landing
             if (!currentPath || currentPath === '/' || currentPath === '/index.html') {
-                currentPath = getInitialPath();
+                currentPath = '/welcome';
                 if (window.location.pathname !== currentPath) {
                     window.history.replaceState(null, '', currentPath);
                 }
@@ -421,30 +418,26 @@ export const App = () => {
         );
     }
 
-    return (<div className="qc-app-container">
-        {/* 1. Thanh Sidebar điều phối chính bên trái */}
-        <Sidebar
-            isOpen={isSidebarOpen}
-            onToggle={toggleSidebar}
-            currentView={view}
-            activeTab={activeTab}
-            onSelectTab={handleSelectTab}
-            onNavigateHome={handleGoHome}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            onOpenCreateDeck={handleOpenCreateDeck}
-            onOpenFolders={() => setIsFolderModalOpen(true)}
-            selectedFilter={selectedFilter}
-            onSelectFilter={setSelectedFilter}
-            folders={folders}
-            currentUser={currentUser}
-            onOpenLoginModal={() => setIsLoginModalOpen(true)}
-            onLogout={handleLogout}
-        />
+    return (<div className={`qc-app-container ${activeTab === 'welcome' && view === 'DECKS' ? 'is-landing' : ''}`}>
+        {/* 1. Thanh Sidebar điều phối chính bên trái (Ẩn trên Landing Page) */}
+        {!(activeTab === 'welcome' && view === 'DECKS') && (
+            <Sidebar
+                isOpen={isSidebarOpen}
+                onToggle={toggleSidebar}
+                currentView={view}
+                activeTab={activeTab}
+                onSelectTab={handleSelectTab}
+                folders={folders}
+                currentUser={currentUser}
+                onOpenLoginModal={() => setIsLoginModalOpen(true)}
+                onLogout={handleLogout}
+            />
+        )}
 
         {/* 2. Vùng nội dung chính bên phải */}
         <div className="qc-main-area">
-            {/* Topbar điều hướng trên cùng */}
+            {/* Topbar điều hướng trên cùng (Ẩn khi xem Landing Page để hiển thị Topbar Figma chuẩn mẫu) */}
+            {!(activeTab === 'welcome' && view === 'DECKS') && (
             <header className="qc-topbar">
                 <div className="qc-topbar-left">
                     {activeTab === 'video' && selectedVideoLesson ? (
@@ -505,6 +498,7 @@ export const App = () => {
                     </button>
                 </div>
             </header>
+            )}
 
             {/* Nội dung thay đổi theo view và sidebar tab */}
             <main className="qc-main-scroll">
@@ -689,6 +683,39 @@ export const App = () => {
                             onSelectDeckForQuiz={handleSelectDeckForQuiz}
                         />
                     )}
+
+                    {/* Tab 4.8: Landing Page (Chuẩn mẫu Figma Community: 3 Decks, 3 Videos, Cookie Consent Bar) */}
+                    {activeTab === 'welcome' && (
+                        <LandingPage
+                            currentUser={currentUser}
+                            onSelectDeckForStudy={handleSelectDeckForStudy}
+                            onSelectDeckForQuiz={handleSelectDeckForQuiz}
+                            onOpenCreateDeck={() => {
+                                if (!currentUser) {
+                                    setIsLoginModalOpen(true);
+                                    return;
+                                }
+                                handleOpenCreateDeck();
+                            }}
+                            onNavigateTab={handleSelectTab}
+                            onStartLearning={() => handleSelectTab('video')}
+                            onOpenVideoLesson={(video) => {
+                                setActiveTab('video');
+                                setSelectedVideoLesson(video);
+                                if (video?.title) setVideoLessonTitle(video.title);
+                                if (view !== 'DECKS') {
+                                    setView('DECKS');
+                                    setSelectedDeck(null);
+                                    selectedDeckRef.current = null;
+                                }
+                                if (window.location.pathname !== '/video' || window.location.hash) {
+                                    window.history.pushState(null, '', '/video');
+                                }
+                                saveLastPath('/video');
+                            }}
+                            onOpenLoginModal={() => setIsLoginModalOpen(true)}
+                        />
+                    )}
                 </>)}
             </main>
         </div>
@@ -721,6 +748,9 @@ export const App = () => {
             onClose={() => setIsLoginModalOpen(false)}
             onLoginSuccess={handleLoginSuccess}
         />
+
+        {/* Thanh nút chọn Chấp nhận Cookie nằm ở phía dưới màn hình cho người dùng mới */}
+        <CookieConsentBar />
     </div>);
 };
 export default App;

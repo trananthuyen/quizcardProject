@@ -23,6 +23,19 @@
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
+/* Khi ở Landing Page: Không có Sidebar, giao diện trải rộng toàn màn hình */
+.qc-app-container.is-landing {
+  display: block;
+  width: 100%;
+}
+
+.qc-app-container.is-landing .qc-main-area {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 /* Sidebar */
 .qc-sidebar {
   width: 260px;
@@ -104,49 +117,6 @@
 .qc-bell-btn:hover {
   background-color: #f4f4f5;
   color: #18181b;
-}
-
-.qc-notification-dot {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 6px;
-  height: 6px;
-  background-color: #0d99ff;
-  border-radius: 50%;
-}
-
-/* Sidebar Search */
-.qc-sidebar-search {
-  position: relative;
-  margin: 4px 0 12px 0;
-}
-
-.qc-sidebar-search input {
-  width: 100%;
-  padding: 7px 10px 7px 30px;
-  background-color: #f4f4f5;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  font-size: 12.5px;
-  color: #18181b;
-  outline: none;
-  transition: all 0.15s;
-}
-
-.qc-sidebar-search input:focus {
-  background-color: #ffffff;
-  border-color: #0d99ff;
-  box-shadow: 0 0 0 2px rgba(13, 153, 255, 0.15);
-}
-
-.qc-sidebar-search-icon {
-  position: absolute;
-  left: 9px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #a1a1aa;
-  pointer-events: none;
 }
 
 /* Sidebar Nav Items */
@@ -440,202 +410,12 @@
   white-space: nowrap;
 }
 
-.qc-topbar-search {
-  position: relative;
-  width: 280px;
-}
-
-.qc-topbar-search input {
-  width: 100%;
-  padding: 6px 12px 6px 34px !important;
-  border-radius: 20px;
-  background-color: #f4f4f5;
-  border: 1px solid transparent;
-  font-size: 12.5px;
-  outline: none;
-  transition: all 0.15s;
-}
-
-.qc-topbar-search input:focus {
-  background-color: #ffffff;
-  border-color: #0d99ff;
-  box-shadow: 0 0 0 2px rgba(13, 153, 255, 0.15);
-}
-
-.qc-topbar-search-icon {
-  position: absolute;
-  left: 11px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #a1a1aa;
-}
-
 /* Community Page Body */
 .qc-community-body {
   padding: 24px 28px 48px 28px;
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
-}
-
-/* Hero Banner */
-.qc-hero-banner {
-  position: relative;
-  background: linear-gradient(180deg, #f0f7fe 0%, #e6f1fc 100%);
-  border-radius: 16px;
-  padding: 44px 24px 40px 24px;
-  text-align: center;
-  margin-bottom: 24px;
-  overflow: hidden;
-  border: 1px solid rgba(219, 234, 254, 0.8);
-}
-
-.qc-hero-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #18181b;
-  letter-spacing: -0.4px;
-  max-width: 680px;
-  margin: 0 auto 8px auto;
-  line-height: 1.35;
-}
-
-.qc-hero-title .highlight-blue {
-  color: #0d99ff;
-}
-
-.qc-hero-title .highlight-purple {
-  color: #6366f1;
-}
-
-.qc-hero-title .highlight-cyan {
-  color: #0284c7;
-}
-
-/* Floating stickers */
-.qc-sticker {
-  position: absolute;
-  border-radius: 8px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-  background-color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.qc-sticker:hover {
-  transform: scale(1.15) rotate(4deg);
-}
-
-.qc-sticker-palette {
-  top: 22px;
-  left: 28%;
-  padding: 6px 8px;
-  border-radius: 12px;
-  background: #ffffff;
-  border: 1px solid #e0f2fe;
-}
-
-.qc-sticker-hex {
-  top: 48px;
-  left: 20%;
-  padding: 5px;
-  border-radius: 10px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-}
-
-.qc-sticker-tag {
-  bottom: 24px;
-  left: 24%;
-  padding: 6px 12px;
-  border-radius: 10px;
-  background: #ffffff;
-  border: 1px solid #fce7f3;
-}
-
-.qc-sticker-aa {
-  top: 24px;
-  right: 28%;
-  padding: 4px 10px;
-  border-radius: 10px;
-  background: #ffffff;
-  border: 1px solid #f1f5f9;
-  font-weight: 700;
-  font-size: 13px;
-  color: #64748b;
-}
-
-.qc-sticker-sparkle {
-  top: 48px;
-  right: 20%;
-  padding: 6px 12px;
-  border-radius: 10px;
-  background: #ffffff;
-  border: 1px solid #ede9fe;
-}
-
-.qc-sticker-book {
-  bottom: 24px;
-  right: 24%;
-  padding: 6px 8px;
-  border-radius: 10px;
-  background: #ffffff;
-  border: 1px solid #e0f2fe;
-}
-
-/* Category Filter Pills Bar */
-.qc-pills-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 8px;
-  margin-bottom: 22px;
-  scrollbar-width: none;
-}
-
-.qc-pills-bar::-webkit-scrollbar {
-  display: none;
-}
-
-.qc-pill-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  border-radius: 20px;
-  border: 1px solid #e4e4e7;
-  background-color: #ffffff;
-  font-size: 12.5px;
-  font-weight: 500;
-  color: #27272a;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.qc-pill-btn:hover {
-  background-color: #f4f4f5;
-  border-color: #d4d4d8;
-}
-
-.qc-pill-btn.active {
-  background-color: #18181b;
-  color: #ffffff;
-  border-color: #18181b;
-}
-
-.qc-badge-new {
-  font-size: 9.5px;
-  font-weight: 700;
-  background-color: #0d99ff;
-  color: #ffffff;
-  padding: 1px 6px;
-  border-radius: 10px;
-  text-transform: uppercase;
 }
 
 /* Section Header */
@@ -697,159 +477,6 @@
   transform: translateY(-2px);
   box-shadow: 0 10px 24px -6px rgba(0, 0, 0, 0.08);
   border-color: #d4d4d8;
-}
-
-/* Upload Card (Basketball hoop style) */
-.qc-upload-card {
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 250px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.qc-upload-card:hover {
-  background-color: #f1f5f9;
-  border-color: #0d99ff;
-  box-shadow: 0 8px 20px -4px rgba(13, 153, 255, 0.12);
-}
-
-.qc-upload-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-}
-
-.qc-upload-title {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: #1e293b;
-}
-
-.qc-upload-subtitle {
-  font-size: 11px;
-  color: #64748b;
-  margin-top: 2px;
-}
-
-.qc-upload-count {
-  font-size: 10px;
-  color: #94a3b8;
-  font-weight: 600;
-}
-
-/* Basketball hoop area */
-.qc-hoop-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 16px 8px;
-  margin: 8px 0;
-}
-
-.qc-hoop-dropzone {
-  width: 140px;
-  height: 80px;
-  border: 1.5px dashed #cbd5e1;
-  border-radius: 10px;
-  background-color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  position: relative;
-  z-index: 1;
-}
-
-.qc-hoop-drop-text {
-  font-size: 10.5px;
-  color: #64748b;
-  font-weight: 600;
-}
-
-/* Orange basketball hoop rim & net */
-.qc-basketball-hoop {
-  position: relative;
-  margin-top: -14px;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.qc-backboard {
-  width: 48px;
-  height: 32px;
-  border: 2px solid #f97316;
-  border-radius: 4px;
-  background: rgba(249, 115, 22, 0.08);
-}
-
-.qc-rim {
-  width: 34px;
-  height: 5px;
-  background-color: #ea580c;
-  border-radius: 3px;
-  margin-top: -4px;
-}
-
-.qc-net {
-  width: 26px;
-  height: 18px;
-  border-left: 2px dashed #94a3b8;
-  border-right: 2px dashed #94a3b8;
-  border-bottom: 2px solid #94a3b8;
-  clip-path: polygon(0 0, 100% 0, 80% 100%, 20% 100%);
-  background: repeating-linear-gradient(45deg, transparent, transparent 3px, #cbd5e1 3px, #cbd5e1 4px);
-}
-
-/* File row in upload card */
-.qc-file-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #ffffff;
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #e2e8f0;
-}
-
-.qc-file-left {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-}
-
-.qc-file-name {
-  font-size: 11px;
-  font-weight: 500;
-  color: #334155;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100px;
-}
-
-.qc-file-progress {
-  width: 40px;
-  height: 4px;
-  background-color: #e2e8f0;
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.qc-file-progress-bar {
-  width: 100%;
-  height: 100%;
-  background-color: #10b981;
 }
 
 /* Deck Card Top Preview */
@@ -1127,7 +754,6 @@
   transform: scale(1.08);
 }
 
-
 /* ============================================================
    App Layout, Topbar Navigation & Restoring State
    ============================================================ */
@@ -1222,34 +848,6 @@
   100% { transform: rotate(360deg); }
 }
 
-
-.qc-sidebar-toggle-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background-color: transparent;
-  color: #71717a;
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  flex-shrink: 0;
-}
-
-.qc-sidebar-toggle-btn:hover {
-  background-color: #f4f4f5;
-  color: #18181b;
-  border-color: #e4e4e7;
-}
-
-.qc-sidebar-toggle-btn.closed {
-  background-color: #f4f4f5;
-  color: #0d99ff;
-  border-color: #bae6fd;
-}
-
 /* ============================================================
    CHẾ ĐỘ TỐI TOÀN DIỆN (COMPREHENSIVE DARK THEME)
    Tự động kích hoạt khi html hoặc body có [data-theme="dark"]
@@ -1314,17 +912,6 @@
 [data-theme="dark"] .qc-bell-btn:hover {
   background-color: #27272a;
   color: #f4f4f5;
-}
-
-[data-theme="dark"] .qc-sidebar-search input {
-  background-color: #27272a;
-  border-color: #3f3f46;
-  color: #ffffff;
-}
-
-[data-theme="dark"] .qc-sidebar-search input:focus {
-  background-color: #222226;
-  border-color: #0d99ff;
 }
 
 [data-theme="dark"] .qc-nav-item {
@@ -1407,17 +994,6 @@
   color: #ffffff;
 }
 
-[data-theme="dark"] .qc-topbar-search input {
-  background-color: #27272a;
-  border-color: #3f3f46;
-  color: #ffffff;
-}
-
-[data-theme="dark"] .qc-topbar-search input:focus {
-  background-color: #222226;
-  border-color: #0d99ff;
-}
-
 [data-theme="dark"] .qc-main-scroll {
   background-color: #121214;
 }
@@ -1425,69 +1001,6 @@
 /* ------------------------------------------------------------ */
 /* 2. COMMUNITY & DECK CARDS                                    */
 /* ------------------------------------------------------------ */
-[data-theme="dark"] .qc-hero-banner {
-  background: linear-gradient(180deg, #182234 0%, #111a26 100%);
-  border-color: #1e3a5f;
-}
-
-[data-theme="dark"] .qc-hero-title {
-  color: #ffffff;
-}
-
-[data-theme="dark"] .qc-sticker {
-  background-color: #1c1c20;
-  border-color: #2e2e34;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
-}
-
-[data-theme="dark"] .qc-sticker-palette {
-  background: #1c1c20;
-  border-color: #1e3a5f;
-}
-
-[data-theme="dark"] .qc-sticker-hex {
-  background: #1c1c20;
-  border-color: #2e2e34;
-}
-
-[data-theme="dark"] .qc-sticker-tag {
-  background: #1c1c20;
-  border-color: #382436;
-}
-
-[data-theme="dark"] .qc-sticker-aa {
-  background: #1c1c20;
-  border-color: #2e2e34;
-  color: #cbd5e1;
-}
-
-[data-theme="dark"] .qc-sticker-sparkle {
-  background: #1c1c20;
-  border-color: #382442;
-}
-
-[data-theme="dark"] .qc-sticker-book {
-  background: #1c1c20;
-  border-color: #1e3a5f;
-}
-
-[data-theme="dark"] .qc-pill-btn {
-  background-color: #1c1c20;
-  border-color: #2e2e34;
-  color: #a1a1aa;
-}
-
-[data-theme="dark"] .qc-pill-btn:hover {
-  background-color: #27272a;
-  color: #ffffff;
-  border-color: #3f3f46;
-}
-
-[data-theme="dark"] .qc-pill-btn.active {
-  background-color: #ffffff;
-  color: #18181b;
-  border-color: #ffffff;
-}
 
 [data-theme="dark"] .qc-feed-title {
   color: #ffffff;
@@ -1501,14 +1014,6 @@
 [data-theme="dark"] .qc-card:hover {
   border-color: #38bdf8 !important;
   box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.6) !important;
-}
-
-[data-theme="dark"] .qc-card-title {
-  color: #f4f4f5 !important;
-}
-
-[data-theme="dark"] .qc-card-desc {
-  color: #a1a1aa !important;
 }
 
 [data-theme="dark"] .qc-card-footer {
@@ -1539,29 +1044,6 @@
 
 [data-theme="dark"] .dc-gauge-number-light {
   color: #ffffff !important;
-}
-
-[data-theme="dark"] .qc-upload-card {
-  background-color: #18181b;
-  border-color: #27272a;
-}
-
-[data-theme="dark"] .qc-upload-card:hover {
-  background-color: #1c1c20;
-  border-color: #38bdf8;
-}
-
-[data-theme="dark"] .qc-upload-title {
-  color: #f4f4f5;
-}
-
-[data-theme="dark"] .qc-upload-subtitle {
-  color: #a1a1aa;
-}
-
-[data-theme="dark"] .qc-hoop-dropzone {
-  background-color: #1c1c20;
-  border-color: #3f3f46;
 }
 
 /* ------------------------------------------------------------ */
@@ -2198,16 +1680,6 @@
   color: #f4f4f5 !important;
 }
 
-[data-theme="dark"] .modal-header {
-  border-bottom-color: #2e2e34 !important;
-}
-
-[data-theme="dark"] .modal-footer {
-  border-top-color: #2e2e34 !important;
-  background-color: #18181b !important;
-}
-
-[data-theme="dark"] .modal-title,
 [data-theme="dark"] .sb-modal-title {
   color: #ffffff !important;
 }
@@ -2300,46 +1772,6 @@
   color: #34d399 !important;
 }
 
-/* Help Modal Steps */
-[data-theme="dark"] .hm-intro {
-  color: #d4d4d8 !important;
-}
-
-[data-theme="dark"] .hm-step-item {
-  background-color: #202024 !important;
-  border: 1px solid #2e2e34 !important;
-}
-
-[data-theme="dark"] .hm-step-title {
-  color: #ffffff !important;
-}
-
-[data-theme="dark"] .hm-step-desc {
-  color: #a1a1aa !important;
-}
-
-/* Video Tutorials */
-[data-theme="dark"] .vt-title {
-  color: #ffffff !important;
-}
-
-[data-theme="dark"] .vt-subtitle {
-  color: #a1a1aa !important;
-}
-
-[data-theme="dark"] .vt-video-card {
-  background-color: #18181b !important;
-  border: 1px solid #27272a !important;
-}
-
-[data-theme="dark"] .vt-video-title {
-  color: #ffffff !important;
-}
-
-[data-theme="dark"] .vt-video-desc {
-  color: #a1a1aa !important;
-}
-
 /* Stat Pills trong Dark Mode */
 [data-theme="dark"] .qc-stat-energy {
   background-color: rgba(234, 179, 8, 0.12) !important;
@@ -2363,73 +1795,4 @@
   background-color: rgba(249, 115, 22, 0.22) !important;
   border-color: #fdba74 !important;
   box-shadow: 0 2px 10px rgba(249, 115, 22, 0.25) !important;
-}
-
-
-/* Topbar Login Button & User Badge */
-.qc-topbar-login-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: 12px;
-  padding: 6px 14px;
-  background: #2563eb;
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.qc-topbar-login-btn:hover {
-  background: #1d4ed8;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
-}
-
-.qc-topbar-user-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-left: 12px;
-  padding: 4px 10px 4px 4px;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  user-select: none;
-}
-
-.qc-topbar-user-badge:hover {
-  background: #e2e8f0;
-}
-
-.qc-topbar-user-badge img {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.qc-topbar-user-name {
-  font-size: 12px;
-  font-weight: 600;
-  color: #1e293b;
-  max-width: 120px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-[data-theme="dark"] .qc-topbar-user-badge {
-  background: #1e293b;
-  border-color: #334155;
-}
-
-[data-theme="dark"] .qc-topbar-user-name {
-  color: #f1f5f9;
 }

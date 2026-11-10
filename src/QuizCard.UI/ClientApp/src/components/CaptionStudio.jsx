@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
-  ChevronDown,
-  UploadCloud,
   Play,
   Pause,
   RotateCcw,
@@ -434,13 +432,9 @@ export const CaptionStudio = ({
     return 'ai_podcast';
   });
 
-  const [customVideoUrl, setCustomVideoUrl] = useState(null);
-  const [customTitle, setCustomTitle] = useState(null);
-
   // Phụ đề tải về từ Cloudinary URL (trong trường hợp DB chưa lưu text)
   const [fetchedVttEn, setFetchedVttEn] = useState(lesson?.vttEnText || '');
   const [fetchedVttVi, setFetchedVttVi] = useState(lesson?.vttViText || '');
-  const [loadingSubs, setLoadingSubs] = useState(false);
 
   // 1. Tải danh sách video bài giảng từ database Cloudinary
   useEffect(() => {
@@ -486,12 +480,10 @@ export const CaptionStudio = ({
     if (currentDbVideo.vttEnText) {
       setFetchedVttEn(currentDbVideo.vttEnText);
     } else if (currentDbVideo.vttEnUrl) {
-      setLoadingSubs(true);
       fetch(currentDbVideo.vttEnUrl)
         .then((r) => (r.ok ? r.text() : ''))
         .then((text) => setFetchedVttEn(text))
         .catch((e) => console.warn('Lỗi khi nạp file VTT EN từ Cloudinary:', e))
-        .finally(() => setLoadingSubs(false));
     } else {
       setFetchedVttEn('');
     }
@@ -629,8 +621,8 @@ export const CaptionStudio = ({
     return SCENARIOS[selectedVideoKey] || SCENARIOS.ai_podcast;
   }, [currentDbVideo, selectedVideoKey, fetchedVttEn, fetchedVttVi]);
 
-  const activeTitle = customTitle || (currentDbVideo ? currentDbVideo.title : (lesson?.title || scenarioData.title));
-  const activeVideoSrc = customVideoUrl || (currentDbVideo ? (currentDbVideo.secureUrl || currentDbVideo.url || currentDbVideo.videoUrl) : (lesson?.secureUrl || lesson?.url || scenarioData.videoUrl));
+  const activeTitle = (currentDbVideo ? currentDbVideo.title : (lesson?.title || scenarioData.title));
+  const activeVideoSrc = (currentDbVideo ? (currentDbVideo.secureUrl || currentDbVideo.url || currentDbVideo.videoUrl) : (lesson?.secureUrl || lesson?.url || scenarioData.videoUrl));
 
   // Báo tiêu đề bài học lên component cha (App.jsx Topbar)
   useEffect(() => {
@@ -669,16 +661,8 @@ export const CaptionStudio = ({
   const [bookmarkedLines, setBookmarkedLines] = useState(new Set());
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Từ được chọn hiển thị ở thanh Inspector
-  const [inspectorData, setInspectorData] = useState({
-    vi: 'Chào',
-    en: 'Welcome',
-    time: 0.4,
-    speakerName: 'Mai Linh',
-  });
-
   // Tìm câu và từ đang hoạt động theo thời gian thực
-  const { activeLineIndex, activeWordIndex, currentLineObj, currentSpeaker } = useMemo(() => {
+  const { activeLineIndex, activeWordIndex, currentLineObj } = useMemo(() => {
     const transcript = scenarioData.transcript;
     let lineIdx = -1;
     let lineObj = null;
@@ -709,13 +693,10 @@ export const CaptionStudio = ({
       }
     }
 
-    const speaker = lineObj ? scenarioData.speakers[lineObj.speaker] : null;
-
     return {
       activeLineIndex: lineIdx,
       activeWordIndex: wordIdx,
       currentLineObj: lineObj,
-      currentSpeaker: speaker,
     };
   }, [scenarioData, currentTime, langMode]);
 
@@ -851,23 +832,6 @@ export const CaptionStudio = ({
     });
   };
 
-  // Tải video từ máy tính để luyện tập (phát tức thì qua Blob URL)
-  const handleFileUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const localUrl = URL.createObjectURL(file);
-    setCustomVideoUrl(localUrl);
-    setCustomTitle(`Video máy tính: ${file.name.replace(/\.[^/.]+$/, '')}`);
-
-    setTimeout(() => {
-      if (videoRef.current) {
-        videoRef.current.currentTime = 0;
-        videoRef.current.play().catch(() => {});
-        setIsPlaying(true);
-      }
-    }, 100);
-  };
 
   // Lọc danh sách hội thoại bên cột phải
   const filteredTranscript = useMemo(() => {
@@ -1424,7 +1388,6 @@ export const CaptionStudio = ({
             ) : (
               filteredTranscript.map((line) => {
                 const actualIndex = scenarioData.transcript.indexOf(line);
-                const spk = scenarioData.speakers[line.speaker];
                 const isCurrentLine = actualIndex === activeLineIndex;
                 const isBookmarked = bookmarkedLines.has(actualIndex);
 
@@ -1477,12 +1440,6 @@ export const CaptionStudio = ({
                               className={`tr-word ${isWordActive ? 'active-word' : ''}`}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setInspectorData({
-                                  vi: w.vi || line.viText || w.text,
-                                  en: w.en || line.enText || w.text,
-                                  time: w.start,
-                                  speakerName: spk?.name || 'Speaker',
-                                });
                                 seekTo(w.start);
                               }}
                             >
@@ -1519,4 +1476,3 @@ export const CaptionStudio = ({
     </div>
   );
 };
-

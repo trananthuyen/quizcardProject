@@ -9,8 +9,6 @@ import {
   X,
   Compass,
   BookOpen,
-  Calendar,
-  Sparkles,
   Layers,
   Globe,
   Heart,
@@ -578,4 +576,3 @@ export const RecentsView = ({
     </div>
   );
 };
-

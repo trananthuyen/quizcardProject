@@ -108,222 +108,9 @@
   flex-shrink: 0;
 }
 
-.cs-btn-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 12px;
-  border-radius: 10px;
-  background-color: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  color: #475569;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.cs-btn-back:hover {
-  background-color: #e2e8f0;
-  color: #0f172a;
-}
-
-.cs-brand-logo {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #4f46e5 0%, #0ea5e9 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
-}
-
-.cs-brand-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.cs-brand-title-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.cs-brand-title {
-  font-size: 17px;
-  font-weight: 800;
-  color: #0f172a;
-  margin: 0;
-  letter-spacing: -0.3px;
-}
-
-.cs-brand-title span {
-  color: #4f46e5;
-}
-
-.cs-brand-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 20px;
-  background-color: #eef2ff;
-  color: #4338ca;
-  border: 1px solid #c7d2fe;
-}
-
-.cs-pill-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: #4f46e5;
-}
-
-.cs-brand-desc {
-  font-size: 11.5px;
-  color: #64748b;
-  margin: 0;
-}
-
-.cs-header-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.cs-scenario-dropdown-wrap {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-}
-
-.cs-scenario-select {
-  appearance: none;
-  -webkit-appearance: none;
-  background-color: #f8fafc;
-  border: 1px solid #cbd5e1;
-  color: #0f172a;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 6px 30px 6px 12px;
-  border-radius: 9px;
-  cursor: pointer;
-  outline: none;
-  max-width: 280px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: all 0.15s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-}
-
-.cs-scenario-select:hover {
-  background-color: #f1f5f9;
-  border-color: #94a3b8;
-}
-
-.cs-scenario-select:focus {
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
-}
-
-.cs-scenario-chevron {
-  position: absolute;
-  right: 10px;
-  pointer-events: none;
-  color: #64748b;
-}
-
-.cs-spinner {
-  animation: cs-spin 1s linear infinite;
-}
-
 @keyframes cs-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
-}
-
-.cs-cloudinary-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 6px;
-  background-color: #ecfdf5;
-  color: #059669;
-  border: 1px solid #a7f3d0;
-  font-weight: 600;
-  max-width: 320px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.cs-cloudinary-badge.uploading {
-  background-color: #eff6ff;
-  color: #2563eb;
-  border-color: #bfdbfe;
-}
-
-.cs-cloudinary-badge.info {
-  background-color: #f8fafc;
-  color: #475569;
-  border-color: #cbd5e1;
-}
-
-.cs-admin-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.cs-btn-admin-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 9px;
-  background-color: #ecfdf5;
-  color: #065f46;
-  border: 1px solid #a7f3d0;
-  border-radius: 8px;
-  font-size: 11.5px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.cs-btn-admin-badge:hover {
-  background-color: #fee2e2;
-  color: #b91c1c;
-  border-color: #fca5a5;
-}
-
-.cs-btn-admin-login {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 11px;
-  background-color: #f1f5f9;
-  color: #475569;
-  border: 1px solid #cbd5e1;
-  border-radius: 9px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.cs-btn-admin-login:hover {
-  background-color: #e2e8f0;
-  color: #0f172a;
-  border-color: #94a3b8;
 }
 
 .cs-transcript-lang-bar {
@@ -1165,23 +952,6 @@ input[type="range"].cs-range-slider:focus,
   font-size: 12px;
 }
 
-.cs-speakers-list {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.cs-speaker-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 11.5px;
-  font-weight: 700;
-}
-
 /* ==========================================
    RIGHT COLUMN: TRANSCRIPT PANEL
    ========================================== */
@@ -1216,26 +986,12 @@ input[type="range"].cs-range-slider:focus,
   justify-content: space-between;
 }
 
-.cs-transcript-title-box {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 .cs-transcript-indicator-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background-color: #10b981;
   box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
-}
-
-.cs-transcript-title {
-  font-size: 13.5px;
-  font-weight: 800;
-  letter-spacing: 0.3px;
-  color: #0f172a;
-  margin: 0;
 }
 
 .cs-transcript-search-bar {
@@ -1288,15 +1044,6 @@ input[type="range"].cs-range-slider:focus,
   align-items: center;
 }
 
-.cs-inspector-word-pill {
-  padding: 2px 8px;
-  border-radius: 6px;
-  background-color: #4f46e5;
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 11px;
-}
-
 /* Scrollable Dialogue List */
 .cs-dialogue-list {
   flex: 1;
@@ -1335,29 +1082,6 @@ input[type="range"].cs-range-slider:focus,
   align-items: center;
   justify-content: space-between;
   margin-bottom: 8px;
-}
-
-.cs-dialogue-speaker {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.cs-speaker-avatar-box {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-}
-
-.cs-speaker-name-badge {
-  font-size: 11.5px;
-  font-weight: 800;
-  padding: 2px 8px;
-  border-radius: 20px;
 }
 
 .cs-dialogue-actions {
@@ -1479,10 +1203,6 @@ input[type="range"].cs-range-slider:focus,
   border-bottom-color: #27272a !important;
 }
 
-[data-theme="dark"] .cs-brand-title {
-  color: #ffffff !important;
-}
-
 [data-theme="dark"] .cs-breadcrumb .qc-breadcrumb-back {
   color: #38bdf8 !important;
 }
@@ -1497,66 +1217,6 @@ input[type="range"].cs-range-slider:focus,
 
 [data-theme="dark"] .cs-breadcrumb .qc-breadcrumb-sub {
   color: #a1a1aa !important;
-}
-
-[data-theme="dark"] .cs-btn-back {
-  background-color: #27272a !important;
-  border-color: #3f3f46 !important;
-  color: #f1f5f9 !important;
-}
-
-[data-theme="dark"] .cs-scenario-select {
-  background-color: #18181b !important;
-  border-color: #3f3f46 !important;
-  color: #f1f5f9 !important;
-}
-
-[data-theme="dark"] .cs-admin-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.cs-btn-admin-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 9px;
-  background-color: #ecfdf5;
-  color: #065f46;
-  border: 1px solid #a7f3d0;
-  border-radius: 8px;
-  font-size: 11.5px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.cs-btn-admin-badge:hover {
-  background-color: #fee2e2;
-  color: #b91c1c;
-  border-color: #fca5a5;
-}
-
-.cs-btn-admin-login {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 11px;
-  background-color: #f1f5f9;
-  color: #475569;
-  border: 1px solid #cbd5e1;
-  border-radius: 9px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.cs-btn-admin-login:hover {
-  background-color: #e2e8f0;
-  color: #0f172a;
-  border-color: #94a3b8;
 }
 
 [data-theme="dark"] .cs-transcript-lang-bar {
@@ -1582,30 +1242,6 @@ input[type="range"].cs-range-slider:focus,
   color: #818cf8 !important;
 }
 
-[data-theme="dark"] .cs-btn-upload {
-  background-color: #0284c7 !important;
-  border-color: #0369a1 !important;
-  color: #ffffff !important;
-}
-
-[data-theme="dark"] .cs-cloudinary-badge {
-  background-color: #064e3b !important;
-  color: #6ee7b7 !important;
-  border-color: #047857 !important;
-}
-
-[data-theme="dark"] .cs-cloudinary-badge.uploading {
-  background-color: #1e3a5f !important;
-  color: #93c5fd !important;
-  border-color: #2563eb !important;
-}
-
-[data-theme="dark"] .cs-cloudinary-badge.info {
-  background-color: #27272a !important;
-  color: #d4d4d8 !important;
-  border-color: #3f3f46 !important;
-}
-
 [data-theme="dark"] .cs-player-card,
 [data-theme="dark"] .cs-custom-card,
 [data-theme="dark"] .cs-transcript-panel {
@@ -1623,10 +1259,6 @@ input[type="range"].cs-range-slider:focus,
 
 [data-theme="dark"] .cs-scenario-badge,
 [data-theme="dark"] .cs-custom-title,
-[data-theme="dark"] .cs-transcript-title {
-  color: #ffffff !important;
-}
-
 [data-theme="dark"] .cs-dialogue-list {
   background-color: #111114 !important;
 }
@@ -1679,254 +1311,8 @@ input[type="range"].cs-range-slider:focus,
 }
 
 /* ==========================================
-   MODAL ĐĂNG NHẬP ADMIN AREA
-   ========================================== */
-.cs-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 999;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-.cs-modal-card {
-  width: 100%;
-  max-width: 440px;
-  background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 20px 40px -8px rgba(15, 23, 42, 0.25);
-  border: 1px solid #e2e8f0;
-  overflow: hidden;
-  animation: cs-modal-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes cs-modal-pop {
-  from { opacity: 0; transform: scale(0.95) translateY(8px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.cs-modal-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 18px 20px;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.cs-modal-title-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.cs-modal-icon-wrap {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background-color: #eff6ff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.cs-modal-title {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.cs-modal-subtitle {
-  margin: 2px 0 0;
-  font-size: 12px;
-  color: #64748b;
-}
-
-.cs-modal-close {
-  background: none;
-  border: none;
-  color: #94a3b8;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s;
-}
-
-.cs-modal-close:hover {
-  background-color: #f1f5f9;
-  color: #0f172a;
-}
-
-.cs-modal-body {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.cs-modal-error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
-  font-size: 12.5px;
-  font-weight: 500;
-}
-
-.cs-form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.cs-form-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #334155;
-}
-
-.cs-form-input {
-  width: 100%;
-  padding: 9px 12px;
-  border-radius: 9px;
-  border: 1px solid #cbd5e1;
-  background-color: #ffffff;
-  color: #0f172a;
-  font-size: 13px;
-  outline: none;
-  transition: all 0.15s;
-  box-sizing: border-box;
-}
-
-.cs-form-input:focus {
-  border-color: #0d99ff;
-  box-shadow: 0 0 0 3px rgba(13, 153, 255, 0.15);
-}
-
-.cs-modal-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 6px;
-}
-
-.cs-btn-modal-cancel {
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: 1px solid #cbd5e1;
-  background-color: #ffffff;
-  color: #475569;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.cs-btn-modal-cancel:hover {
-  background-color: #f1f5f9;
-  color: #0f172a;
-}
-
-.cs-btn-modal-submit {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: 1px solid #0284c7;
-  background-color: #0d99ff;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.cs-btn-modal-submit:hover {
-  background-color: #0284c7;
-}
-
-.cs-btn-modal-submit:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* ==========================================
    DARK MODE FOR ADMIN AREA MODAL & BUTTONS
    ========================================== */
-[data-theme="dark"] .cs-btn-admin-login {
-  background-color: #18181b !important;
-  border-color: #3f3f46 !important;
-  color: #cbd5e1 !important;
-}
-
-[data-theme="dark"] .cs-btn-admin-login:hover {
-  background-color: #27272a !important;
-  color: #ffffff !important;
-}
-
-[data-theme="dark"] .cs-btn-admin-badge {
-  background-color: #064e3b !important;
-  color: #6ee7b7 !important;
-  border-color: #047857 !important;
-}
-
-[data-theme="dark"] .cs-modal-card {
-  background-color: #18181b !important;
-  border-color: #27272a !important;
-  box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.6) !important;
-}
-
-[data-theme="dark"] .cs-modal-header {
-  border-bottom-color: #27272a !important;
-}
-
-[data-theme="dark"] .cs-modal-icon-wrap {
-  background-color: #1e293b !important;
-}
-
-[data-theme="dark"] .cs-modal-title {
-  color: #f8fafc !important;
-}
-
-[data-theme="dark"] .cs-modal-subtitle {
-  color: #94a3b8 !important;
-}
-
-[data-theme="dark"] .cs-form-label {
-  color: #cbd5e1 !important;
-}
-
-[data-theme="dark"] .cs-form-input {
-  background-color: #121214 !important;
-  border-color: #3f3f46 !important;
-  color: #f8fafc !important;
-}
-
-[data-theme="dark"] .cs-form-input:focus {
-  border-color: #38bdf8 !important;
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15) !important;
-}
-
-[data-theme="dark"] .cs-btn-modal-cancel {
-  background-color: #27272a !important;
-  border-color: #3f3f46 !important;
-  color: #cbd5e1 !important;
-}
-
 [data-theme="dark"] .cs-btn-fit {
   background-color: #202023 !important;
   border-color: #27272a !important;
@@ -1944,5 +1330,3 @@ input[type="range"].cs-range-slider:focus,
   border-color: #4f46e5 !important;
   color: #a5b4fc !important;
 }
-
-

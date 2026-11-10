@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, Sparkles, AlertCircle, ShieldCheck } from 'lucide-react';
 import './LoginModal.css';
 
-export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
+export const LoginModal = ({ isOpen, onClose }) => {
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [errorMessage, setErrorMessage] = useState(null);
     const [loadingProvider, setLoadingProvider] = useState(null);
@@ -46,7 +46,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                             <Sparkles size={22} />
                         </div>
                         <div className="qc-login-brand-name">
-                            Quiz<span>Card</span>
+                            Quiz<span>Library</span>
                         </div>
                     </div>
 

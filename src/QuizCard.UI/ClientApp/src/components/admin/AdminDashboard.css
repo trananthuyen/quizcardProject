@@ -111,36 +111,6 @@
   color: #1e293b;
 }
 
-.ad-user-role {
-  font-size: 10px;
-  font-weight: 700;
-  background-color: #ecfdf5;
-  color: #059669;
-  border: 1px solid #a7f3d0;
-  padding: 1px 6px;
-  border-radius: 12px;
-}
-
-.ad-btn-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  border-radius: 9px;
-  background-color: #ffffff;
-  border: 1px solid #cbd5e1;
-  color: #334155;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.ad-btn-back:hover {
-  background-color: #f1f5f9;
-  color: #0f172a;
-}
-
 .ad-btn-logout {
   display: inline-flex;
   align-items: center;
@@ -158,18 +128,6 @@
 
 .ad-btn-logout:hover {
   background-color: #fee2e2;
-}
-
-/* 2. MAIN CONTAINER */
-.ad-container {
-  max-width: 1440px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 24px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
 }
 
 /* Navigation Tabs Bar in Admin */
@@ -228,81 +186,6 @@
 [data-theme="dark"] .ad-nav-tab.active {
   background: #0d99ff;
   color: #ffffff;
-}
-
-/* Status banner */
-.ad-status-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  padding: 18px 22px;
-  border-radius: 14px;
-  border: 1px solid;
-}
-
-.ad-status-card.status-ok {
-  background-color: #f0fdf4;
-  border-color: #bbf7d0;
-}
-
-.ad-status-card.status-warning {
-  background-color: #fffbeb;
-  border-color: #fde68a;
-}
-
-.ad-status-icon {
-  margin-top: 2px;
-}
-
-.ad-status-info {
-  flex: 1;
-}
-
-.ad-status-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 4px;
-}
-
-.ad-status-title {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.ad-pill {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 12px;
-}
-
-.ad-pill.pill-green {
-  background-color: #dcfce7;
-  color: #15803d;
-  border: 1px solid #86efac;
-}
-
-.ad-pill.pill-yellow {
-  background-color: #fef3c7;
-  color: #b45309;
-  border: 1px solid #fcd34d;
-}
-
-.ad-status-desc {
-  margin: 0;
-  font-size: 12.5px;
-  color: #475569;
-  line-height: 1.5;
-}
-
-.ad-status-desc code {
-  background-color: rgba(0, 0, 0, 0.06);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: monospace;
 }
 
 /* Grid Layout */
@@ -1008,4 +891,3 @@
   background-color: #18181b !important;
   border-color: #3f3f46 !important;
 }
-

@@ -1,0 +1,2198 @@
+/* ============================================================
+   LandingPage.css
+   Giao diện Landing Page chuẩn hóa theo mẫu Figma Community
+   với 3 thẻ decks, 3 videos và thanh lựa chọn Cookie ở phía dưới.
+   ============================================================ */
+
+.qc-landing-root {
+  min-height: 100vh;
+  background-color: #ffffff;
+  color: #18181b;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+  position: relative;
+  padding-bottom: 90px;
+}
+
+/* ============================================================
+   1. TOP NAVBAR (Thanh điều hướng trên cùng)
+   ============================================================ */
+.qc-f-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 52px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  user-select: none;
+}
+
+.qc-fn-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.qc-fn-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background-color 0.15s;
+}
+
+.qc-fn-user:hover {
+  background-color: #f3f4f6;
+}
+
+.qc-fn-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.qc-fn-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.qc-fn-username {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #18181b;
+}
+
+.qc-fn-caret {
+  color: #71717a;
+}
+
+.qc-fn-divider {
+  width: 1px;
+  height: 20px;
+  background: #e5e7eb;
+}
+
+.qc-fn-brand {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
+  border-radius: 8px;
+  transition: background-color 0.15s, opacity 0.15s;
+}
+
+.qc-fn-brand:hover {
+  background: #f8fafc;
+  opacity: 0.92;
+}
+
+.qc-fn-brand-logo {
+  height: 32px;
+  width: auto;
+  max-width: 175px;
+  object-fit: contain;
+  display: block;
+}
+
+.qc-fn-brand-icon {
+  width: 26px;
+  height: 26px;
+  background: linear-gradient(135deg, #0d99ff 0%, #6366f1 100%);
+  color: #ffffff;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Nav links ở giữa - Căn chính giữa thanh navbar */
+.qc-fn-nav {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.qc-fn-nav-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #3f3f46;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.qc-fn-nav-item:hover {
+  background: #f4f4f5;
+  color: #09090b;
+}
+
+.qc-fn-nav-item.active-nav {
+  color: #09090b;
+}
+
+.qc-fn-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #0d99ff;
+  display: inline-block;
+}
+
+.qc-fn-badge-new {
+  font-size: 10px;
+  font-weight: 700;
+  background: #0d99ff;
+  color: #ffffff;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+}
+
+.qc-fn-icon-sub {
+  color: #71717a;
+}
+
+/* Nút Publish bên phải */
+.qc-fn-right {
+  display: flex;
+  align-items: center;
+}
+
+.qc-fn-publish-btn {
+  background: #0d99ff;
+  color: #ffffff;
+  border: none;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.15s, transform 0.1s;
+}
+
+.qc-fn-publish-btn:hover {
+  background: #0284c7;
+  transform: translateY(-1px);
+}
+
+/* ============================================================
+   2. HERO SECTION
+   ============================================================ */
+.qc-hero-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 36px 20px 24px 20px;
+  text-align: center;
+  position: relative;
+}
+
+/* Doodle icons uốn cong trên tiêu đề */
+.qc-doodle-arc {
+  position: relative;
+  height: 54px;
+  max-width: 460px;
+  margin: 0 auto 12px auto;
+}
+
+.qc-doodle-center-arc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+}
+
+.qc-doodle-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.qc-doodle-icon:hover {
+  transform: scale(1.22) rotate(6deg);
+}
+
+.qc-doodle-icon.d-user {
+  transform: translateY(8px);
+}
+.qc-doodle-icon.d-home {
+  transform: translateY(0px);
+}
+.qc-doodle-icon.d-heart {
+  transform: translateY(-6px);
+}
+.qc-doodle-icon.d-smile {
+  transform: translateY(0px);
+}
+.qc-doodle-icon.d-chat {
+  transform: translateY(8px);
+}
+
+.qc-doodle-icon.d-star-left {
+  position: absolute;
+  top: 18px;
+  left: 20px;
+}
+
+.qc-doodle-icon.d-at-left {
+  position: absolute;
+  bottom: 0px;
+  left: 55px;
+}
+
+.qc-doodle-icon.d-bookmark-right {
+  position: absolute;
+  top: 18px;
+  right: 65px;
+}
+
+.qc-doodle-icon.d-gear-right {
+  position: absolute;
+  bottom: 2px;
+  right: 20px;
+}
+
+/* Tiêu đề Hero */
+.qc-hero-headline {
+  font-size: 27px;
+  font-weight: 700;
+  color: #18181b;
+  letter-spacing: -0.3px;
+  margin: 0 auto 20px auto;
+  max-width: 660px;
+  line-height: 1.3;
+}
+
+/* Thanh tìm kiếm hình viên thuốc (Pill Search) */
+.qc-search-pill-wrapper {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.qc-search-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f3f4f6;
+  border-radius: 9999px;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.qc-search-pill:focus-within {
+  background: #ffffff;
+  border-color: #0d99ff;
+  box-shadow: 0 0 0 3px rgba(13, 153, 255, 0.15);
+}
+
+.qc-search-pill-icon {
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.qc-search-pill-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 13.5px;
+  color: #18181b;
+}
+
+.qc-search-pill-input::placeholder {
+  color: #9ca3af;
+}
+
+.qc-search-pill-clear {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+/* ============================================================
+   3. FEATURED BANNER CAROUSEL
+   ============================================================ */
+.qc-featured-banner-section {
+  max-width: 1160px;
+  margin: 12px auto 36px auto;
+  padding: 0 24px;
+}
+
+.qc-banner-card {
+  background: #fce8ee;
+  border: 1px solid #f9cbd6;
+  border-radius: 18px;
+  padding: 28px 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  min-height: 180px;
+}
+
+.qc-banner-left {
+  max-width: 420px;
+  z-index: 2;
+}
+
+.qc-banner-title {
+  font-size: 21px;
+  font-weight: 700;
+  color: #18181b;
+  margin: 0 0 8px 0;
+  line-height: 1.25;
+}
+
+.qc-banner-desc {
+  font-size: 13px;
+  color: #3f3f46;
+  line-height: 1.45;
+  margin: 0 0 18px 0;
+}
+
+.qc-carousel-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qc-carousel-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  color: #18181b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.qc-carousel-btn:hover {
+  background: #f4f4f5;
+  transform: translateY(-1px);
+}
+
+.qc-carousel-pause {
+  width: auto;
+  border-radius: 9999px;
+  padding: 0 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  gap: 4px;
+}
+
+/* Cụm minh họa bên phải của Banner */
+.qc-banner-right {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 140px;
+}
+
+.qc-fanned-cards-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-right: 40px;
+}
+
+.qc-fan-card {
+  width: 105px;
+  height: 125px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.25s ease;
+}
+
+.qc-fan-card:hover {
+  transform: translateY(-6px) scale(1.05) !important;
+  z-index: 10;
+}
+
+.qc-fan-card.card-red {
+  background: #fee2e2;
+  border: 4px solid #ef4444;
+  transform: rotate(-10deg) translateX(15px);
+  z-index: 1;
+}
+
+.qc-fan-card.card-cyan {
+  background: #e0f2fe;
+  border: 4px solid #38bdf8;
+  transform: rotate(0deg);
+  z-index: 2;
+}
+
+.qc-fan-card.card-yellow {
+  background: #fef08a;
+  border: 4px solid #eab308;
+  transform: rotate(10deg) translateX(-15px);
+  z-index: 3;
+}
+
+.qc-fan-card-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.qc-banner-mascots-cluster {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  margin-left: 10px;
+}
+
+.qc-cluster-item {
+  transition: transform 0.2s;
+}
+
+.qc-cluster-item:hover {
+  transform: scale(1.15) translateY(-3px);
+}
+
+/* ============================================================
+   4. SECTION 1: 3 THẺ DECKS
+   ============================================================ */
+.qc-section-decks {
+  max-width: 1160px;
+  margin: 0 auto 48px auto;
+  padding: 0 24px;
+}
+
+.qc-section-header {
+  margin-bottom: 16px;
+}
+
+.qc-section-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #18181b;
+  margin: 0;
+}
+
+.qc-decks-row-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  align-items: stretch;
+}
+
+.qc-deck-card-v2 {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.qc-deck-card-v2:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e1;
+}
+
+.qc-deck-banner-box {
+  height: 175px;
+  position: relative;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+/* Nghệ thuật Banner 1: Vàng FIGMA IS BETTER WITH FRIENDS */
+.qc-banner-art.qc-banner-yellow {
+  width: 100%;
+  height: 100%;
+  background: #ffe169;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 22px;
+  box-sizing: border-box;
+}
+
+.qc-banner-yellow-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.qc-by-line1,
+.qc-by-line2,
+.qc-by-line3,
+.qc-by-line4 {
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.05;
+  color: #18181b;
+  letter-spacing: -0.5px;
+}
+
+.qc-by-brand {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #18181b;
+  margin-top: 10px;
+}
+
+.qc-banner-yellow-chars {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+}
+
+/* Nghệ thuật Banner 2: Nét vẽ HELLO KITTY AND FRIENDS */
+.qc-banner-art.qc-banner-white-sketch {
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.qc-sketch-header {
+  text-align: center;
+  margin-bottom: 2px;
+}
+
+.qc-sketch-title {
+  display: block;
+  font-size: 16px;
+  font-weight: 900;
+  color: #18181b;
+  letter-spacing: 0.5px;
+}
+
+.qc-sketch-sub {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  color: #18181b;
+  letter-spacing: 0.8px;
+}
+
+.qc-sketch-rainbow {
+  width: 160px;
+  height: 60px;
+}
+
+.qc-sketch-mascots-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: -12px;
+  z-index: 2;
+}
+
+/* Nghệ thuật Banner 3: Xanh ngọc Hello Kitty and Friends Template */
+.qc-banner-art.qc-banner-sky {
+  width: 100%;
+  height: 100%;
+  background: #bae6fd;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.qc-sky-title {
+  font-size: 15px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.qc-sky-subtitle {
+  font-size: 14px;
+  font-weight: 900;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.qc-sky-landscape {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.qc-apple-house {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.qc-sky-friends-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Lớp Hover Overlay trên Deck Banner */
+.qc-deck-hover-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.qc-deck-card-v2:hover .qc-deck-hover-overlay {
+  opacity: 1;
+}
+
+.qc-deck-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.15s, background-color 0.15s;
+}
+
+.qc-deck-action-btn.btn-study {
+  background: #0d99ff;
+  color: #ffffff;
+}
+
+.qc-deck-action-btn.btn-study:hover {
+  background: #0284c7;
+  transform: scale(1.05);
+}
+
+.qc-deck-action-btn.btn-quiz {
+  background: #ffffff;
+  color: #18181b;
+}
+
+.qc-deck-action-btn.btn-quiz:hover {
+  background: #f4f4f5;
+  transform: scale(1.05);
+}
+
+.qc-deck-action-btn.btn-preview {
+  background: rgba(255, 255, 255, 0.85);
+  color: #18181b;
+}
+
+.qc-deck-action-btn.btn-preview:hover {
+  background: #ffffff;
+  transform: scale(1.05);
+}
+
+/* Box thông tin deck bên dưới */
+.qc-deck-info-box {
+  padding: 12px 14px 14px 14px;
+}
+
+.qc-deck-item-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #18181b;
+  margin: 0 0 4px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qc-deck-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.qc-deck-author-label {
+  font-size: 12px;
+  color: #71717a;
+}
+
+.qc-deck-stats-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.qc-stat-heart {
+  background: none;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #71717a;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.qc-stat-heart.liked {
+  color: #ef4444;
+}
+
+.qc-stat-heart:hover {
+  color: #ef4444;
+}
+
+.qc-stat-users {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #71717a;
+  font-size: 12px;
+}
+
+/* ============================================================
+   5. SECTION 2: 3 VIDEOS (Introducing Riffs)
+   ============================================================ */
+.qc-section-videos {
+  max-width: 1160px;
+  margin: 0 auto 40px auto;
+  padding: 0 24px;
+}
+
+.qc-section-header.with-link {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.qc-section-subtitle {
+  font-size: 13px;
+  color: #71717a;
+  margin: 3px 0 0 0;
+}
+
+.qc-browse-riffs-link {
+  background: none;
+  border: none;
+  color: #0d99ff;
+  font-size: 13.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.qc-browse-riffs-link:hover {
+  color: #0284c7;
+}
+
+.qc-videos-row-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.qc-video-card-v2 {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.qc-video-card-v2:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.08);
+}
+
+.qc-video-preview-box {
+  height: 175px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Box 1: Upload files */
+.qc-video-preview-box.box-upload {
+  background: #f4f4f5;
+  padding: 16px;
+}
+
+.qc-upload-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.qc-upload-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #18181b;
+}
+
+.qc-upload-sub {
+  font-size: 11px;
+  color: #71717a;
+}
+
+.qc-upload-badge {
+  font-size: 10px;
+  background: #e4e4e7;
+  color: #52525b;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.qc-upload-dropzone {
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 500;
+  background: #ffffff;
+}
+
+/* Box 2: Bounce Plugin */
+.qc-video-preview-box.box-bounce {
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.qc-bounce-tag {
+  font-size: 12px;
+  color: #52525b;
+  margin-bottom: 16px;
+}
+
+.qc-bounce-visual {
+  display: flex;
+  gap: 10px;
+}
+
+.bounce-cube {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  animation: bounceCube 1.5s infinite ease-in-out;
+}
+
+.bounce-cube.b-1 {
+  background: #0d99ff;
+  animation-delay: 0s;
+}
+.bounce-cube.b-2 {
+  background: #6366f1;
+  animation-delay: 0.2s;
+}
+.bounce-cube.b-3 {
+  background: #ec4899;
+  animation-delay: 0.4s;
+}
+
+@keyframes bounceCube {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+/* Box 3: Card shuffle */
+.qc-video-preview-box.box-shuffle {
+  background: #111827;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.qc-riff-badge-number {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #9ca3af;
+  letter-spacing: 0.8px;
+}
+
+.qc-riff-bold-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 4px 0 0 0;
+}
+
+.qc-riff-mini-cards {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.mini-c {
+  width: 28px;
+  height: 38px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Play button overlay & duration */
+.qc-video-play-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.qc-video-card-v2:hover .qc-video-play-overlay {
+  opacity: 1;
+}
+
+.qc-play-circle-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #0d99ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 3px;
+  box-shadow: 0 4px 12px rgba(13, 153, 255, 0.4);
+  transition: transform 0.15s;
+}
+
+.qc-play-circle-btn:hover {
+  transform: scale(1.1);
+}
+
+.qc-video-duration-pill {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Thông tin video bên dưới */
+.qc-video-info-box {
+  padding: 12px 14px 14px 14px;
+}
+
+.qc-video-item-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #18181b;
+  margin: 0 0 4px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qc-video-item-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #71717a;
+}
+
+.qc-video-badge-interactive {
+  color: #0d99ff;
+  font-weight: 600;
+}
+
+/* ============================================================
+   6. FLOATING HELP BUTTON (?)
+   ============================================================ */
+.qc-floating-help-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 999;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.qc-floating-help-btn:hover {
+  transform: scale(1.1) rotate(-6deg);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  border-color: #cbd5e1;
+}
+
+.qc-help-question-mark {
+  font-size: 17px;
+  font-weight: 700;
+  color: #374151;
+}
+
+/* Help Modal Box */
+.qc-help-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.qc-help-modal-box {
+  background: #ffffff;
+  border-radius: 18px;
+  max-width: 460px;
+  width: 100%;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.16);
+  border: 1px solid #e2e8f0;
+}
+
+.qc-help-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.qc-help-modal-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+  color: #0f172a;
+}
+
+.qc-help-modal-close {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.qc-help-modal-body h4 {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 12px 0 6px 0;
+}
+
+.qc-help-modal-body p {
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.5;
+  margin: 0 0 6px 0;
+}
+
+.qc-btn-reopen-cookie {
+  margin-top: 8px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.qc-btn-reopen-cookie:hover {
+  background: #e2e8f0;
+}
+
+/* ============================================================
+   7. MODAL XEM TRƯỚC THẺ BỘ BÀI
+   ============================================================ */
+.qc-deck-preview-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.qc-deck-preview-modal {
+  background: #ffffff;
+  border-radius: 20px;
+  max-width: 620px;
+  width: 100%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid #e2e8f0;
+}
+
+.qc-dpm-header {
+  padding: 18px 22px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.qc-dpm-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0d99ff;
+  text-transform: uppercase;
+}
+
+.qc-dpm-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 2px 0 2px 0;
+}
+
+.qc-dpm-meta {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.qc-dpm-close {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+}
+
+.qc-dpm-body {
+  padding: 18px 22px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.qc-dpm-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qc-dpm-card-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.qc-dpm-card-term {
+  font-size: 13.5px;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.qc-dpm-num {
+  color: #0d99ff;
+  font-weight: 700;
+  margin-right: 6px;
+}
+
+.qc-dpm-card-def {
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.45;
+}
+
+.qc-dpm-footer {
+  padding: 14px 22px;
+  border-top: 1px solid #f1f5f9;
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.qc-dpm-btn-quiz {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.qc-dpm-btn-quiz:hover {
+  background: #f1f5f9;
+}
+
+.qc-dpm-btn-study {
+  background: #0d99ff;
+  border: none;
+  color: #ffffff;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.qc-dpm-btn-study:hover {
+  background: #0284c7;
+}
+
+/* ============================================================
+   SECTIONS: WHAT IS NEW & ABOUT US
+   ============================================================ */
+
+#what-is-new,
+#about-us {
+  scroll-margin-top: 70px;
+}
+
+/* Section: What's New */
+.qc-section-what-new {
+  max-width: 1200px;
+  margin: 64px auto 0 auto;
+  padding: 0 24px;
+}
+
+.qc-section-header-center {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 36px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qc-section-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  color: #0284c7;
+  padding: 5px 14px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  letter-spacing: -0.1px;
+}
+
+.qc-section-badge-pill.pill-about {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #15803d;
+}
+
+.qc-section-headline-lg {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.5px;
+  margin: 0 0 12px 0;
+  line-height: 1.25;
+}
+
+.qc-section-subline-lg {
+  font-size: 15px;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Features Grid */
+.qc-features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.qc-feature-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+}
+
+.qc-feature-card:hover {
+  transform: translateY(-3px);
+  border-color: #cbd5e1;
+  box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.08);
+}
+
+.qc-feature-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.qc-feature-icon-box.icon-blue {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.qc-feature-icon-box.icon-purple {
+  background: #f3e8ff;
+  color: #9333ea;
+}
+
+.qc-feature-icon-box.icon-cyan {
+  background: #cffafe;
+  color: #0891b2;
+}
+
+.qc-feature-icon-box.icon-emerald {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.qc-feature-icon-box.icon-amber {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.qc-feature-icon-box.icon-rose {
+  background: #ffe4e6;
+  color: #e11d48;
+}
+
+.qc-feature-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.qc-feature-tag-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.qc-feature-tag {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.3px;
+}
+
+.qc-feature-version {
+  font-size: 11px;
+  font-weight: 600;
+  background: #f1f5f9;
+  color: #475569;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.qc-feature-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 8px 0;
+  line-height: 1.35;
+}
+
+.qc-feature-desc {
+  font-size: 13.5px;
+  color: #64748b;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ============================================================
+   Section: About Us
+   ============================================================ */
+.qc-section-about-us {
+  max-width: 1200px;
+  margin: 64px auto 0 auto;
+  padding: 0 24px;
+}
+
+.qc-about-card {
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 44px 36px;
+}
+
+.qc-about-top-row {
+  max-width: 760px;
+  margin-bottom: 32px;
+}
+
+.qc-about-headline {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 12px 0;
+  letter-spacing: -0.4px;
+  line-height: 1.3;
+}
+
+.qc-about-desc {
+  font-size: 15px;
+  color: #475569;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.qc-about-values-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 36px;
+}
+
+.qc-value-item {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.qc-value-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.06);
+}
+
+.qc-value-badge {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0d99ff;
+  margin-bottom: 10px;
+  letter-spacing: 0.5px;
+}
+
+.qc-value-item h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+}
+
+.qc-value-item p {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Footer CTA trong About Us */
+.qc-about-footer-cta {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+}
+
+.qc-about-cta-text h4 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.qc-about-cta-text p {
+  font-size: 13.5px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* ============================================================
+   8. FOOTER / BOTTOM THÔNG TIN DỰ ÁN
+   ============================================================ */
+.qc-landing-footer {
+  margin-top: 80px;
+  background-color: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 14px;
+}
+
+.qc-footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 56px 24px 40px 24px;
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1.1fr 1.1fr;
+  gap: 40px;
+}
+
+.qc-footer-col-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.qc-footer-brand-wrap {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  transition: opacity 0.15s;
+}
+
+.qc-footer-brand-wrap:hover {
+  opacity: 0.85;
+}
+
+.qc-footer-logo-img {
+  height: 34px;
+  width: auto;
+  max-width: 180px;
+  object-fit: contain;
+  display: block;
+}
+
+.qc-footer-desc {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #64748b;
+  margin: 0;
+  max-width: 360px;
+}
+
+.qc-footer-meta-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #64748b;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  padding: 6px 14px;
+  width: fit-content;
+}
+
+.qc-fstat-item strong {
+  color: #0f172a;
+}
+
+.qc-fstat-dot {
+  color: #cbd5e1;
+}
+
+.qc-footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.qc-footer-heading {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin: 0;
+}
+
+.qc-footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qc-footer-links button {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13.5px;
+  color: #64748b;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.15s ease, transform 0.1s ease;
+  line-height: 1.4;
+}
+
+.qc-footer-links button:hover {
+  color: #0d99ff;
+  transform: translateX(2px);
+}
+
+.qc-footer-text-link {
+  font-size: 13.5px;
+  color: #64748b;
+  line-height: 1.4;
+  display: inline-block;
+  cursor: default;
+}
+
+/* Thanh copyright đáy trang */
+.qc-footer-bottom-bar {
+  border-top: 1px solid #e2e8f0;
+  background: #ffffff;
+  padding: 18px 24px;
+}
+
+.qc-footer-bottom-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.qc-footer-copyright strong {
+  color: #475569;
+}
+
+.qc-footer-back-to-top {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #475569;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.qc-footer-back-to-top:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+/* ============================================================
+   9. DYNAMIC BACKEND DECKS & VIDEOS, SHUFFLE & SKELETONS
+   ============================================================ */
+.qc-section-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.qc-shuffle-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+.qc-shuffle-pill-btn:hover:not(:disabled) {
+  background: #e0f2fe;
+  border-color: #bae6fd;
+  color: #0284c7;
+}
+
+.qc-shuffle-pill-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.qc-shuffle-pill-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@keyframes qcSpinAnim {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.qc-spin-icon {
+  animation: qcSpinAnim 0.8s linear infinite;
+}
+
+/* Dynamic Backend Deck Banners */
+.qc-dynamic-banner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  gap: 12px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.qc-dynamic-banner-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.qc-dynamic-pill {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qc-dynamic-pill.pill-dark {
+  background: rgba(24, 24, 27, 0.12);
+  color: #18181b;
+}
+
+.qc-dynamic-pill.pill-outline {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  z-index: 2;
+}
+
+.qc-dynamic-pill.pill-sky {
+  background: rgba(255, 255, 255, 0.72);
+  color: #0369a1;
+}
+
+.qc-dynamic-banner-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.25;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+  z-index: 2;
+}
+
+.qc-dynamic-banner-title.center {
+  text-align: center;
+}
+
+.qc-dynamic-banner-sub {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: rgba(15, 23, 42, 0.72);
+  z-index: 2;
+}
+
+.qc-dynamic-mascot {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: 50%;
+  padding: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+}
+
+.qc-dynamic-banner-sketch {
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+.qc-dynamic-bg-rainbow {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 180px;
+  height: 75px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.qc-dynamic-sketch-bottom {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 2;
+}
+
+/* Author Avatar & Disabled states */
+.qc-deck-author-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+  margin-right: 8px;
+}
+
+.qc-deck-author-avatar-mini {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.qc-deck-author-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qc-deck-action-btn:disabled,
+.qc-dpm-btn-quiz:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Real Video Thumbnail from Backend */
+.qc-video-preview-box.box-real-video {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  position: relative;
+}
+
+.qc-video-real-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.qc-video-card-v2:hover .qc-video-real-thumb {
+  transform: scale(1.04);
+}
+
+.qc-video-sub-pill {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 3;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(4px);
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.qc-video-play-overlay.always-visible-soft {
+  opacity: 1;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.08) 0%, rgba(15, 23, 42, 0.42) 100%);
+}
+
+.qc-video-card-v2:hover .qc-video-play-overlay.always-visible-soft {
+  background: rgba(15, 23, 42, 0.45);
+}
+
+/* Loading Skeleton Shimmer */
+@keyframes qcShimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.qc-card-skeleton {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.qc-skeleton-banner {
+  height: 175px;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 800px 100%;
+  animation: qcShimmer 1.4s infinite linear;
+}
+
+.qc-skeleton-body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.qc-skeleton-line {
+  height: 14px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 800px 100%;
+  animation: qcShimmer 1.4s infinite linear;
+}
+
+.qc-skeleton-line.w-75 { width: 75%; }
+.qc-skeleton-line.w-50 { width: 50%; height: 12px; }
+
+.qc-section-empty-box {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 14px;
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+  color: #64748b;
+  font-size: 13.5px;
+}
+
+.qc-section-empty-box p {
+  margin: 0;
+}
+
+/* Modal Preview Loading & Empty States */
+.qc-dpm-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 36px 16px;
+  color: #64748b;
+  font-size: 13.5px;
+}
+
+.qc-dpm-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #0d99ff;
+  border-radius: 50%;
+  animation: qcSpinAnim 0.8s linear infinite;
+}
+
+.qc-dpm-empty {
+  text-align: center;
+  padding: 28px 16px;
+  color: #64748b;
+  font-size: 13.5px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px dashed #cbd5e1;
+}
+
+.qc-dpm-card-example {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #64748b;
+  font-style: italic;
+}
+
+/* ============================================================
+   RESPONSIVE DESIGN
+   ============================================================ */
+@media (max-width: 1024px) {
+  .qc-decks-row-3,
+  .qc-videos-row-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .qc-features-grid,
+  .qc-about-values-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .qc-footer-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+
+  .qc-banner-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+  }
+
+  .qc-banner-left {
+    max-width: 100%;
+  }
+
+  .qc-carousel-controls {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .qc-fn-nav {
+    display: none;
+  }
+
+  .qc-section-header.with-link {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .qc-decks-row-3,
+  .qc-videos-row-3,
+  .qc-features-grid,
+  .qc-about-values-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .qc-footer-container {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 40px 20px 30px 20px;
+  }
+
+  .qc-footer-bottom-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .qc-about-footer-cta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .qc-section-headline-lg,
+  .qc-about-headline {
+    font-size: 22px;
+  }
+
+  .qc-about-card {
+    padding: 28px 20px;
+  }
+
+  .qc-hero-headline {
+    font-size: 22px;
+  }
+
+  .qc-fanned-cards-wrapper {
+    margin-right: 0;
+  }
+}
