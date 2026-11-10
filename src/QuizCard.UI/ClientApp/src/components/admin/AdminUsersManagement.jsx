@@ -11,13 +11,7 @@ import {
   Globe,
   Lock,
   Calendar,
-  Sparkles,
   Server,
-  Folder,
-  ArrowUpDown,
-  CheckCircle,
-  HelpCircle,
-  AlertTriangle,
 } from 'lucide-react';
 import { api } from '../../api';
 import './AdminUsersManagement.css';
@@ -45,7 +39,6 @@ export const AdminUsersManagement = () => {
   const [isSystemModal, setIsSystemModal] = useState(false);
   const [userDecks, setUserDecks] = useState([]);
   const [loadingDecks, setLoadingDecks] = useState(false);
-  const [actionMessage, setActionMessage] = useState({ type: '', text: '' });
 
   // Debounce tìm kiếm
   useEffect(() => {
@@ -570,4 +563,3 @@ export const AdminUsersManagement = () => {
     </div>
   );
 };
-

@@ -143,8 +143,6 @@
 }
 
 /* Lưới hiển thị các bộ thẻ Flashcard (Cards Grid) */
-.mr-cards-grid,
-.dl-cards-grid,
 .qc-card-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -152,26 +150,19 @@
 }
 
 @media (max-width: 1280px) {
-  .mr-cards-grid,
-  .dl-cards-grid,
   .qc-card-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media (max-width: 900px) {
-  .mr-cards-grid,
-  .dl-cards-grid,
   .qc-card-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 640px) {
-  .mr-cards-grid,
-  .dl-cards-grid,
   .qc-card-grid {
     grid-template-columns: 1fr;
   }
 }
-

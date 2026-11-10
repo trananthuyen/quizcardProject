@@ -6,6 +6,7 @@
 
 // Danh sách các tab hợp lệ trên Sidebar
 export const VALID_TABS = [
+    'welcome',
     'community',
     'resources',
     'video',
@@ -17,6 +18,7 @@ export const VALID_TABS = [
 
 // Bản đồ tiêu đề hiển thị trên thanh Topbar tương ứng với từng tab
 export const TAB_TITLES = {
+    welcome: 'Khám Phá',
     resources: 'My Resources',
     video: 'Videos & Tutorials',
     recents: 'Recents',
@@ -46,7 +48,7 @@ export const parseRoute = (urlString = '') => {
     const clean = urlString.replace(/^#\/?/, '').replace(/^\//, '');
     const parts = clean.split('/').filter(Boolean);
     if (parts.length === 0) {
-        return { view: 'DECKS', tab: 'community' };
+        return { view: 'DECKS', tab: 'welcome' };
     }
 
     const segment = parts[0].toLowerCase();
@@ -66,7 +68,7 @@ export const parseRoute = (urlString = '') => {
         return { view: 'DECKS', tab: segment };
     }
 
-    return { view: 'DECKS', tab: 'community' };
+    return { view: 'DECKS', tab: 'welcome' };
 };
 
 /**
@@ -93,27 +95,34 @@ export const getInitialPath = () => {
         // Nếu người dùng truy cập bằng link có hash cũ (e.g. /#/video hoặc #/study/...)
         if (window.location.hash && window.location.hash.startsWith('#/')) {
             const cleanPath = window.location.hash.replace(/^#/, '');
+            if (!cleanPath || cleanPath === '/' || cleanPath === '/index.html') {
+                try {
+                    window.history.replaceState(null, '', '/welcome');
+                    sessionStorage.setItem('quizcard_last_path', '/welcome');
+                } catch { }
+                return '/welcome';
+            }
             try {
                 window.history.replaceState(null, '', cleanPath);
             } catch { }
             return cleanPath;
         }
 
-        // Lấy pathname hiện tại nếu không phải trang gốc '/'
         const pathname = window.location.pathname;
-        if (pathname && pathname !== '/' && pathname !== '/index.html') {
-            return pathname;
+        // Khi người dùng nhập địa chỉ localhost mặc định (/, /index.html hoặc trống) -> luôn chuyển tới '/landing'
+        if (!pathname || pathname === '/' || pathname === '/index.html') {
+            try {
+                window.history.replaceState(null, '', '/welcome');
+                sessionStorage.setItem('quizcard_last_path', '/welcome');
+            } catch { }
+            return '/welcome';
         }
+
+        // Nếu truy cập đường dẫn cụ thể khác (ví dụ: '/video', '/resources', '/welcome')
+        return pathname;
     }
 
-    try {
-        const saved = sessionStorage.getItem('quizcard_last_path') || sessionStorage.getItem('quizcard_last_hash');
-        if (saved && saved !== '/' && saved !== '#' && saved !== '#/') {
-            return saved.replace(/^#/, '');
-        }
-    } catch { }
-
-    return '/community';
+    return '/welcome';
 };
 
 // Giữ lại alias getInitialHash để tương thích ngược

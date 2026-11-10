@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AppWindow, SlidersHorizontal, Download, Plus, LogOut, ChevronRight, Check, LogIn, Copy } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { getAvatarInitials, getAvatarGradient } from '../utils/avatar';
 
 export const UserMenu = ({
   isOpen,
@@ -16,7 +17,13 @@ export const UserMenu = ({
   const menuRef = useRef(null);
   const { themeMode, setThemeMode } = useTheme();
   const [isThemeSubmenuOpen, setIsThemeSubmenuOpen] = useState(false);
+  const [failedAvatarSrc, setFailedAvatarSrc] = useState(null);
   const hoverTimeoutRef = useRef(null);
+
+  const cleanAvatarUrl = typeof avatarUrl === 'string' ? avatarUrl.trim() : '';
+  const showAvatarImage = Boolean(cleanAvatarUrl && failedAvatarSrc !== cleanAvatarUrl);
+  const avatarInitials = getAvatarInitials(userName || 'Guest', userEmail, 2);
+  const avatarGradient = getAvatarGradient(userId || userEmail || userName);
 
   const handleMouseEnter = () => {
     if (hoverTimeoutRef.current) {
@@ -94,14 +101,21 @@ export const UserMenu = ({
         style={{ cursor: !isLoggedIn ? 'pointer' : 'default' }}
         title={!isLoggedIn ? 'Bấm để đăng nhập' : userName}
       >
-        <div className="qc-user-menu-avatar-large">
-          <img
-            src={avatarUrl}
-            alt={userName}
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-            }}
-          />
+        <div
+          className="qc-user-menu-avatar-large"
+          style={{
+            background: showAvatarImage ? 'transparent' : avatarGradient,
+          }}
+        >
+          {showAvatarImage ? (
+            <img
+              src={cleanAvatarUrl}
+              alt={userName || 'Avatar'}
+              onError={() => setFailedAvatarSrc(cleanAvatarUrl)}
+            />
+          ) : (
+            <span>{avatarInitials}</span>
+          )}
         </div>
         <div className="qc-user-menu-name" title={userName}>
           {userName}
@@ -109,20 +123,6 @@ export const UserMenu = ({
         <div className="qc-user-menu-email">
           {isLoggedIn && userEmail ? userEmail : (isLoggedIn ? userName : 'Chưa đăng nhập')}
         </div>
-        {isLoggedIn && userId && (
-          <div
-            className="qc-user-menu-id-badge"
-            title={`ID Người dùng: ${userId} (Bấm để sao chép)`}
-            onClick={(e) => {
-              e.stopPropagation();
-              navigator.clipboard?.writeText(String(userId));
-              alert(`Đã sao chép ID tài khoản:\n${userId}`);
-            }}
-          >
-            <span>ID: {String(userId).slice(0, 8)}...{String(userId).slice(-4)}</span>
-            <Copy size={11} className="qc-copy-id-icon" />
-          </div>
-        )}
       </div>
 
       <div className="qc-user-menu-divider" />
@@ -237,8 +237,21 @@ export const UserMenu = ({
                 onClose();
               }}
             >
-              <div className="qc-user-menu-avatar-small">
-                <img src={avatarUrl} alt={userName} />
+              <div
+                className="qc-user-menu-avatar-small"
+                style={{
+                  background: showAvatarImage ? 'transparent' : avatarGradient,
+                }}
+              >
+                {showAvatarImage ? (
+                  <img
+                    src={cleanAvatarUrl}
+                    alt={userName || 'Avatar'}
+                    onError={() => setFailedAvatarSrc(cleanAvatarUrl)}
+                  />
+                ) : (
+                  <span>{avatarInitials}</span>
+                )}
               </div>
               <div className="qc-user-menu-community-col">
                 <span className="qc-user-menu-community-title">Create a community profile</span>

@@ -8,9 +8,6 @@ import {
   Heart,
   Tag,
   BookOpen,
-  Sparkles,
-  Shuffle,
-  Users,
   Compass,
   Bookmark,
   BookmarkCheck,
@@ -52,13 +49,6 @@ export const CommunityView = ({
 }) => {
   // Tag chủ đề đang chọn (Lọc danh sách, không dùng tìm kiếm)
   const [selectedTag, setSelectedTag] = useState('ALL');
-
-  // Seed điều khiển xáo trộn ngẫu nhiên
-  const [shuffleSeed, setShuffleSeed] = useState(0);
-
-  const handleReshuffle = () => {
-    setShuffleSeed((prev) => prev + 1);
-  };
 
   // Trạng thái yêu thích (likes)
   const [likedDecks, setLikedDecks] = useState({});
@@ -156,7 +146,7 @@ export const CommunityView = ({
   // 2. Tự động sắp xếp ngẫu nhiên danh sách bộ thẻ bằng thuật toán Fisher-Yates
   const displayedDecks = useMemo(() => {
     return shuffleArray(filteredDecks);
-  }, [filteredDecks, shuffleSeed]);
+  }, [filteredDecks]);
 
   // Xử lý bật/tắt yêu thích (like) và ghi nhận vào Recents khi thích
   const handleToggleLike = (deck, initialCount, e) => {

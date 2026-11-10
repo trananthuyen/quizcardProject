@@ -3,7 +3,6 @@ import {
   Trash2,
   RotateCcw,
   Eye,
-  AlertTriangle,
   Clock,
   BookOpen,
   Folder,
